@@ -1,0 +1,15 @@
+{
+  "name": "subh-sneha-invitation",
+  "private": true,
+  "description": "Static wedding invitation. No runtime dependencies; these scripts are dev tools only.",
+  "scripts": {
+    "serve": "python -m http.server 5500 --bind 127.0.0.1",
+    "test": "node tools/test_backend.js",
+    "smoke": "node tools/smoke.js",
+    "smoke:reduced": "node tools/smoke.js --reduced-motion",
+    "translations": "node tools/export_translations.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}

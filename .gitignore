@@ -1,0 +1,7 @@
+node_modules/
+.smoke/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+translations-review.csv
