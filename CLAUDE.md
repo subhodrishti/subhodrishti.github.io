@@ -36,7 +36,7 @@ Guests are family and friends aged 8 to 85, mostly on a phone, opening a link so
 | `js/curtain.js` `petals.js` `countdown.js` `gallery.js` `events.js` `polls.js` `rsvp.js` `confetti.js` | One file per feature, each exposing `init()` and `render()` on `window.Invite` |
 | `js/main.js` | Boot order, language switch, hero outfit buttons. On `invite:lang` it calls every `render()` |
 | `backend/google-apps-script.gs` | RSVP rows and poll votes (one per browser per question), tallies via `?type=tallies` |
-| `assets/avatars/*.webp` | The four ceremony looks, cut out by `tools/cutout_avatars.py` from `references/wedding-couple*.png`: same size and floor line, **each centred on its own couple**. (`subh_sneha*.png` are earlier everyday renders, kept as source art, not shown) |
+| `assets/avatars/*.webp` | The four ceremony looks, cut out by `tools/cutout_avatars.py` (rembg/BiRefNet, dev only) from the illustrated `references/{sangeet,haldi,wedding,Reception}.png`: evened to one scale, same floor line, **each centred on its own couple**, with a soft gold rim glow baked in. (`wedding-couple*.png` and `subh_sneha*.png` are earlier 3D renders, kept as source art, not shown) |
 | `assets/audio/` | `shankh.mp3`, `shehnai.mp3` (CC BY, credited in the footer). `CREDITS.md` has sources and how to add a family-recorded `ulu.mp3` |
 | `assets/photos/` | Real photos, added only through `tools/add_photo.py` (strips GPS and camera metadata) |
 | `assets/decor/` | Painted decorations (marigold toran and thread, shola chandmala, terracotta arch, torn paper, alpana corners), made by `tools/prepare_decorations.py`. Where each goes: `invite-design-system` → Decorations |

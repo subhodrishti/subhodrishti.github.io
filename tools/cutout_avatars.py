@@ -1,197 +1,230 @@
-"""Cut the couple's 3D avatars out of their blue studio backdrops.
+"""Cut the couple out of the family's themed renders, one look per ceremony.
 
-The reference renders sit on a smooth blue gradient. We fit that gradient
-with a quadratic surface per channel (sampled from the empty side margins),
-mark everything that is close to the fit AND connected to the image border
-as background, then feather the edge so hair and dupatta keep soft outlines.
+The renders (848x1258, illustrated) sit on near-black backgrounds; Sangeet
+adds curtains, fairy lights and a stage mat, and three of them stand on an
+alpana floor mat. An ML matting model (rembg, BiRefNet) finds the couple,
+then we keep the largest blob, add back the Haldi stool the model drops,
+soften the edges where a hem runs off the render, and re-estimate edge
+colours so hair and veils carry no black fringe. Gemini's sparkle watermark
+is un-blended first, so the zari underneath shows again.
+
+Each look gets a soft gold rim glow baked in, so the navy suit and emerald
+lehenga stay readable on the navy hero and the emerald events band. Its
+alpha stays below the 140 that js/transitions.js samples, so the pixel swirl
+only ever carries the couple.
+
 Output is a transparent WebP per look, all the same size and on the same
-floor line, each centred on its own couple (pallu included), so every look
-sits in the middle of the page's arch at the same scale.
+floor line, each centred on its own couple, so every look sits in the middle
+of the page's arch at the same scale.
+
+Setup (dev only, not used by the site):  pip install "rembg[cpu]"
+The first run downloads the BiRefNet model (~1 GB) to ~/.rembg; masks are
+cached in tools/.cache/ so re-tuning is quick.
 
 Usage:  python tools/cutout_avatars.py
-Reads:  references/wedding-couple*.png
+Reads:  references/{sangeet,haldi,wedding,Reception}.png
 Writes: assets/avatars/<look>.webp, js/avatar-frame.js, assets/og-image.jpg
 """
+import os
+import tempfile
 from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageFilter
 from scipy import ndimage
 
+# rembg and pymatting JIT-compile with numba, whose cache must live on a short,
+# writable path (the default one in site-packages fails on Windows Store Python).
+os.environ.setdefault("NUMBA_CACHE_DIR", str(Path(tempfile.gettempdir()) / "nbc"))
+
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "references"
 OUT = ROOT / "assets" / "avatars"
+CACHE = Path(__file__).resolve().parent / ".cache"
 
-# One look per ceremony. (The everyday renders, subh_sneha*.png, stay in
-# references/ as source art but are no longer shown on the page.)
+MODEL = "birefnet-general"
+
+# One look per ceremony. `scale` evens out how large each render draws the
+# couple (by head size and shoulder-to-feet height, against Biye), so they
+# don't grow or shrink as the outfit changes. `sparkle` is the centre of
+# Gemini's watermark when it sits on the couple (on the floor it goes with the
+# background anyway). `stool` is the box where Haldi's wooden stool stands;
+# the model treats it as background, so it is keyed back in from the black.
 LOOKS = {
-    "wedding-couple2.png": "sangeet",
-    "wedding-couple1.png": "haldi",
-    "wedding-couple.png": "biye",
-    "wedding-couple3.png": "reception",
+    "sangeet": {"src": "sangeet.png", "scale": 1.22},
+    "haldi": {"src": "haldi.png", "scale": 0.88, "stool": (60, 840, 790, 1110)},
+    "biye": {"src": "wedding.png", "scale": 1.0, "sparkle": (722, 1140)},
+    "reception": {"src": "Reception.png", "scale": 1.0, "sparkle": (726, 1142)},
 }
 
-# The couple (hems and pallus included) always stands within this x-range of
-# the 1376px-wide renders; the Haldi saree trails out to about x=980.
-COUPLE_X = (455, 1000)
-# Rows above this hold heads and torsos only, so their extent is the couple's
-# "core" width: what the page sizes the frame by. Hems below may overflow it.
-CORE_ROWS = 520
-# The image generator's four-point sparkle mark, bottom right.
-SPARKLE_BOX = lambda xs, ys: (xs > 1200) & (xs < 1310) & (ys > 590) & (ys < 710)  # noqa: E731
-# Holes smaller than this (px) are specks inside a figure and get filled;
-# larger ones, like the gap between the legs, are real background.
-MAX_HOLE = 350
-# Mean colour distance from the backdrop below which an enclosed hole is a
-# pocket of backdrop (see between an arm and the body), not a speck in fabric.
-POCKET_DIST = 55
-# Below this row only feet, shoes and hems remain; the studio floor there is
-# strongly cyan (green and blue far above red), which jeans and shoes are not.
-FLOOR_Y = 600
-# Pockets of backdrop (between legs, under an arm, between shoulders) are
-# caught with a strict sky-cyan test. None of the ceremony outfits is that
-# colour; raise this row (e.g. to 440, knee height) for a render with blue
-# clothing, since a blue kurta sits close to the threshold (g-r ~56).
-LEGS_Y = 0
-
-# How far in from the backdrop a rim glow may reach, and how much lighter than
-# the fitted backdrop a cyan pixel must be to count as glow.
-GLOW_PX = 9
-GLOW_LIFT = 8
-
-# Width of the edge band whose colour is replaced to remove backdrop spill.
-EDGE_PX = 5
-
-# Colour distance (0-441) below which a border-connected pixel is background,
-# and the band over which the edge fades from transparent to opaque.
-BG_THRESHOLD = 30
-FEATHER_LO, FEATHER_HI = 18, 46
+# The page sizes the frame by the hero look's "core": its widest row in the
+# top CORE_FRAC of its height (heads, shoulders, arms). Other poses, Sangeet's
+# raised arms and every hem, may overflow it, so all looks share one scale.
+CORE_LOOK = "biye"
+CORE_FRAC = 0.55
+# Output scale: the core comes out this many px wide (the page shows the
+# couple at most ~300 CSS px wide, so this covers a 1.5x screen).
+CORE_PX = 440
+# Transparent margin added around every render, so the edge fade and the glow
+# never run into the render's edge.
+MARGIN = 48
+# Where a hem runs off the render (Haldi's saree, the Biye veil), fade it out
+# over this many px instead of ending on a hard straight cut.
+EDGE_FADE = 28
+# Black-key ramp for the stool: max channel at/below LO is background, at/above HI solid.
+STOOL_LO, STOOL_HI = 14, 42
+# The rim glow: width (Gaussian sigma, output px) and peak opacity.
+GLOW_SIGMA = 4
+GLOW_ALPHA = 0.38
+GOLD = np.array([212, 175, 55], dtype=np.float64)  # --gold
+NAVY = (27, 59, 95)  # --navy
+NAVY_DEEP = (15, 36, 64)  # --navy-deep
 
 
-def fit_background(rgb: np.ndarray) -> np.ndarray:
-    """Least-squares quadratic surface per channel from the empty margins."""
-    h, w, _ = rgb.shape
-    ys, xs = np.mgrid[0:h, 0:w]
-    # Everything outside the column the couple stands in, floor included.
-    margin = (xs < COUPLE_X[0]) | (xs > COUPLE_X[1])
-    margin &= ~SPARKLE_BOX(xs, ys)
-    sample = margin & ((xs + ys) % 5 == 0)
-    xn, yn = xs / w, ys / h
-    basis = np.stack(
-        [np.ones_like(xn), xn, yn, xn * yn, xn**2, yn**2, xn**2 * yn, xn * yn**2, xn**3, yn**3],
-        axis=-1,
-    )
-    a = basis[sample]
-    model = np.empty_like(rgb, dtype=np.float64)
-    for c in range(3):
-        coef, *_ = np.linalg.lstsq(a, rgb[..., c][sample], rcond=None)
-        model[..., c] = basis @ coef
-    return model
+def _smooth_fill(v: np.ndarray, known: np.ndarray, sigma=6) -> np.ndarray:
+    """Normalised convolution: estimate unknown pixels from known neighbours."""
+    num = ndimage.gaussian_filter(v * known, sigma)
+    den = ndimage.gaussian_filter(known.astype(np.float64), sigma)
+    return num / np.maximum(den, 1e-6)
 
 
-def cutout(path: Path) -> Image.Image:
-    rgb = np.asarray(Image.open(path).convert("RGB"), dtype=np.float64)
-    model = fit_background(rgb)
-    dist = np.linalg.norm(rgb - model, axis=-1)
+def unsparkle(rgb: np.ndarray, cx: int, cy: int, r=40) -> None:
+    """Un-blend the semi-transparent white sparkle watermark in place.
 
-    near_bg = dist < BG_THRESHOLD
-    labels, _ = ndimage.label(near_bg)
-    border = np.unique(np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]]))
-    background = np.isin(labels, border[border > 0])
-    h, w = dist.shape
-    ys, xs = np.mgrid[0:h, 0:w]
-    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
-    floor = (ys > FLOOR_Y) & (g - r > 60) & (b - r > 70)
-    floor |= (ys > LEGS_Y) & (g - r > 75) & (b - r > 90)
-    background |= floor
-    # Rim glow: some renders outline the couple with a bright cyan halo. Near
-    # the backdrop, a pixel that is cyan AND lighter than the fitted backdrop is
-    # glow, not clothing (blue fabric, like the kurta, is darker than it).
-    band = ndimage.binary_dilation(background, iterations=GLOW_PX) & ~background
-    lighter = rgb.mean(axis=-1) > model.mean(axis=-1) + GLOW_LIFT
-    background |= band & lighter & (b - r > 40) & (g - r > 25)
-    # Nothing outside the couple's column is ever foreground.
-    background |= (xs < COUPLE_X[0] - 20) | (xs > COUPLE_X[1] + 20)
+    The star is found by its low saturation, the fabric under it estimated from
+    the ring around it, and each pixel's overlay strength from how far its
+    darkest channel rises above that estimate; reversing the blend brings the
+    woven pattern back, clamped near the estimate so no speck pops out.
+    """
+    y0, x0 = cy - r, cx - r
+    p = rgb[y0:cy + r, x0:cx + r]
+    mx, mn = p.max(-1), p.min(-1)
+    sat = (mx - mn) / np.maximum(mx, 1)
+    yy, xx = np.mgrid[-r:r, -r:r]
+    star = (np.hypot(yy, xx) < 30) & (sat < 0.42) & (mn > 95)
+    labels, n = ndimage.label(star)
+    if not n:
+        return
+    sizes = ndimage.sum(star, labels, range(1, n + 1))
+    star = labels == 1 + int(np.argmax(sizes))
+    star = ndimage.binary_fill_holes(ndimage.binary_closing(star, iterations=3))
+    soft = ndimage.binary_dilation(star, iterations=3)
+    est = np.stack([_smooth_fill(p[..., c], ~soft) for c in range(3)], -1)
+    base_mn = est.min(-1)
+    a = np.clip((mn - base_mn) / np.maximum(255 - base_mn, 1), 0, 0.8)
+    a = ndimage.gaussian_filter(a * soft, 0.7)[..., None]
+    rec = np.clip((p - a * 255) / (1 - a), est - 55, est + 55)
+    rgb[y0:cy + r, x0:cx + r] = np.where(soft[..., None], rec, p)
 
-    foreground = ~background
-    holes, n = ndimage.label(~foreground & ndimage.binary_fill_holes(foreground))
-    idx = range(1, n + 1)
-    sizes = ndimage.sum(np.ones_like(dist), holes, idx)
-    # A small hole is filled only if it doesn't look like backdrop: a pocket of
-    # sky between an arm and the body keeps its transparency.
-    hole_dist = ndimage.mean(dist, holes, idx)
-    fill = np.flatnonzero((np.asarray(sizes) < MAX_HOLE) & (np.asarray(hole_dist) > POCKET_DIST))
-    foreground |= np.isin(holes, 1 + fill)
-    foreground = ndimage.binary_opening(foreground, iterations=1)
-    # Keep only the largest blob: the couple.
-    blobs, n = ndimage.label(foreground)
+
+def model_mask(name: str, im: Image.Image) -> np.ndarray:
+    """The matting model's alpha (0-1), cached per source file and model."""
+    CACHE.mkdir(exist_ok=True)
+    src = SRC / name
+    cached = CACHE / f"{src.stem}.{MODEL}.png"
+    if not cached.exists() or cached.stat().st_mtime < src.stat().st_mtime:
+        from rembg import new_session, remove
+
+        remove(im, session=new_session(MODEL), only_mask=True).save(cached)
+    return np.asarray(Image.open(cached).convert("L"), dtype=np.float64) / 255
+
+
+def cutout(look: str, spec: dict) -> Image.Image:
+    im = Image.open(SRC / spec["src"]).convert("RGB")
+    alpha = model_mask(spec["src"], im)
+    rgb = np.asarray(im, dtype=np.float64).copy()
+    if "sparkle" in spec:
+        unsparkle(rgb, *spec["sparkle"])
+    h, w = alpha.shape
+
+    if "stool" in spec:
+        x0, y0, x1, y1 = spec["stool"]
+        key = np.clip((rgb.max(-1) - STOOL_LO) / (STOOL_HI - STOOL_LO), 0, 1)
+        box = np.zeros_like(alpha, dtype=bool)
+        box[y0:y1, x0:x1] = True
+        alpha = np.where(box, np.maximum(alpha, key), alpha)
+
+    # Keep only the couple: the largest solid blob, plus the soft edge around it.
+    solid = alpha > 0.5
+    labels, n = ndimage.label(solid)
     if n > 1:
-        sizes = ndimage.sum(foreground, blobs, range(1, n + 1))
-        foreground = blobs == 1 + int(np.argmax(sizes))
+        sizes = ndimage.sum(solid, labels, range(1, n + 1))
+        solid = labels == 1 + int(np.argmax(sizes))
+    near = ndimage.binary_dilation(solid, iterations=4)
+    alpha = np.where(near, alpha, 0.0)
+    alpha[alpha < 0.03] = 0
 
-    # Soft edge: inside a thin ring around the silhouette, alpha follows distance.
-    ring = ndimage.binary_dilation(foreground, iterations=2) & ~ndimage.binary_erosion(foreground, iterations=2)
-    soft = np.clip((dist - FEATHER_LO) / (FEATHER_HI - FEATHER_LO), 0, 1)
-    alpha = np.where(foreground, 1.0, 0.0)
-    alpha = np.where(ring, np.maximum(soft, alpha * soft), alpha)
-    alpha = np.where(floor, 0.0, alpha)
+    # Hems that run off the render fade out rather than ending on a straight cut.
+    ramp = lambda d: np.clip(d / EDGE_FADE, 0, 1)  # noqa: E731
+    xs, ys = np.arange(w)[None, :], np.arange(h)[:, None]
+    alpha = alpha * ramp(xs) * ramp(w - 1 - xs) * ramp(h - 1 - ys)
 
-    # Colour decontamination: the outermost few pixels carry blue backdrop spill
-    # (a cyan halo on navy). Give them the colour of the nearest pixel safely
-    # inside the silhouette; alpha stays soft.
-    interior = ndimage.binary_erosion(foreground, iterations=EDGE_PX)
-    _, (iy, ix) = ndimage.distance_transform_edt(~interior, return_indices=True)
-    edge = ~interior & (alpha > 0)
-    rgb = np.where(edge[..., None], rgb[iy, ix], rgb)
+    # Edge colours: re-estimate the foreground where alpha is partial, so hair
+    # and veil edges don't carry the black backdrop.
+    from pymatting import estimate_foreground_ml
+
+    fg = estimate_foreground_ml(rgb / 255, alpha) * 255
+    rgb = np.where(((alpha > 0) & (alpha < 0.98))[..., None], fg, rgb)
 
     rgba = np.dstack([rgb, alpha * 255]).clip(0, 255).astype(np.uint8)
-    im = Image.fromarray(rgba, "RGBA")
-    a = im.getchannel("A").filter(ImageFilter.GaussianBlur(0.6))
-    im.putalpha(a)
-    return im  # full frame; main() crops every look with the same box
+    canvas = Image.new("RGBA", (w + 2 * MARGIN, h + 2 * MARGIN))
+    canvas.paste(Image.fromarray(rgba, "RGBA"), (MARGIN, MARGIN))
+    return canvas
 
 
-def og_image() -> None:
-    """1200x630 link-preview card from the Biye look, sparkle mark painted out."""
-    im = Image.open(SRC / "wedding-couple.png").convert("RGB")
-    # Paint out the sparkle by blending each column from just above it to just
-    # below it; the backdrop is a smooth gradient, so the fill is invisible.
-    px = np.asarray(im, dtype=np.float64).copy()
-    y0, y1 = 590, 715
-    t = np.linspace(0, 1, y1 - y0)[:, None, None]
-    px[y0:y1, 1195:1320] = (1 - t) * px[y0 - 1, 1195:1320][None] + t * px[y1, 1195:1320][None]
-    im = Image.fromarray(px.clip(0, 255).astype(np.uint8))
-    im = im.crop((0, 12, 1376, 732)).resize((1200, 628), Image.LANCZOS)
-    im.save(ROOT / "assets" / "og-image.jpg", quality=86, optimize=True)
+def with_glow(im: Image.Image) -> Image.Image:
+    """Composite a soft gold glow under the couple (outside the silhouette)."""
+    px = np.asarray(im, dtype=np.float64)
+    a = px[..., 3] / 255
+    body = ndimage.binary_dilation(a > 0.5, iterations=2).astype(np.float64)
+    g = np.clip(ndimage.gaussian_filter(body, GLOW_SIGMA) * 1.6, 0, 1) * GLOW_ALPHA
+    out_a = a + g * (1 - a)
+    rgb = (px[..., :3] * a[..., None] + GOLD * (g * (1 - a))[..., None]) / np.maximum(out_a, 1e-6)[..., None]
+    return Image.fromarray(np.dstack([rgb, out_a * 255]).clip(0, 255).astype(np.uint8), "RGBA")
 
 
-def frame_boxes(images, pad=6):
-    """A crop box per look: same size and same top/bottom for all, each
-    centred horizontally on that look's own couple, pallu and hems included.
-
-    Returns (boxes, core_width). The page lays the frame out by the widest
-    upper-body "core", so every look renders at one scale and wide hems may
-    overflow the arch rather than shrinking the couple.
-    """
-    bbs = [im.getbbox() for im in images]
-    cores = [im.crop((0, 0, im.width, CORE_ROWS)).getbbox() for im in images]
-    w, h = images[0].size
-    width = max(bb[2] - bb[0] for bb in bbs) + 2 * pad
-    top = max(0, min(bb[1] for bb in bbs) - pad)
-    bottom = min(h, max(bb[3] for bb in bbs) + pad)
-    boxes = []
-    for bb in bbs:
-        left = round((bb[0] + bb[2]) / 2 - width / 2)
-        left = max(0, min(w - width, left))
-        boxes.append((left, top, left + width, bottom))
-    core_w = max(c[2] - c[0] for c in cores) + 2 * pad
-    return boxes, core_w
+def og_image(biye: Image.Image) -> None:
+    """1200x628 link-preview card: the Biye couple on navy, a gold glow at their feet."""
+    w, h = 1200, 628
+    yy, xx = np.mgrid[0:h, 0:w]
+    t = (yy / h)[..., None]
+    bg = np.array(NAVY_DEEP) * (1 - t) + np.array(NAVY) * t
+    # Mixing gold into navy turns olive; adding a warm amber light stays warm.
+    glow = np.exp(-(((xx - w / 2) / 300) ** 2 + ((yy - h * 0.97) / 70) ** 2))
+    bg = bg + np.array([150, 95, 20]) * glow[..., None]
+    card = Image.fromarray(bg.clip(0, 255).astype(np.uint8)).convert("RGBA")
+    fig = biye.crop(biye.getbbox())
+    scale = (h - 40) / fig.height
+    fig = fig.resize((round(fig.width * scale), round(fig.height * scale)), Image.LANCZOS)
+    card.alpha_composite(fig, ((w - fig.width) // 2, h - fig.height - 8))
+    card.convert("RGB").save(ROOT / "assets" / "og-image.jpg", quality=86, optimize=True)
 
 
-def write_frame_js(box, core_w) -> None:  # box: any one of the (equal-sized) boxes
+def core_width(im: Image.Image) -> int:
+    """Widest extent of the couple in the top CORE_FRAC of its own height."""
+    x0, y0, x1, y1 = im.getbbox()
+    cx0, _, cx1, _ = im.crop((0, y0, im.width, y0 + round((y1 - y0) * CORE_FRAC))).getbbox()
+    return cx1 - cx0
+
+
+def layout(images: dict, pad=6):
+    """Put every look on one canvas size: each centred horizontally on its own
+    couple (pallu and hems included) and standing on the same floor line, so
+    the outfit changes in place."""
+    figs = {k: im.crop(im.getbbox()) for k, im in images.items()}
+    w = max(f.width for f in figs.values()) + 2 * pad
+    h = max(f.height for f in figs.values()) + 2 * pad
+    out = {}
+    for k, f in figs.items():
+        canvas = Image.new("RGBA", (w, h))
+        canvas.paste(f, ((w - f.width) // 2, h - pad - f.height))
+        out[k] = canvas
+    return out
+
+
+def write_frame_js(w, h, core_w) -> None:
     """Frame sizes for js/wardrobe.js: the page lays the frame out by the core
     width and lets wide hems overflow, so every look renders at the same scale."""
-    w, h = box[2] - box[0], box[3] - box[1]
     (ROOT / "js" / "avatar-frame.js").write_text(
         "// Generated by tools/cutout_avatars.py. Do not edit by hand.\n"
         f"window.INVITE_AVATAR_FRAME = {{ width: {w}, height: {h}, coreWidth: {core_w} }};\n",
@@ -201,16 +234,24 @@ def write_frame_js(box, core_w) -> None:  # box: any one of the (equal-sized) bo
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    cut = {look: cutout(SRC / name) for name, look in LOOKS.items()}
-    boxes, core_w = frame_boxes(list(cut.values()))
-    print(f"frame {boxes[0][2] - boxes[0][0]}x{boxes[0][3] - boxes[0][1]}, core width {core_w}")
-    write_frame_js(boxes[0], core_w)
-    for (look, im), box in zip(cut.items(), boxes):
-        im = im.crop(box)
+    cut = {look: cutout(look, spec) for look, spec in LOOKS.items()}
+    # One factor brings the hero look's core to CORE_PX; each look's own
+    # `scale` then evens out how large its render draws the couple.
+    k = CORE_PX / core_width(cut[CORE_LOOK])
+    sized = {}
+    for look, im in cut.items():
+        f = k * LOOKS[look]["scale"]
+        sized[look] = with_glow(im.resize((round(im.width * f), round(im.height * f)), Image.LANCZOS))
+    framed = layout(sized)
+    any_im = next(iter(framed.values()))
+    core_w = core_width(framed[CORE_LOOK]) + 12
+    print(f"frame {any_im.width}x{any_im.height}, core width {core_w}")
+    write_frame_js(any_im.width, any_im.height, core_w)
+    for look, im in framed.items():
         dest = OUT / f"{look}.webp"
         im.save(dest, "WEBP", quality=86, method=6)
         print(f"{dest.relative_to(ROOT)}  {im.size[0]}x{im.size[1]}  {dest.stat().st_size // 1024} KB")
-    og_image()
+    og_image(with_glow(cut["biye"]))  # full resolution for the card
     print("assets/og-image.jpg")
 
 

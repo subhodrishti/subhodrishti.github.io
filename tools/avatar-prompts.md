@@ -3,6 +3,9 @@
 Prompts for re-rendering the couple's 3D avatars, one look per event, written for Gemini image
 editing (the tool that made `references/subh_sneha*.png`). They also work in ChatGPT image editing.
 
+> The site now shows the family's own illustrated renders (`references/{sangeet,haldi,wedding,Reception}.png`).
+> These prompts made the earlier 3D set (`wedding-couple*.png`); keep them for any future re-render.
+
 The outfits are **suggestions for the family to confirm**, like every `events[].look`. If Sneha or
 Subh already know what they'll wear, swap the colours and fabrics in the outfit block and keep
 everything else.
@@ -11,8 +14,8 @@ everything else.
 
 | Constraint | Reason |
 |---|---|
-| Same pose, same camera, same place in frame for all four | The page swaps outfits in place with one shared crop box (`tools/cutout_avatars.py`). If the couple moves between renders, they jump on screen. |
-| Keep the smooth blue studio backdrop | The cut-out script fits and removes that exact gradient. |
+| Same pose, same camera, same place in frame for all four | The page swaps outfits in place on one floor line (`tools/cutout_avatars.py`). The tool evens out scale per look (`LOOKS[].scale`), but the closer the renders match, the less the couple shifts. |
+| A plain backdrop | The cut-out uses an ML matting model, so any background works, but plain is cleanest around hair. |
 | No sky-blue, turquoise or cyan in the clothes | Those get keyed out with the backdrop and leave holes. |
 | No navy, and no emerald or dark teal as the main garment colour | The avatars sit on navy (hero, gallery cards) and over the emerald events band. The old "Festive" look (navy suit and emerald anarkali) disappeared against both. Emerald trim is fine. |
 | Veils and dupattas semi-opaque | A sheer fabric lets the blue show through, so it turns blue on the page or gets cut away. |
@@ -26,7 +29,7 @@ everything else.
    render. Use the Biye render for scale and position, and the original for the faces.
 3. Put the four PNGs into `references/`, overlaid on the Biye render, and check that heads, hands and feet
    line up. Regenerate any that drift.
-4. Ask Claude to re-tune `tools/cutout_avatars.py` (file map, `COUPLE_X`, `FLOOR_Y`, `LEGS_Y`),
+4. Ask Claude to re-tune `tools/cutout_avatars.py` (the `LOOKS` map: file, `scale`, `sparkle`),
    update the look ids and captions in `js/config.js` in both languages, and re-run the cut-out.
 
 ---

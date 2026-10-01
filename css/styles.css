@@ -554,7 +554,7 @@ p { margin: 0; }
 .drishti { display: none; }
 .is-drishti .wardrobe[data-look="biye"] .drishti {
   display: block; position: absolute; z-index: 4; pointer-events: none;
-  left: 68%; top: 31.5%; width: 32%; aspect-ratio: 32 / 24;
+  left: 61.3%; top: 25%; width: 30%; aspect-ratio: 32 / 24;
   transform: translate(-50%, -50%);
 }
 .drishti__leaf {

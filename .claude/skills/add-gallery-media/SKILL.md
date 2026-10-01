@@ -24,20 +24,19 @@ argument-hint: [path(s) to the image files]
 4. Order the photos oldest to newest, unless the user asks otherwise.
 5. Check: open the page, go to the gallery, and confirm the "on their way" note is gone and the lightbox opens.
 
-## A 3D avatar look for a ceremony
+## An avatar look for a ceremony
 
 The avatars appear only in the hero (outfit buttons) and beside the events. There is no avatar gallery.
 
-1. Put the render in `references/`. The cut-out expects the same generator style as the existing ones:
-   the couple centred on a smooth blue studio gradient, 1376×768. It handles the generator's cyan rim glow
-   (`GLOW_PX`, `GLOW_LIFT`), sky pockets under arms and between shoulders, and wide hems up to x≈1000
-   (`COUPLE_X`).
-2. Add it to `LOOKS` in `tools/cutout_avatars.py` and run `python tools/cutout_avatars.py`. All looks are
-   re-cut together at one size and floor line, each centred on its own couple (check the printed gaps:
-   left and right should match).
-3. **Check the cut-out.** Composite it on navy and emerald and Read the image. Look at the hair edges, under
-   the arms, the feet and any sheer fabric. If the outfit is itself sky-blue or cyan, raise `LEGS_Y` (the
-   strict cyan test) to knee height, 440, or it will eat the clothing.
+1. Put the render in `references/`. The existing looks are illustrated, 848×1258 portrait, on dark
+   backgrounds; the cut-out uses an ML matting model (`pip install "rembg[cpu]"`, BiRefNet, ~1 GB on first
+   run, masks cached in `tools/.cache/`), so busy backgrounds, curtains and floor mats are fine.
+2. Add it to `LOOKS` in `tools/cutout_avatars.py` and run `python tools/cutout_avatars.py`. Set its `scale`
+   so the couple's heads match Biye's, `sparkle` if Gemini's watermark sits on the couple, and a `stool`-style
+   box for any prop the model drops but the look needs. All looks are re-cut together on one floor line,
+   each centred on its own couple.
+3. **Check the cut-out.** Composite it on navy and emerald and Read the image, alongside the other looks.
+   Look at the hair edges, under the arms, the feet, any sheer fabric, and that faces are the same size.
 4. Add an entry to `js/config.js → avatars` with `title` (1–2 words), `outfit` (≤ 6 words, describing only
    what is visibly worn), both `{ en, bn }`, and a four-colour `palette` from the outfit or the ceremony,
    which tints the pixel transition. Add its id to `heroLooks` for a hero button, and set the event's

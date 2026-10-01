@@ -1,6 +1,6 @@
 /* Cache the shell and local art after the first successful visit. Network
    requests (maps, fonts, livestreams) are left alone, avoiding stale data. */
-const CACHE = "subh-sneha-invite-v3";
+const CACHE = "subh-sneha-invite-v4";
 const LOCAL = [
   "./", "index.html", "css/styles.css", "js/config.js", "js/strings.js", "js/util.js", "js/main.js",
   "js/petals.js", "js/confetti.js", "js/audio.js", "js/ambient.js", "js/avatar-frame.js", "js/transitions.js",

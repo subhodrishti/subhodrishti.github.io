@@ -73,23 +73,23 @@ window.INVITE = {
     },
   ],
 
-  // The couple's 3D avatar look for each ceremony, cut out by
-  // tools/cutout_avatars.py (same size and floor line, each centred).
+  // The couple's look for each ceremony, cut out of the family's illustrated
+  // renders by tools/cutout_avatars.py (same scale and floor line, each centred).
   // Changing looks plays one transition everywhere: the outfit breaks into
   // pixels that swirl around the couple in 3D and re-form as the next look.
   // `palette` colours those pixels mid-flight, one set per ceremony.
   avatars: [
     {
       id: "sangeet", src: "assets/avatars/sangeet.webp", event: "sangeet",
-      palette: ["#e0457b", "#f06ea0", "#ffd1e0", "#d4af37"], // lehenga pink and gold
+      palette: ["#1f7a4a", "#2f5fa8", "#d4af37", "#f3e3b5"], // emerald lehenga, royal-blue kurta, gold
       title: { en: "Sangeet", bn: "সঙ্গীত" },
-      outfit: { en: "Gold Nehru jacket and a pink lehenga", bn: "সোনালি নেহরু জ্যাকেট আর গোলাপি লেহেঙ্গা" },
+      outfit: { en: "Blue kurta and an emerald lehenga", bn: "নীল কুর্তা আর পান্না-সবুজ লেহেঙ্গা" },
     },
     {
       id: "haldi", src: "assets/avatars/haldi.webp", event: "haldi",
       palette: ["#f2a531", "#e8892a", "#f7c948", "#d9531e"], // marigold and turmeric
       title: { en: "Haldi", bn: "গায়ে হলুদ" },
-      outfit: { en: "Marigold garland and a red-bordered saree", bn: "গাঁদার মালা আর লালপাড় হলুদ শাড়ি" },
+      outfit: { en: "Yellow panjabi and a saree with flower jewellery", bn: "হলুদ পাঞ্জাবি আর ফুলের গয়নায় হলুদ শাড়ি" },
     },
     {
       id: "biye", src: "assets/avatars/biye.webp", event: "wedding",
@@ -99,9 +99,9 @@ window.INVITE = {
     },
     {
       id: "reception", src: "assets/avatars/reception.webp", event: "reception",
-      palette: ["#7a1f2b", "#a33a45", "#e8d3a2", "#d4af37"], // maroon, champagne, gold
+      palette: ["#5b1f6e", "#7d3a8f", "#d4af37", "#e8d3a2"], // purple Banarasi, gold zari, champagne
       title: { en: "Reception", bn: "প্রীতিভোজ" },
-      outfit: { en: "Maroon sherwani and a gold silk saree", bn: "মেরুন শেরওয়ানি আর সোনালি সিল্কের শাড়ি" },
+      outfit: { en: "Navy suit and a purple Banarasi", bn: "নেভি স্যুট আর বেগুনি বেনারসি" },
     },
   ],
   // The hero opens on the Biye look; its buttons switch between these.

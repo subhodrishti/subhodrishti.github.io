@@ -42,7 +42,7 @@ window.INVITE_STRINGS = {
     "hero.blessingBody": "মাঙ্গলিক সানাইয়ের সুরে, আমাদের নতুন জীবনের পথচলায় আপনাদের স্নেহে উপস্থিতি কাম্য।",
     "hero.reply": "Reply to the invitation",
     "hero.seeEvents": "See the events",
-    "hero.stageLabel": "{groom} and {bride} as 3D avatars",
+    "hero.stageLabel": "An illustration of {groom} and {bride}",
     "looks.label": "Change their outfit",
 
     "countdown.untilStart": "Wedding Countdown",
@@ -189,7 +189,7 @@ window.INVITE_STRINGS = {
     "hero.blessingBody": "মাঙ্গলিক সানাইয়ের সুরে, আমাদের নতুন জীবনের পথচলায় আপনাদের স্নেহে উপস্থিতি কাম্য।",
     "hero.reply": "আমন্ত্রণের উত্তর দিন",
     "hero.seeEvents": "অনুষ্ঠানসূচি দেখুন",
-    "hero.stageLabel": "থ্রিডি অবতারে {groom} ও {bride}",
+    "hero.stageLabel": "{groom} ও {bride}-এর ছবি",
     "looks.label": "পোশাক বদলে দেখুন",
 
     "countdown.untilStart": "উৎসব শুরু হতে বাকি",

@@ -91,16 +91,17 @@ margins, never over text, and don't move, so reduced motion needs nothing extra.
 
   | Look | Palette |
   |---|---|
-  | Sangeet | lehenga pink, blush, gold |
+  | Sangeet | emerald lehenga, royal-blue kurta, gold |
   | Haldi | marigold, turmeric |
   | Biye | sindoor red, gold, shola white |
-  | Reception | maroon, champagne, gold |
+  | Reception | purple Banarasi, gold zari, champagne |
 
 - The frame is sized by the couple's **core width** (`js/avatar-frame.js`); each layer is the full frame,
   centred, so a long pallu overflows instead of shrinking the couple. `.wardrobe__layer` must keep
   `max-width: none`.
-- Every look is cut out at the same size and floor line, each centred on its own couple. Re-run
-  `tools/cutout_avatars.py` for all looks together.
+- Every look is cut out at the same size and floor line, each centred on its own couple, evened to one
+  scale (`LOOKS[].scale`), with a soft gold rim glow baked in so navy and emerald outfits stay readable on
+  the navy hero and emerald band. Re-run `tools/cutout_avatars.py` for all looks together.
 - The hero has outfit buttons (`.chip`, `aria-pressed`). The events stage follows the card crossing the
   middle 16% of the screen: a sticky arch on desktop, and a strip pinned under the top bar on phones.
 
