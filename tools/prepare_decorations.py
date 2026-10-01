@@ -12,6 +12,10 @@ colour as a smooth surface from the image border, then either:
 
 The image generator's four-point sparkle mark is painted out per image.
 
+The curtain art (tassel, paan leaves) came with a grey-and-white "transparency"
+checkerboard painted into opaque pixels instead; `checker` keys that out, and
+the velvet is cut down to a seamless repeat.
+
 Usage:  python tools/prepare_decorations.py
 Reads:  references/decorations/*.png
 Writes: assets/decor/*.webp (see the "Decorations" block in css/styles.css)
@@ -74,6 +78,26 @@ def lace(rgb, lo=22, hi=120):
     a = np.maximum(alpha, 1e-3)[..., None]
     fg = bg + (rgb - bg) / a  # un-mix the backdrop out of half-covered pixels
     return np.clip(fg, 0, 255), alpha
+
+
+def checker(rgb, chroma_min=26, dark=175, max_hole=600, trim=1):
+    """Art on a painted-in checkerboard (neutral greys and whites): the object is
+    anything coloured or dark. Small holes (glossy highlights) are filled; big
+    ones (the tassel's rope loop) stay open. `trim` px come off the edge, where
+    the checkerboard has bled into the outline."""
+    chroma = rgb.max(axis=-1) - rgb.min(axis=-1)
+    obj = (chroma > chroma_min) | (rgb.mean(axis=-1) < dark)
+    obj = ndimage.binary_opening(obj, iterations=2)
+    labels, n = ndimage.label(obj)
+    sizes = ndimage.sum(obj, labels, range(1, n + 1))
+    obj = np.isin(labels, 1 + np.flatnonzero(np.asarray(sizes) > 5000))  # drop specks
+    holes, n = ndimage.label(ndimage.binary_fill_holes(obj) & ~obj)
+    if n:
+        sizes = ndimage.sum(np.ones(obj.shape), holes, range(1, n + 1))
+        obj |= np.isin(holes, 1 + np.flatnonzero(np.asarray(sizes) < max_hole))
+    if trim:
+        obj = ndimage.binary_erosion(obj, iterations=trim)
+    return rgb, ndimage.gaussian_filter(obj.astype(float), 0.8)
 
 
 def rgba(rgb, alpha) -> Image.Image:
@@ -189,6 +213,42 @@ def temple_arch():
     save(im.crop(im.getbbox()), "temple-arch.webp", width=600)
 
 
+def tassel():
+    """The gold tie-back that catches each curtain panel."""
+    rgb, alpha = checker(load("Gold tassel tie-back.png"))
+    im = rgba(rgb, alpha)
+    save(im.crop(im.getbbox()), "tassel.webp", height=560)
+
+
+def paan():
+    """Two betel leaves held over the bride's face (shubho drishti), one file
+    each so they can part in different directions."""
+    rgb, alpha = checker(load("Pair of paan (betel) leaves.png"), trim=2)
+    im = rgba(rgb, alpha)
+    mid = im.width // 2
+    for side, box in (("left", (0, 0, mid, im.height)), ("right", (mid, 0, im.width, im.height))):
+        leaf = im.crop(box)
+        save(leaf.crop(leaf.getbbox()), f"paan-{side}.webp", width=320)
+
+
+def velvet():
+    """The curtain's navy velvet with zari kalka buti, as a seamless tile.
+
+    Across, columns 52 and 440 match almost exactly. Down, the tile spans six
+    rows of buti, and its last 24 rows are crossfaded into the rows just above
+    its top, both inside bare velvet between buti rows, so the shading runs on
+    without a line and no buti is ghosted. (The sparkle, at x≈645, is outside.)"""
+    rgb = load("Velvet with zari buti, tileable.png")
+    x0, x1, y0, y1, k = 52, 440, 646, 1338, 24
+    tile = rgb[y0:y1, x0:x1].copy()
+    t = np.linspace(0, 1, k)[:, None, None]
+    tile[-k:] = rgb[y1 - k:y1, x0:x1] * (1 - t) + rgb[y0 - k:y0, x0:x1] * t
+    im = Image.fromarray(tile.clip(0, 255).astype(np.uint8))
+    dest = OUT / "velvet.webp"
+    im.save(dest, "WEBP", quality=78, method=6)
+    print(f"{dest.relative_to(ROOT)}  {im.size[0]}x{im.size[1]}  {dest.stat().st_size // 1024} KB")
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     chandmala()
@@ -198,6 +258,9 @@ def main():
     paper_tile()
     paper_sheet()
     temple_arch()
+    tassel()
+    paan()
+    velvet()
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@
 
   <!-- Link preview (WhatsApp reads these). Use an absolute og:image URL once deployed. -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Subh &amp; Sneha — you're invited">
+  <meta property="og:title" content="Subhadip &amp; Sneha — you're invited">
   <meta property="og:description" content="10–13 December 2026 · Kolkata. Join us for the Sangeet, Haldi, Wedding and Reception.">
   <meta property="og:image" content="assets/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Jost:wght@300..600&family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="preload" as="image" href="assets/avatars/biye.webp"><!-- the hero opens on this look (heroAvatar) -->
+  <link rel="preload" as="image" href="assets/decor/velvet.webp"><!-- the closed curtain, first thing on screen -->
   <script>document.documentElement.classList.replace("no-js", "js");</script>
 </head>
 <body>
@@ -138,10 +139,10 @@
 
   <!-- 1 · Curtain -->
   <div class="curtain" id="curtain" role="dialog" aria-modal="true" aria-labelledby="curtain-greeting">
-    <div class="curtain__panel curtain__panel--left" aria-hidden="true"></div>
-    <div class="curtain__panel curtain__panel--right" aria-hidden="true"></div>
+    <div class="curtain__light" aria-hidden="true"></div>
+    <div class="curtain__panel curtain__panel--left" aria-hidden="true"><div class="curtain__fabric"></div><span class="curtain__tieback"></span></div>
+    <div class="curtain__panel curtain__panel--right" aria-hidden="true"><div class="curtain__fabric"></div><span class="curtain__tieback"></span></div>
     <div class="curtain__valance" aria-hidden="true"></div>
-    <div class="lang-switch lang-switch--curtain" role="group" data-i18n-attr="aria-label:lang.label"></div>
     <div class="curtain__center">
       <p class="curtain__eyebrow" lang="bn">॥ শ্রী শ্রী প্রজাপতয়ে নমঃ ॥</p>
       <p class="curtain__greeting" id="curtain-greeting">An invitation for you</p>
@@ -170,7 +171,6 @@
       <button class="music-toggle" id="music-toggle" type="button" aria-pressed="false">
         <svg aria-hidden="true"><use href="#i-sound"/></svg>
       </button>
-      <div class="lang-switch" role="group" data-i18n-attr="aria-label:lang.label"></div>
       <a href="#rsvp" class="topbar__cta" data-i18n="nav.rsvp">RSVP</a>
     </nav>
   </header>
@@ -184,7 +184,7 @@
           <p class="hero__dear" id="hero-dear" hidden></p>
           <p class="hero__kicker" data-i18n="hero.kicker">Together with their families</p>
           <h1 class="hero__names" id="hero-title">
-            <span data-bind="couple.groom">Subh</span>
+            <span data-bind="couple.groom">Subhadip</span>
             <span class="amp" data-i18n="hero.amp">&amp;</span>
             <span data-bind="couple.bride">Sneha</span>
           </h1>
@@ -192,12 +192,12 @@
           <p class="hero__date" data-bind="dateLine">10–13 December 2026 · Kolkata</p>
 
           <div class="hero__blessing">
-            <p class="hero__blessing-title" data-i18n="hero.blessingTitle">শুভ পরিণয়: অনুরাগের রঙে আঁকা এক নতুন দিগন্ত</p>
-            <p class="hero__blessing-body" data-i18n="hero.blessingBody">মাঙ্গলিক সানাইয়ের সুরে, আমাদের নতুন জীবনের পথচলায় আপনাদের স্নেহে উপস্থিতি কাম্য।</p>
+            <p class="hero__blessing-title" lang="bn" data-i18n="hero.blessingTitle">শুভ পরিণয়: অনুরাগের রঙে আঁকা এক নতুন দিগন্ত</p>
+            <p class="hero__blessing-body" lang="bn" data-i18n="hero.blessingBody">মাঙ্গলিক সানাইয়ের সুরে, আমাদের নতুন জীবনের পথচলায় আপনাদের স্নেহে উপস্থিতি কাম্য।</p>
           </div>
 
           <div class="countdown glass glass--dark" id="countdown">
-            <p class="countdown__label" id="countdown-label">Until the celebrations begin</p>
+            <p class="countdown__label" id="countdown-label">Wedding Countdown</p>
             <div class="countdown__grid" role="timer" aria-labelledby="countdown-label">
               <!-- Tear-off pads: .pad__sheet holds the live value; js/countdown.js adds the
                    decorative binding, shade and falling sheet (aria-hidden). -->
@@ -220,7 +220,10 @@
               <path d="M8 520V200C8 94 94 8 200 8s192 86 192 192v320" fill="none" stroke="currentColor" stroke-width="1.5"/>
               <path d="M24 520V204C24 107 103 26 200 26s176 81 176 178v316" fill="none" stroke="currentColor" stroke-width=".6"/>
             </svg>
-            <div class="hero__avatar" id="hero-wardrobe"></div>
+            <div class="hero__avatar" id="hero-wardrobe">
+              <!-- Shubho drishti: paan leaves over the bride's face, parted once the curtain has opened -->
+              <span class="drishti" aria-hidden="true"><img class="drishti__leaf drishti__leaf--l" src="assets/decor/paan-left.webp" alt="" width="320" height="362"><img class="drishti__leaf drishti__leaf--r" src="assets/decor/paan-right.webp" alt="" width="320" height="360"></span>
+            </div>
           </div>
           <div class="chips" id="look-chips" role="group" data-i18n-attr="aria-label:looks.label"></div>
         </figure>

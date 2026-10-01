@@ -13,8 +13,10 @@
     { color: "#1f7a70", shade: "#0f5257", w: 0.8, weight: 1, leaf: true },
   ];
   const BAG = KINDS.flatMap((k) => Array(k.weight).fill(k));
+  // Khoi (puffed rice), thrown with the petals when the seal breaks.
+  const KHOI = { color: "#f6eedc", shade: "#dccaa3", w: 0.42, khoi: true };
 
-  let canvas, ctx, petals = [], raf = 0, running = false, last = 0;
+  let canvas, ctx, petals = [], burstBits = [], raf = 0, running = false, last = 0;
   let W = 0, H = 0, dpr = 1;
 
   function rand(a, b) { return a + Math.random() * (b - a); }
@@ -43,12 +45,19 @@
     ctx.translate(p.x, p.y);
     ctx.rotate(p.rot);
     ctx.scale(1, Math.max(0.15, Math.abs(Math.cos(p.flip))));
-    const grad = ctx.createLinearGradient(0, -size, 0, size);
-    grad.addColorStop(0, kind.color);
-    grad.addColorStop(1, kind.shade);
-    ctx.fillStyle = grad;
+    if (p.flat) ctx.fillStyle = kind.color; // burst pieces move too fast to see shading; skip the gradient
+    else {
+      const grad = ctx.createLinearGradient(0, -size, 0, size);
+      grad.addColorStop(0, kind.color);
+      grad.addColorStop(1, kind.shade);
+      ctx.fillStyle = grad;
+    }
     ctx.beginPath();
-    if (kind.leaf) {
+    if (kind.khoi) {
+      // A lumpy grain, not a perfect oval
+      ctx.ellipse(0, 0, size * 0.7, size, 0, 0, Math.PI * 2);
+      ctx.ellipse(size * 0.3, -size * 0.2, size * 0.5, size * 0.6, 0, 0, Math.PI * 2);
+    } else if (kind.leaf) {
       ctx.moveTo(0, -size);
       ctx.quadraticCurveTo(size * 0.55, 0, 0, size);
       ctx.quadraticCurveTo(-size * 0.55, 0, 0, -size);
@@ -78,7 +87,36 @@
       if (p.y > H + 30) Object.assign(p, spawn(true));
       drawPetal(p);
     }
+    // The seal's burst: thrown out, slowed by the air, then falling like the rest.
+    if (burstBits.length) {
+      const drag = Math.exp(-2.4 * dt);
+      for (const b of burstBits) {
+        b.vx *= drag; b.vy = b.vy * drag + 340 * dt;
+        b.x += b.vx * dt; b.y += Math.min(b.vy, 160) * dt;
+        b.rot += b.vr * dt; b.flip += b.vf * dt;
+        drawPetal(b);
+      }
+      burstBits = burstBits.filter((b) => b.y < H + 30);
+    }
     raf = requestAnimationFrame(frame);
+  }
+
+  /** Throw petals and khoi out from a point (the curtain's seal). */
+  function burst(x, y) {
+    if (!enabled() || !canvas) return;
+    for (let i = 0; i < 42; i++) {
+      const p = spawn(false);
+      if (i % 3 === 0) { p.kind = KHOI; p.size = rand(5, 8) * KHOI.w * 2; }
+      const angle = rand(0, Math.PI * 2);
+      const speed = rand(160, 620);
+      Object.assign(p, {
+        x: x + Math.cos(angle) * 18, y: y + Math.sin(angle) * 18,
+        vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed * 0.8 - 120,
+        vr: rand(-6, 6), flat: true,
+      });
+      burstBits.push(p);
+    }
+    start();
   }
 
   function resize() {
@@ -128,5 +166,5 @@
     on ? start() : stop();
   }
 
-  window.Invite.petals = { init, start, stop, enabled, setEnabled };
+  window.Invite.petals = { init, start, stop, enabled, setEnabled, burst };
 })();

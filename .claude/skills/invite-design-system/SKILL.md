@@ -72,6 +72,11 @@ full-colour, and each has one job:
 | `paper-sheet.webp` | The RSVP card (`.rsvp`) | `border-image` keeps the torn edges at any height. Fields on it are ink lines, errors in `--error-ink` |
 | `paper.webp` | Every cream section (`.section--cream::before`) | 50% opacity fibres under the backdrop |
 | `alpana-1…4.webp` | `.alpana-corners` (poll deck, RSVP) | White masks painted with `--corner-ink` (gold on dark, gold-dark on cream), peeking from behind the card |
+| `velvet.webp` | The curtain panels (`.curtain__fabric`) | Navy velvet with zari kalka buti, a seamless 388×692 tile; preloaded in `index.html` |
+| `tassel.webp` | `.curtain__tieback`, one per panel | Drops onto the gathered swag and swings to rest; its knot (29% down) sits on the gather |
+| `paan-left/right.webp` | `.drishti` in the hero wardrobe | Shubho drishti: held over the bride's face in the **biye** look only, parted after the curtain |
+
+The tassel and paan sources had a checkerboard painted into opaque pixels; `checker()` in the script keys it out.
 
 Garland sections have no kantha stitch (`stitch: null` in `ambient.js`). Decorations hang in padding and
 margins, never over text, and don't move, so reduced motion needs nothing extra. Keep each file under
@@ -133,7 +138,12 @@ margins, never over text, and don't move, so reduced motion needs nothing extra.
 
 ## Motion
 
-- The **curtain** is the only choreographed sequence (1.7s). The hero lines rise in a 110ms stagger after it.
+- The **curtain** is the only choreographed sequence (~3s, `STEPS` in `js/curtain.js`): the seal presses in
+  and cracks in two, petals and khoi burst from the seam (`petals.burst`), lamp-light pours through, the
+  panels sweep into swags (animated `clip-path` polygons) caught by the tassels, then slide into the wings.
+  The hero lines rise in a 110ms stagger, the names are written in left to right, and the paan leaves part
+  (shubho drishti). Keep the panel edge's shadow unblurred and burst pieces flat-filled: both are for
+  frame rate on phones.
 - Ambient: petals canvas (≤ 36 petals, DPR capped at 2, paused when the tab is hidden), the slow seal spin,
   and the living backdrop above (aurora 26–38s loops, motif bob ≤ 13px, parallax ≤ 24px).
 - Micro: hover lifts ≤ 4px, card tilt ≤ 14°, 0.25–0.5s with `--ease-out`.

@@ -146,45 +146,36 @@ async function wireBackend(ctx, backend) {
     await page.click(".poll__next");
     await page.waitForTimeout(700);
 
-    // 5 · Bengali
-    await page.click('.topbar .lang-switch [lang="bn"]');
-    await page.waitForTimeout(400);
-    const bn = await page.evaluate(() => ({ lang: document.documentElement.lang, names: document.querySelector("#hero-title").textContent, days: document.querySelector('[data-unit="days"]').textContent }));
-    check(bn.lang === "bn" && bn.names.includes("শুভ") && /[০-৯]/.test(bn.days), `${tag}: Bengali switch incomplete ${JSON.stringify(bn)}`);
+    // 5 · English only: no language switch, names on one line
+    const en = await page.evaluate(() => {
+      const h1 = document.querySelector("#hero-title");
+      return { lang: document.documentElement.lang, switches: document.querySelectorAll(".lang-switch").length, lines: Math.round(h1.getBoundingClientRect().height / parseFloat(getComputedStyle(h1).lineHeight)), label: document.querySelector("#countdown-label").textContent };
+    });
+    check(en.lang === "en" && en.switches === 0, `${tag}: page should be English only ${JSON.stringify(en)}`);
+    check(en.lines <= 1, `${tag}: couple names wrap onto ${en.lines} lines`);
     await scrollTo("#top");
     await page.waitForTimeout(300);
-    await shot("07-bn-hero");
-    await scrollTo(".event", "center");
-    await page.waitForTimeout(500);
-    await shot("08-bn-events");
-    await scrollTo("#polls");
-    await page.waitForTimeout(300);
-    await shot("09-bn-poll");
+    await shot("07-hero");
 
     const stitched = await page.$$eval(".kantha.is-stitched", (els) => els.length);
-    // Since the Bengali reload only the polls section has scrolled by with a
-    // stitch (events and RSVP hang garlands instead of stitches).
     check(stitched >= 1 || reduced, `${tag}: kantha stitches did not sew in as sections scrolled by (${stitched})`);
 
-    // 6 · RSVP (in Bengali): errors, then a yes with confetti
+    // 6 · RSVP: errors, then a yes with confetti
     await scrollTo("#rsvp");
     await page.click("#rsvp-submit");
     const err = await page.$eval("#e-phone", (el) => el.textContent);
-    check(/[ঀ-৿]/.test(err), `${tag}: phone error not in Bengali: "${err}"`);
-    await shot("10-bn-rsvp-errors");
+    check(err.trim().length > 0, `${tag}: no phone error shown`);
+    await shot("10-rsvp-errors");
     await page.fill("#f-phone", "+91 90000 00000");
     await page.check('input[name="attending"][value="yes"]', { force: true });
     await page.click("#rsvp-submit");
     await page.waitForTimeout(700);
     check(await page.locator("#rsvp-done").isVisible(), `${tag}: RSVP did not reach the thank-you state`);
     const stored = backend.sheets.get("RSVPs")?.rows[1];
-    check(stored && stored[9] === "bn" && stored[1] === "Test Guest", `${tag}: RSVP row not stored as expected: ${JSON.stringify(stored)}`);
+    check(stored && stored[9] === "en" && stored[1] === "Test Guest", `${tag}: RSVP row not stored as expected: ${JSON.stringify(stored)}`);
     if (reduced) check(!(await page.locator("canvas.confetti").count()), `${tag}: confetti ran under reduced motion`);
-    await shot("11-bn-rsvp-done");
+    await shot("11-rsvp-done");
 
-    // Back to English keeps the thank-you state
-    await page.click('.topbar .lang-switch [lang="en"]');
-    await page.waitForTimeout(300);
     const title = await page.$eval("#rsvp-done-title", (el) => el.textContent);
     check(/Thank you/.test(title), `${tag}: thank-you did not switch back to English: "${title}"`);
 

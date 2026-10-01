@@ -13,13 +13,13 @@
 window.INVITE = {
   languages: [
     { code: "en", label: "English", short: "EN" },
-    { code: "bn", label: "বাংলা", short: "বাং" },
   ],
-  // Guests can switch any time; ?lang=bn in a link opens in Bengali.
+  // English only, by the family's choice: no language switch. The `bn` values
+  // below are kept but unused; add { code: "bn", … } back here to restore them.
   defaultLang: "en",
 
   couple: {
-    groom: { en: "Subh", bn: "শুভ" },
+    groom: { en: "Subhadip", bn: "শুভ" },
     bride: { en: "Sneha", bn: "স্নেহা" },
   },
   dateLine: { en: "10–13 December 2026 · Kolkata", bn: "১০–১৩ ডিসেম্বর ২০২৬ · কলকাতা" },
