@@ -20,7 +20,7 @@
     const rituals = get("rituals") || [];
     list.replaceChildren(...rituals.map((ritual, index) => {
       const status = ritual.confirmed === true ? t("rituals.confirmed") : t("rituals.pending");
-      return h("article", { class: `ritual glass glass--light${ritual.confirmed === true ? " is-confirmed" : ""}` },
+      return h("article", { class: `ritual${ritual.confirmed === true ? " is-confirmed" : ""}` },
         h("span", { class: "ritual__number", "aria-hidden": "true" }, String(index + 1).padStart(2, "0")),
         h("p", { class: "ritual__status" }, status),
         h("h3", {}, L(ritual.name)),

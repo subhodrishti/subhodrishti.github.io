@@ -45,7 +45,7 @@
       phone: [["topor", 8, 14, 40, 0.6], ["ghot", 92, 14, 42, 0.8]],
     },
     events: {
-      tone: "emerald", stitch: "gold",
+      tone: "emerald", stitch: null, // the marigold toran marks this seam
       desk: [
         ["fish", 5, 8, 60, 0.7], ["kulo", 95, 14, 64, 0.5], ["paan", 4, 55, 44, 1.0],
         ["pradip", 96, 62, 44, 1.1], ["topor", 95, 92, 50, 0.6], ["bangles", 5, 90, 46, 0.8],
@@ -58,7 +58,7 @@
       phone: [["kulo", 8, 8, 40, 0.6], ["shehnai", 92, 8, 42, 0.8]],
     },
     rsvp: {
-      tone: "night", stitch: "gold",
+      tone: "night", stitch: null, // the shola chandmala marks this seam
       desk: [
         ["kouto", 15, 30, 64, 0.8], ["bangles", 85, 24, 72, 0.7], ["pradip", 12, 76, 52, 1.1],
         ["shankha", 88, 72, 64, 0.6], ["paan", 22, 52, 44, 1.0], ["ghot", 80, 50, 56, 0.4],

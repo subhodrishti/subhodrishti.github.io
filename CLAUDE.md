@@ -39,8 +39,9 @@ Guests are family and friends aged 8 to 85, mostly on a phone, opening a link so
 | `assets/avatars/*.webp` | The four ceremony looks, cut out by `tools/cutout_avatars.py` from `references/wedding-couple*.png`: same size and floor line, **each centred on its own couple**. (`subh_sneha*.png` are earlier everyday renders, kept as source art, not shown) |
 | `assets/audio/` | `shankh.mp3`, `shehnai.mp3` (CC BY, credited in the footer). `CREDITS.md` has sources and how to add a family-recorded `ulu.mp3` |
 | `assets/photos/` | Real photos, added only through `tools/add_photo.py` (strips GPS and camera metadata) |
-| `references/` | Original 3D renders. Source art: don't serve, edit or delete |
-| `tools/` | `cutout_avatars.py`, `add_photo.py`, `gas_harness.js`, `test_backend.js`, `smoke.js`, `export_translations.js` |
+| `assets/decor/` | Painted decorations (marigold toran and thread, shola chandmala, terracotta arch, torn paper, alpana corners), made by `tools/prepare_decorations.py`. Where each goes: `invite-design-system` → Decorations |
+| `references/` | Original 3D renders, and `decorations/` (the generated art behind `assets/decor/`). Source art: don't serve, edit or delete |
+| `tools/` | `cutout_avatars.py`, `prepare_decorations.py`, `add_photo.py`, `gas_harness.js`, `test_backend.js`, `smoke.js`, `export_translations.js` |
 
 ## Rules
 

@@ -251,7 +251,7 @@
     </section>
 
     <!-- 4 · Events -->
-    <section class="section section--emerald" id="events" aria-labelledby="events-title">
+    <section class="section section--emerald section--toran" id="events" aria-labelledby="events-title">
       <div class="section__head">
         <svg class="rule" aria-hidden="true"><use href="#alpana-rule"/></svg>
         <h2 id="events-title" data-i18n="events.title">Four days in Kolkata</h2>
@@ -278,18 +278,20 @@
         <h2 id="polls-title"><span class="tag tag--groom">#TeamGroom</span> <span data-i18n="polls.or">or</span> <span class="tag tag--bride">#TeamBride</span>?</h2>
         <p data-i18n="polls.intro">Pick a side on each one, or skip it.</p>
       </div>
-      <div class="polls" id="poll-deck"></div>
+      <div class="polls alpana-corners" id="poll-deck"></div>
     </section>
 
     <!-- 6 · RSVP -->
-    <section class="section section--navy" id="rsvp" aria-labelledby="rsvp-title">
+    <section class="section section--navy section--chandmala" id="rsvp" aria-labelledby="rsvp-title">
       <div class="section__head">
         <svg class="rule" aria-hidden="true"><use href="#alpana-rule"/></svg>
         <h2 id="rsvp-title" data-i18n="rsvp.title">Will you join us?</h2>
         <p id="rsvp-deadline">Let us know either way.</p>
       </div>
 
-      <div class="rsvp glass glass--dark">
+      <!-- A reply written on handmade paper; alpana corners peek out from behind it. -->
+      <div class="rsvp-paper alpana-corners">
+      <div class="rsvp">
         <form id="rsvp-form" novalidate>
           <div class="field">
             <label for="f-name" data-i18n="rsvp.name">Your name</label>
@@ -354,8 +356,9 @@
           <span class="seal__disc seal__disc--sm" aria-hidden="true"><svg><use href="#alpana-seal"/></svg><span class="seal__mono">S<i>&amp;</i>S</span></span>
           <p class="rsvp__done-title" id="rsvp-done-title"></p>
           <p id="rsvp-done-body"></p>
-          <button class="btn btn--ghost" type="button" id="rsvp-edit" data-i18n="rsvp.change">Change my reply</button>
+          <button class="btn btn--ghost-dark" type="button" id="rsvp-edit" data-i18n="rsvp.change">Change my reply</button>
         </div>
+      </div>
       </div>
     </section>
   </main>

@@ -52,6 +52,30 @@ Never write a raw hex in a new rule. If you need a new colour, add a token with 
   bindi-sized vermilion accents. A new motif must be a real object from a Bengali wedding, drawn in the same
   hand, and previewed on navy before use. They live only in the living backdrop and the footer skyline,
   never inside cards or over text blocks.
+- **Fewer boxes.** The family found the page "boxed in", so content sits open on the section where it can:
+  rituals are numbered entries with no card, events hang off a marigold string with no card, the RSVP is a
+  sheet of torn handmade paper. Glass is for the poll deck, modals and the day-of panel. Before adding a
+  card, try it without one.
+
+## Decorations (painted art, `assets/decor/`)
+
+Family-generated art, cut out by `tools/prepare_decorations.py` from `references/decorations/` (re-run it
+after replacing a source; it removes the generator's sparkle mark). Unlike the gold line motifs, these are
+full-colour, and each has one job:
+
+| Asset | Where | How |
+|---|---|---|
+| `marigold-swag.webp` | Top of the events section (`.section--toran`) | Hangs from the seam into the top padding; heading sits under its droop |
+| `marigold-thread.webp` | Down the event list (`.events::before`) | Tiles seamlessly (`repeat-y`); each event is tied to it by a gold line |
+| `temple-arch.webp` | Events stage, desktop only | Bishnupur terracotta arch; its opening has the couple's proportions, so it's sized at 2.1× the couple's width |
+| `chandmala.webp` | Top of the RSVP section (`.section--chandmala`) | Shola garland, `repeat-x`. White: only on navy or emerald |
+| `paper-sheet.webp` | The RSVP card (`.rsvp`) | `border-image` keeps the torn edges at any height. Fields on it are ink lines, errors in `--error-ink` |
+| `paper.webp` | Every cream section (`.section--cream::before`) | 50% opacity fibres under the backdrop |
+| `alpana-1…4.webp` | `.alpana-corners` (poll deck, RSVP) | White masks painted with `--corner-ink` (gold on dark, gold-dark on cream), peeking from behind the card |
+
+Garland sections have no kantha stitch (`stitch: null` in `ambient.js`). Decorations hang in padding and
+margins, never over text, and don't move, so reduced motion needs nothing extra. Keep each file under
+~100 KB, and add no more hung garlands: one per seam at most, and not on every seam.
 
 ## The wardrobe (outfit change in place)
 

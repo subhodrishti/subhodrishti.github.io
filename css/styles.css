@@ -22,6 +22,8 @@
   --sindoor-thread: #c9343c; /* sindoor for thin lines (kantha thread, motif accents): a touch brighter so it reads */
   --lamp-flame: #f7c948;     /* the pradip's flame */
   --foil-hi: #fff4c9;        /* the bright band of the gold-foil sheen */
+  --error-ink: #a3242b;      /* form errors written on the paper RSVP card */
+  --paper-rule: rgba(29, 42, 58, 0.28); /* the line a guest writes on */
 
   /* Glass */
   --glass-light: rgba(253, 251, 247, 0.62);
@@ -347,8 +349,13 @@ p { margin: 0; }
 /* ==========================================================================
    Sections
    ========================================================================== */
-.section { position: relative; padding: var(--section-y) var(--gutter); }
+.section { position: relative; isolation: isolate; padding: var(--section-y) var(--gutter); }
 .section--cream { background: var(--cream); }
+/* Handmade paper fibres (assets/decor/paper.webp), under the living backdrop */
+.section--cream::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: url("../assets/decor/paper.webp") 0 0 / 512px; opacity: .5;
+}
 .section--emerald {
   background:
     radial-gradient(70% 60% at 100% 0%, rgba(212,175,55,.14), transparent 60%),
@@ -367,13 +374,57 @@ p { margin: 0; }
 .section--emerald .section__head p, .section--navy .section__head p { color: rgba(253,251,247,.75); }
 .rule { display: block; width: 180px; height: 18px; margin: 0 auto 18px; color: var(--gold); }
 
+/* Hung decorations (assets/decor, made by tools/prepare_decorations.py).
+   A marigold toran over the events, a shola chandmala over the RSVP. They
+   hang from the section's top edge into its padding, never over text. */
+.section--toran {
+  --toran-w: min(820px, 100vw - 24px);
+  --toran-h: calc(var(--toran-w) * 459 / 1400);
+  padding-top: calc(var(--toran-h) * .82 + 12px);
+}
+.section--toran::before {
+  content: ""; position: absolute; z-index: 2; top: 0; left: 50%; pointer-events: none;
+  width: var(--toran-w); height: var(--toran-h); transform: translateX(-50%);
+  background: url("../assets/decor/marigold-swag.webp") center top / 100% auto no-repeat;
+  filter: drop-shadow(0 10px 10px rgba(0,0,0,.3));
+}
+.section--chandmala { --chandmala-h: clamp(84px, 9vw, 124px); padding-top: calc(var(--chandmala-h) + clamp(20px, 4vw, 48px)); }
+.section--chandmala::before {
+  content: ""; position: absolute; z-index: 2; top: 0; left: 0; right: 0; height: var(--chandmala-h); pointer-events: none;
+  background: url("../assets/decor/chandmala.webp") center top / auto 100% repeat-x;
+  filter: drop-shadow(0 6px 6px rgba(0,0,0,.35));
+}
+/* These two sections have no kantha stitch (stitch: null in js/ambient.js): the garland marks the seam. */
+@media (max-width: 600px) { .section--toran { padding-top: calc(var(--toran-h) + 6px); } }
+
+/* Alpana corners, painted in rice paste, peeking from behind a card.
+   White masks (assets/decor/alpana-*.webp) filled with a gold token. */
+.alpana-corners { position: relative; }
+.alpana-corners::before, .alpana-corners::after {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  width: clamp(104px, 20vw, 168px); aspect-ratio: 1;
+  background: var(--corner-ink, var(--gold));
+  -webkit-mask: url("../assets/decor/alpana-1.webp") center / contain no-repeat;
+  mask: url("../assets/decor/alpana-1.webp") center / contain no-repeat;
+  opacity: var(--corner-alpha, .8);
+  top: -34px; left: max(-40px, calc(2px - var(--gutter)));
+}
+.alpana-corners::after {
+  top: auto; left: auto; bottom: -34px; right: max(-40px, calc(2px - var(--gutter)));
+  transform: rotate(180deg);
+  -webkit-mask-image: url("../assets/decor/alpana-3.webp");
+  mask-image: url("../assets/decor/alpana-3.webp");
+}
+
 /* A concise cultural guide: the family can turn its soft pending labels into
    confirmed inclusions in config without changing the layout. */
 .rituals__notice { max-width: 660px; margin: -22px auto 32px; text-align: center; color: var(--ink-soft); font-size: var(--step--1); }
-.rituals { max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.ritual { position: relative; min-height: 190px; padding: 24px; overflow: hidden; }
-.ritual::after { content: ""; position: absolute; inset: auto -30px -55px auto; width: 120px; height: 120px; border: 1px solid rgba(212,175,55,.28); border-radius: 50%; }
-.ritual__number { display: block; font-family: var(--f-display); font-size: var(--step-2); line-height: 1; color: var(--gold-dark); opacity: .7; }
+.rituals { max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(28px, 4vw, 48px) clamp(24px, 4vw, 56px); }
+/* Open entries on the paper rather than boxes: a big gold numeral, a short
+   gold thread under it, then the words. */
+.ritual { position: relative; padding: 0 4px; }
+.ritual__number::after { content: ""; display: block; width: 44px; height: 1px; margin-top: 12px; background: linear-gradient(90deg, var(--gold), transparent); }
+.ritual__number { display: block; font-family: var(--f-display); font-style: italic; font-size: var(--step-3); line-height: 1; color: var(--gold-dark); }
 .ritual__status { display: inline-block; margin: 13px 0 8px; padding: 3px 9px; border: 1px solid rgba(143,109,20,.34); border-radius: 999px; color: var(--gold-dark); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
 .ritual.is-confirmed .ritual__status { background: var(--emerald); border-color: var(--emerald); color: var(--cream); }
 .ritual h3 { color: var(--navy); font-size: var(--step-1); font-style: italic; }
@@ -437,12 +488,20 @@ p { margin: 0; }
   display: grid; grid-template-columns: minmax(260px, .8fr) 1.2fr; gap: clamp(24px, 4vw, 64px); align-items: start;
 }
 .events {
-  list-style: none; margin: 0; padding: 0;
-  display: grid; gap: clamp(14px, 2vw, 22px);
+  --thread-w: clamp(26px, 3.4vw, 36px); --thread-pad: clamp(46px, 6vw, 64px);
+  list-style: none; margin: 0; padding: 0 0 0 var(--thread-pad); position: relative;
+  display: grid; gap: clamp(36px, 5vw, 56px);
 }
-/* Without a stage (every look null) the cards spread out in a grid again. */
+/* A marigold string runs down the list; each event hangs off it. */
+.events::before {
+  content: ""; position: absolute; top: -10px; bottom: -10px; left: 0; width: var(--thread-w);
+  background: url("../assets/decor/marigold-thread.webp") center top / 100% auto repeat-y;
+  filter: drop-shadow(0 6px 6px rgba(0,0,0,.3));
+}
+/* Without a stage (every look null) the events spread out in a grid again. */
 .events--no-stage .events-layout { display: block; }
-.events--no-stage .events { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.events--no-stage .events { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); padding-left: 0; }
+.events--no-stage .events::before, .events--no-stage .event::before { display: none; }
 
 /* The couple, changing into each event's look as its card passes the middle. */
 .events-stage { position: sticky; top: 96px; margin: 0; display: grid; justify-items: center; gap: 14px; }
@@ -459,9 +518,37 @@ p { margin: 0; }
 .events-stage__caption { text-align: center; }
 .events-stage__title { display: block; font-family: var(--f-display); font-style: italic; font-size: var(--step-1); color: var(--gold-light); }
 .events-stage__outfit { display: block; font-size: var(--step--1); opacity: .8; }
-.event { transition: border-color .4s, box-shadow .4s; }
-.event.is-current { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 24px 50px -30px rgba(0,0,0,.7); }
+/* The tie from the string to the event; it thickens while that event is on stage */
+.event::before {
+  content: ""; position: absolute; top: 34px; height: 1px;
+  left: calc(var(--thread-w) - var(--thread-pad) - 2px); width: calc(var(--thread-pad) - var(--thread-w) - 6px);
+  background: linear-gradient(90deg, var(--gold), var(--glass-edge));
+}
+.event::after {
+  content: ""; position: absolute; z-index: -1; inset: -30px 10% -30px -40px; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(241,220,148,.13), transparent); opacity: 0; transition: opacity .5s;
+}
+.event.is-current::after { opacity: 1; }
+.event.is-current::before { height: 2px; background: var(--gold); }
+.event .event__name { transition: color .4s; }
+.event.is-current .event__name { color: var(--gold-light); }
 
+@media (min-width: 861px) {
+  /* The couple stands inside a Bishnupur terracotta arch. Its opening has the
+     couple's proportions, so the arch is sized from the couple's width. */
+  .events-stage { --couple-w: min(190px, calc((100vh - 260px) * .36), 16vw); padding-top: calc(var(--couple-w) * .8); }
+  .events-stage__frame {
+    width: var(--couple-w); padding: 0; overflow: visible; border: 0; border-radius: 0;
+    background: radial-gradient(70% 7% at 50% 100%, rgba(212,175,55,.45), transparent 70%);
+  }
+  .events-stage__frame::before {
+    content: ""; position: absolute; z-index: 0; left: 50%; bottom: -3%; pointer-events: none;
+    width: calc(var(--couple-w) * 2.1); aspect-ratio: 600 / 772; transform: translateX(-50%);
+    background: url("../assets/decor/temple-arch.webp") center bottom / contain no-repeat;
+    filter: drop-shadow(0 18px 22px rgba(0,0,0,.35));
+  }
+  .events-stage__avatar { position: relative; z-index: 1; width: 100%; }
+}
 @media (max-width: 860px) {
   .events-layout { display: block; }
   /* On phones the stage becomes a strip pinned under the top bar. */
@@ -476,9 +563,9 @@ p { margin: 0; }
   .events-stage__avatar { width: 100%; }
   .events-stage__caption { text-align: left; }
 }
-.event { position: relative; display: flex; flex-direction: column; padding: 26px 22px 22px; }
+.event { position: relative; display: flex; flex-direction: column; padding: 8px 0 0; }
 .event__status {
-  position: absolute; top: 16px; right: 16px;
+  position: absolute; top: 8px; right: 0;
   font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
   padding: 4px 10px; border-radius: 999px; border: 1px solid var(--glass-edge); color: var(--gold-light);
 }
@@ -488,7 +575,7 @@ p { margin: 0; }
 .event__month { font-size: var(--step--1); letter-spacing: .18em; text-transform: uppercase; line-height: 1.3; }
 .event__name { margin-top: 18px; font-size: var(--step-2); font-style: italic; font-weight: 400; }
 .event__gloss { margin-top: 4px; opacity: .8; font-size: var(--step--1); }
-.event__meta { list-style: none; margin: 18px 0 20px; padding: 14px 0 0; border-top: 1px solid var(--glass-edge); display: grid; gap: 6px; font-size: var(--step--1); }
+.event__meta { list-style: none; margin: 16px 0 20px; padding: 14px 0 0; border-top: 1px dashed var(--glass-edge); display: grid; gap: 6px; font-size: var(--step--1); }
 .event__meta li { display: grid; grid-template-columns: 58px 1fr; gap: 8px; }
 .event__meta b { font-weight: 500; letter-spacing: .12em; text-transform: uppercase; font-size: .68rem; opacity: .65; padding-top: .2em; }
 .event__meta .tba { opacity: .7; font-style: italic; }
@@ -502,7 +589,7 @@ p { margin: 0; }
 .tag--groom { background: var(--navy); color: var(--cream); }
 .tag--bride { background: var(--emerald); color: var(--cream); }
 
-.polls { position: relative; max-width: 560px; margin: 0 auto 28px; }
+.polls { position: relative; max-width: 560px; margin: 0 auto 28px; --corner-ink: var(--gold-dark); --corner-alpha: .45; }
 .poll {
   padding: clamp(24px, 4vw, 36px); text-align: center;
   transition: transform .55s var(--ease-out), opacity .45s;
@@ -541,20 +628,31 @@ p { margin: 0; }
 /* ==========================================================================
    6 · RSVP
    ========================================================================== */
-.rsvp { max-width: 640px; margin: 0 auto; padding: clamp(22px, 4vw, 40px); }
-.field { margin: 0 0 20px; padding: 0; border: 0; min-width: 0; }
-.field > label, .field > legend { display: block; margin-bottom: 8px; font-size: var(--step--1); letter-spacing: .12em; text-transform: uppercase; color: var(--gold-light); padding: 0; }
-.optional { text-transform: none; letter-spacing: 0; opacity: .6; font-size: .9em; margin-left: 4px; }
-.field input:not([type=radio]):not([type=checkbox]), .field textarea {
-  width: 100%; min-height: 48px; padding: 12px 14px;
-  background: rgba(253,251,247,.06); border: 1px solid rgba(253,251,247,.22); border-radius: var(--radius-sm);
-  color: var(--cream); transition: border-color .2s, background-color .2s;
+.rsvp-paper { max-width: 640px; margin: 0 auto; }
+/* The reply is written on a sheet of handmade paper with torn edges
+   (assets/decor/paper-sheet.webp, stretched by border-image). */
+.rsvp {
+  position: relative; z-index: 1; color: var(--ink);
+  padding: clamp(18px, 4vw, 36px) clamp(10px, 3vw, 28px);
+  border: 22px solid transparent;
+  border-image: url("../assets/decor/paper-sheet.webp") 40 fill / 22px stretch;
+  filter: drop-shadow(0 26px 30px rgba(0,0,0,.45));
 }
-.field textarea { resize: vertical; min-height: 96px; }
-.field input::placeholder, .field textarea::placeholder { color: rgba(253,251,247,.4); }
-.field input:focus, .field textarea:focus { outline: none; border-color: var(--gold); background: rgba(253,251,247,.1); }
-.field [aria-invalid="true"] { border-color: #f08a8f !important; }
-.field__error { min-height: 0; margin-top: 6px; font-size: var(--step--1); color: #ffb3b6; }
+.rsvp :focus-visible { outline-color: var(--navy); }
+.field { margin: 0 0 22px; padding: 0; border: 0; min-width: 0; }
+.field > label, .field > legend { display: block; margin-bottom: 6px; font-size: var(--step--1); letter-spacing: .12em; text-transform: uppercase; color: var(--gold-dark); padding: 0; }
+.optional { text-transform: none; letter-spacing: 0; opacity: .7; font-size: .9em; margin-left: 4px; color: var(--ink-soft); }
+/* Fields are lines to write on, not boxes */
+.field input:not([type=radio]):not([type=checkbox]), .field textarea {
+  width: 100%; min-height: 48px; padding: 10px 4px;
+  background: transparent; border: 0; border-bottom: 1.5px solid var(--paper-rule); border-radius: 0;
+  color: var(--ink); transition: border-color .2s, background-color .2s;
+}
+.field textarea { resize: vertical; min-height: 96px; background: rgba(29,42,58,.03); border-radius: 6px 6px 0 0; }
+.field input::placeholder, .field textarea::placeholder { color: rgba(29,42,58,.4); }
+.field input:focus, .field textarea:focus { outline: none; border-bottom-color: var(--gold-dark); background: rgba(212,175,55,.08); }
+.field [aria-invalid="true"] { border-bottom-color: var(--error-ink) !important; }
+.field__error { min-height: 0; margin-top: 6px; font-size: var(--step--1); color: var(--error-ink); }
 .field__error:empty { display: none; }
 
 .choice { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -563,21 +661,21 @@ p { margin: 0; }
 .choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
 .choice span {
   display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 16px;
-  border: 1px solid rgba(253,251,247,.25); border-radius: 999px; text-align: center;
+  border: 1px solid rgba(27,59,95,.3); border-radius: 999px; text-align: center;
   transition: background-color .2s, border-color .2s, color .2s;
 }
 .choice input:checked + span { background: var(--gold); border-color: var(--gold); color: var(--navy-ink); font-weight: 500; }
-.choice input:focus-visible + span { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+.choice input:focus-visible + span { outline: 2px solid var(--navy); outline-offset: 2px; }
 
-.stepper { display: inline-grid; grid-template-columns: 48px 72px 48px; border: 1px solid rgba(253,251,247,.22); border-radius: 999px; overflow: hidden; }
-.stepper button { border: 0; background: rgba(253,251,247,.06); font-size: 1.3rem; min-height: 48px; }
-.stepper button:hover { background: rgba(253,251,247,.14); }
+.stepper { display: inline-grid; grid-template-columns: 48px 72px 48px; border: 1px solid rgba(27,59,95,.3); border-radius: 999px; overflow: hidden; }
+.stepper button { border: 0; background: rgba(27,59,95,.05); color: var(--navy); font-size: 1.3rem; min-height: 48px; }
+.stepper button:hover { background: rgba(27,59,95,.1); }
 .field .stepper input { border: 0 !important; border-radius: 0; text-align: center; background: transparent; -moz-appearance: textfield; appearance: textfield; }
 .stepper input::-webkit-inner-spin-button, .stepper input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
 .trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .form-status { margin-top: 12px; text-align: center; font-size: var(--step--1); min-height: 1.4em; }
-.form-status.is-error { color: #ffb3b6; }
+.form-status.is-error { color: var(--error-ink); }
 
 .rsvp__done { text-align: center; padding: 12px 0; }
 .rsvp__done:focus { outline: none; }

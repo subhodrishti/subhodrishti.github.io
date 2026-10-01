@@ -162,7 +162,9 @@ async function wireBackend(ctx, backend) {
     await shot("09-bn-poll");
 
     const stitched = await page.$$eval(".kantha.is-stitched", (els) => els.length);
-    check(stitched >= 3 || reduced, `${tag}: kantha stitches did not sew in as sections scrolled by (${stitched})`);
+    // Since the Bengali reload only the polls section has scrolled by with a
+    // stitch (events and RSVP hang garlands instead of stitches).
+    check(stitched >= 1 || reduced, `${tag}: kantha stitches did not sew in as sections scrolled by (${stitched})`);
 
     // 6 · RSVP (in Bengali): errors, then a yes with confetti
     await scrollTo("#rsvp");

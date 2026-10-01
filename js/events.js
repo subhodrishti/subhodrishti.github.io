@@ -134,7 +134,7 @@
       const st = status(ev);
       const time = timeText(ev);
       const name = L(ev.name);
-      const li = h("li", { class: "event glass glass--dark", dataset: { id: ev.id } },
+      const li = h("li", { class: "event", dataset: { id: ev.id } },
         h("span", { class: `event__status ${st.cls}` }, st.text),
         h("p", { class: "event__date" },
           h("span", { class: "event__day" }, fmtDay(start)),
