@@ -24,6 +24,7 @@
   --foil-hi: #fff4c9;        /* the bright band of the gold-foil sheen */
   --error-ink: #a3242b;      /* form errors written on the paper RSVP card */
   --paper-rule: rgba(29, 42, 58, 0.28); /* the line a guest writes on */
+  --paper-edge: #e6d9bd;     /* the deepest sheet edge peeking under a countdown tear-off pad */
 
   /* Glass */
   --glass-light: rgba(253, 251, 247, 0.62);
@@ -289,13 +290,110 @@ p { margin: 0; }
 .hero__lede { font-family: var(--f-display); font-size: var(--step-1); font-style: italic; opacity: .9; }
 .hero__date { margin-top: 10px; font-size: var(--step-0); letter-spacing: .18em; text-transform: uppercase; color: var(--gold-light); }
 
+.hero__blessing {
+  margin-top: clamp(22px, 3.4vw, 30px);
+  padding-top: clamp(16px, 2.4vw, 22px);
+  max-width: 42ch;
+  border-top: 1px solid var(--glass-edge);
+}
+.hero__blessing-title {
+  font-family: var(--f-display); font-weight: 600; font-style: italic;
+  font-size: var(--step-0); color: var(--gold); line-height: 1.35;
+}
+.hero__blessing-body {
+  margin-top: 8px;
+  font-family: var(--f-body); font-size: var(--step--1);
+  line-height: 1.65; opacity: .78;
+}
+html:lang(bn) .hero__blessing-title { font-family: var(--f-bn); font-style: normal; }
+html:lang(bn) .hero__blessing-body { font-family: var(--f-bn-body); }
+
 .countdown { margin-top: clamp(24px, 4vw, 40px); padding: 16px 20px 18px; max-width: 480px; }
 .countdown__label { font-size: var(--step--1); letter-spacing: .2em; text-transform: uppercase; opacity: .75; }
-.countdown__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; text-align: center; }
-.countdown__grid > div { position: relative; }
-.countdown__grid > div + div::before { content: ""; position: absolute; left: -4px; top: 18%; bottom: 30%; width: 1px; background: var(--glass-edge); }
-.countdown__grid span { display: block; font-family: var(--f-display); font-size: var(--step-3); line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
+.countdown__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 2vw, 14px); margin-top: 14px; text-align: center; }
 .countdown__grid small { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; opacity: .7; }
+
+/* Tear-off pads (js/countdown.js). Ivory sheets bound by a gold strip, two
+   sheet edges peeking below for thickness. When a value changes the old top
+   sheet tears along its perforation, curls towards the guest and falls away. */
+.pad { display: grid; justify-items: stretch; gap: 10px; min-width: 0; }
+/* The eye sits above the binding, looking down as at a desk calendar, so the
+   falling sheet always shows its printed face, never its back. */
+.pad__stack { position: relative; display: block; isolation: isolate; margin-bottom: 6px; perspective: 420px; perspective-origin: 50% -40%; }
+.pad__stack::before, .pad__stack::after {
+  content: ""; position: absolute; z-index: -1; top: 0; border-radius: 3px 3px 7px 7px;
+}
+.pad__stack::before { left: 3px; right: 3px; bottom: -3px; background: var(--cream-2); }
+.pad__stack::after { left: 6px; right: 6px; bottom: -6px; background: var(--paper-edge); box-shadow: 0 10px 16px -8px rgba(0,0,0,.6); }
+.pad__sheet, .pad__tear {
+  display: block; padding: .36em .08em .2em; border-radius: 3px 3px 7px 7px;
+  font-family: var(--f-display); font-size: var(--step-3); font-weight: 500; line-height: 1;
+  font-variant-numeric: lining-nums tabular-nums; color: var(--navy-ink); white-space: nowrap;
+  background:
+    radial-gradient(circle, rgba(10,26,46,.3) 0 1px, transparent 1.5px) 0 11px / 6px 3px repeat-x, /* perforation */
+    repeating-linear-gradient(97deg, rgba(143,109,20,.028) 0 1px, transparent 1px 5px),              /* laid fibres */
+    linear-gradient(180deg, var(--cream) 50%, var(--cream-2));
+  box-shadow: inset 0 -1px 0 rgba(143,109,20,.18);
+}
+.pad__sheet { position: relative; z-index: 1; }
+/* A printed gold hairline inside each sheet */
+.pad__sheet::after, .pad__tear::before {
+  content: ""; position: absolute; inset: 16px 4px 4px; border: 1px solid var(--glass-edge);
+  border-radius: 2px 2px 5px 5px; pointer-events: none;
+}
+.pad__sheet[data-len="3"], .pad__tear[data-len="3"] { font-size: var(--step-2); padding-top: .62em; padding-bottom: .38em; }
+.pad__bind {
+  position: absolute; z-index: 4; left: -2px; right: -2px; top: -3px; height: 9px; border-radius: 3px;
+  background:
+    radial-gradient(circle, var(--gold-dark) 0 1.4px, transparent 2px) 24% 50% / 6px 6px no-repeat,
+    radial-gradient(circle, var(--gold-dark) 0 1.4px, transparent 2px) 76% 50% / 6px 6px no-repeat,
+    linear-gradient(180deg, var(--gold-light), var(--gold) 50%, var(--gold-dark));
+  box-shadow: 0 2px 3px rgba(0,0,0,.35);
+}
+/* The shadow the lifting sheet casts on the one beneath */
+.pad__shade {
+  position: absolute; z-index: 2; inset: 0; border-radius: 3px 3px 7px 7px; opacity: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(10,26,46,.42), rgba(10,26,46,0) 80%);
+}
+/* The falling sheet: one per pad, reused. Torn along the perforation. */
+.pad__tear {
+  position: absolute; z-index: 3; inset: 0; visibility: hidden; transform-origin: 50% 0;
+  clip-path: polygon(0 11px, 7% 9px, 13% 12px, 20% 9.5px, 27% 12px, 34% 10px, 41% 12.5px, 48% 9px, 55% 11.5px,
+                     62% 9.5px, 70% 12px, 77% 10px, 85% 12px, 92% 9px, 100% 11px, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+.pad__tear::after {
+  /* the curl darkens the lifted lower edge */
+  content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: 0;
+  background: linear-gradient(180deg, transparent 35%, rgba(10,26,46,.2));
+}
+.pad__tear[data-flip] { visibility: visible; animation: .64s cubic-bezier(.45,.05,.4,1) both; }
+.pad__tear[data-flip]::after { animation: pad-curl .64s ease-out both; }
+.pad__tear[data-flip="0"] { animation-name: pad-tear-l; }
+.pad__tear[data-flip="1"] { animation-name: pad-tear-r; }
+.pad__tear[data-flip="1"]::after { animation-name: pad-curl-b; } /* new name restarts it */
+.pad__stack[data-flip] .pad__shade { animation: pad-shade .64s ease-out both; }
+.pad__stack[data-flip="1"] .pad__shade { animation-name: pad-shade-b; }
+/* Peels from the binding, then drops under gravity. Opaque while it still
+   covers the new number, so the two never ghost; fades only as it leaves. */
+@keyframes pad-tear-l {
+  0% { transform: none; opacity: 1; }
+  25% { transform: rotateX(30deg) rotateZ(-1.5deg); }
+  50% { transform: translate3d(-3px, 22%, 0) rotateX(58deg) rotateZ(-5deg); animation-timing-function: cubic-bezier(.5, 0, .9, .55); }
+  86% { opacity: 1; }
+  100% { transform: translate3d(-10px, 125%, 0) rotateX(84deg) rotateZ(-12deg); opacity: 0; }
+}
+@keyframes pad-tear-r {
+  0% { transform: none; opacity: 1; }
+  25% { transform: rotateX(30deg) rotateZ(1.5deg); }
+  50% { transform: translate3d(3px, 22%, 0) rotateX(58deg) rotateZ(5deg); animation-timing-function: cubic-bezier(.5, 0, .9, .55); }
+  86% { opacity: 1; }
+  100% { transform: translate3d(10px, 125%, 0) rotateX(84deg) rotateZ(12deg); opacity: 0; }
+}
+@keyframes pad-curl { 40%, 100% { opacity: 1; } }
+@keyframes pad-curl-b { 40%, 100% { opacity: 1; } }
+@keyframes pad-shade { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes pad-shade-b { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
 
 .hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
 
@@ -811,6 +909,7 @@ html:lang(bn) body * { letter-spacing: 0 !important; text-transform: none !impor
 html:lang(bn) h1, html:lang(bn) h2, html:lang(bn) h3 { line-height: 1.3; }
 html:lang(bn) .hero__names { line-height: 1.2; font-size: clamp(3rem, 1.8rem + 7vw, 7rem); }
 html:lang(bn) .countdown__grid small, html:lang(bn) .event__meta b { font-size: .8rem; }
+html:lang(bn) .pad__sheet, html:lang(bn) .pad__tear { font-weight: 400; line-height: 1.1; }
 .seal__mono, .topbar__mono, .footer__mono { font-family: var(--f-mono); }
 .tag, .poll__opt span { font-family: "Jost", var(--f-body); }
 
@@ -971,4 +1070,5 @@ body::after {
   .kantha { clip-path: none; transition: none; }
   .btn--gold.is-magnet, .chip.is-magnet { transform: none; }
   .js .ritual { opacity: 1; transform: none; }
+  .pad__tear, .pad__shade { display: none; } /* countdown sheets swap in place, no tear */
 }

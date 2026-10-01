@@ -143,7 +143,7 @@
     <div class="curtain__valance" aria-hidden="true"></div>
     <div class="lang-switch lang-switch--curtain" role="group" data-i18n-attr="aria-label:lang.label"></div>
     <div class="curtain__center">
-      <p class="curtain__eyebrow" lang="bn">শুভ বিবাহ</p>
+      <p class="curtain__eyebrow" lang="bn">॥ শ্রী শ্রী প্রজাপতয়ে নমঃ ॥</p>
       <p class="curtain__greeting" id="curtain-greeting">An invitation for you</p>
       <button class="seal" id="open-invite" type="button">
         <span class="seal__disc seal__disc--spin" aria-hidden="true">
@@ -180,7 +180,7 @@
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero__inner">
         <div class="hero__copy">
-          <p class="hero__bn" lang="bn">শুভ বিবাহ</p>
+          <p class="hero__bn" lang="bn">॥ শ্রী শ্রী প্রজাপতয়ে নমঃ ॥</p>
           <p class="hero__dear" id="hero-dear" hidden></p>
           <p class="hero__kicker" data-i18n="hero.kicker">Together with their families</p>
           <h1 class="hero__names" id="hero-title">
@@ -191,13 +191,20 @@
           <p class="hero__lede" data-i18n="hero.lede">invite you to celebrate their wedding</p>
           <p class="hero__date" data-bind="dateLine">10–13 December 2026 · Kolkata</p>
 
+          <div class="hero__blessing">
+            <p class="hero__blessing-title" data-i18n="hero.blessingTitle">শুভ পরিণয়: অনুরাগের রঙে আঁকা এক নতুন দিগন্ত</p>
+            <p class="hero__blessing-body" data-i18n="hero.blessingBody">মাঙ্গলিক সানাইয়ের সুরে, আমাদের নতুন জীবনের পথচলায় আপনাদের স্নেহে উপস্থিতি কাম্য।</p>
+          </div>
+
           <div class="countdown glass glass--dark" id="countdown">
             <p class="countdown__label" id="countdown-label">Until the celebrations begin</p>
             <div class="countdown__grid" role="timer" aria-labelledby="countdown-label">
-              <div><span data-unit="days">--</span><small data-i18n="countdown.days">days</small></div>
-              <div><span data-unit="hours">--</span><small data-i18n="countdown.hours">hours</small></div>
-              <div><span data-unit="minutes">--</span><small data-i18n="countdown.minutes">minutes</small></div>
-              <div><span data-unit="seconds">--</span><small data-i18n="countdown.seconds">seconds</small></div>
+              <!-- Tear-off pads: .pad__sheet holds the live value; js/countdown.js adds the
+                   decorative binding, shade and falling sheet (aria-hidden). -->
+              <div class="pad"><span class="pad__stack"><span class="pad__sheet" data-unit="days">--</span></span><small data-i18n="countdown.days">days</small></div>
+              <div class="pad"><span class="pad__stack"><span class="pad__sheet" data-unit="hours">--</span></span><small data-i18n="countdown.hours">hours</small></div>
+              <div class="pad"><span class="pad__stack"><span class="pad__sheet" data-unit="minutes">--</span></span><small data-i18n="countdown.minutes">minutes</small></div>
+              <div class="pad"><span class="pad__stack"><span class="pad__sheet" data-unit="seconds">--</span></span><small data-i18n="countdown.seconds">seconds</small></div>
             </div>
           </div>
 
