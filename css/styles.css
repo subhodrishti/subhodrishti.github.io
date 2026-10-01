@@ -48,7 +48,9 @@
 
   /* Space & shape */
   --gutter: clamp(16px, 4vw, 48px);
-  --section-y: clamp(72px, 10vw, 140px);
+  /* Sized by the screen's height as well as its width, so each section reads as about one screen */
+  --section-y: clamp(32px, 3vw + 2svh, 80px);
+  --topbar-h: 68px; /* .topbar: 12px + the 44px sound button + 12px */
   --radius: 18px;
   --radius-sm: 10px;
   --arch: 999px 999px var(--radius) var(--radius);
@@ -62,7 +64,11 @@
 
 /* ---------- Base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+html {
+  scroll-behavior: smooth; -webkit-text-size-adjust: 100%;
+  /* Sections settle into place like pages, without trapping a scroll mid-section */
+  scroll-snap-type: y proximity; scroll-padding-top: var(--topbar-h);
+}
 body {
   margin: 0;
   background: var(--cream);
@@ -363,7 +369,7 @@ p { margin: 0; }
     radial-gradient(80% 70% at 10% 0%, rgba(15,82,87,.55), transparent 60%),
     linear-gradient(170deg, var(--navy) 0%, var(--navy-deep) 70%, var(--navy-ink) 100%);
   color: var(--cream);
-  padding: clamp(96px, 12vw, 128px) var(--gutter) 0;
+  padding: calc(var(--topbar-h) + clamp(8px, 2svh, 28px)) var(--gutter) 0;
 }
 /* The lamp-lit thakur dalan the curtain opens onto (assets/decor/thakur-dalan-*.webp).
    Desktop: the wide scene with its doorway (55% across) behind the couple,
@@ -392,11 +398,11 @@ p { margin: 0; }
   max-width: 1180px; margin: 0 auto;
   display: grid; grid-template-columns: 1.15fr .85fr; align-items: end; gap: clamp(24px, 4vw, 64px);
 }
-.hero__copy { padding-bottom: clamp(40px, 8vw, 110px); }
+.hero__copy { padding-bottom: clamp(20px, 4svh, 48px); }
 .hero__bn { font-family: var(--f-bn); font-size: var(--step-2); color: var(--gold); line-height: 1.2; }
 .hero__dear { margin-top: 12px; font-family: var(--f-display); font-style: italic; font-size: var(--step-1); color: var(--gold-light); }
-.hero__invocation { margin-top: 8px; font-size: var(--step--1); letter-spacing: .12em; color: var(--gold-light); opacity: .85; }
-.hero__kicker { margin-top: 18px; font-family: var(--f-display); font-size: var(--step-1); font-style: italic; opacity: .9; }
+.hero__invocation { margin-top: 8px; font-size: var(--step--1); letter-spacing: .12em; color: var(--gold-light); opacity: .85; text-wrap: balance; }
+.hero__kicker { margin-top: clamp(10px, 1.8svh, 18px); font-family: var(--f-display); font-size: var(--step-1); font-style: italic; opacity: .9; }
 /* The card's three lines: bride, "with", groom. Each name stays on one line. */
 .hero__names {
   margin: .14em 0 .1em;
@@ -404,7 +410,7 @@ p { margin: 0; }
   letter-spacing: -.02em; line-height: 1;
   font-variation-settings: "opsz" 96;
 }
-.hero__names { font-size: min(clamp(2.4rem, 1rem + 5.4vw, 5rem), (100vw - 2 * var(--gutter)) / 7.4); }
+.hero__names { font-size: min(clamp(2.4rem, 1rem + 5.4vw, 5rem), (100vw - 2 * var(--gutter)) / 7.4, 9svh); }
 .hero__names > span { display: block; white-space: nowrap; }
 .hero__names:focus { outline: none; }
 .hero__names .amp {
@@ -412,14 +418,14 @@ p { margin: 0; }
   font-size: .48em; margin: .1em 0; line-height: 1.2;
 }
 .hero__parents { font-family: var(--f-display); font-size: var(--step-1); font-style: italic; opacity: .9; }
-.hero__date { margin-top: 14px; }
+.hero__date { margin-top: clamp(6px, 1.4svh, 14px); }
 .hero__date > span { display: block; }
 .hero__date-range { margin-top: 6px; font-size: var(--step--1); letter-spacing: .18em; text-transform: uppercase; color: var(--gold-light); }
 
 .hero__blessing {
-  margin-top: clamp(22px, 3.4vw, 30px);
-  padding-top: clamp(16px, 2.4vw, 22px);
-  max-width: 42ch;
+  margin-top: clamp(14px, 2.4svh, 30px);
+  padding-top: clamp(12px, 2svh, 22px);
+  max-width: 58ch;
   border-top: 1px solid var(--glass-edge);
 }
 .hero__blessing-title {
@@ -427,13 +433,13 @@ p { margin: 0; }
   font-size: var(--step-0); color: var(--gold); line-height: 1.35;
 }
 .hero__closing {
-  margin-top: 12px;
+  margin-top: clamp(6px, 1.2svh, 12px);
   font-family: var(--f-display); font-style: italic;
-  font-size: var(--step-0); line-height: 1.55; opacity: .88;
+  font-size: var(--step-0); line-height: 1.5; opacity: .88;
 }
 .hero__blessing-title:lang(bn) { font-family: var(--f-bn); font-style: normal; }
 
-.countdown { margin-top: clamp(24px, 4vw, 40px); padding: 16px 20px 18px; max-width: 480px; }
+.countdown { margin-top: clamp(16px, 3svh, 40px); padding: 16px 20px 18px; max-width: 480px; }
 .countdown__label { font-size: var(--step--1); letter-spacing: .2em; text-transform: uppercase; opacity: .75; }
 .countdown__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 2vw, 14px); margin-top: 14px; text-align: center; }
 .countdown__grid small { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; opacity: .7; }
@@ -520,10 +526,13 @@ p { margin: 0; }
 @keyframes pad-shade { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes pad-shade-b { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
 
-.hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(16px, 2.8svh, 28px); }
 
+/* The couple is sized by the height left under the top bar: they stand at 0.82 of
+   the frame in a 472/880 wardrobe (js/avatar-frame.js), so about 1.53x its width tall. */
 .hero__stage {
-  position: relative; margin: 0; align-self: end; justify-self: center; width: min(100%, 420px);
+  position: relative; margin: 0; align-self: end; justify-self: center;
+  width: min(100%, 420px, max(200px, (100svh - var(--topbar-h) - 140px) / 1.53));
   display: grid; justify-items: center; gap: 22px; padding-bottom: 28px; color: var(--gold);
 }
 .hero__frame { position: relative; width: 100%; }
@@ -593,7 +602,7 @@ p { margin: 0; }
 
 @media (max-width: 860px) {
   /* One column; the couple steps in right after the date line. */
-  .hero { padding-bottom: 48px; }
+  .hero { padding-bottom: clamp(24px, 4svh, 48px); }
   .hero::before {
     inset: 0; width: auto; aspect-ratio: auto; transform: none;
     background: url("../assets/decor/thakur-dalan-tall.webp") 53% 40% / cover no-repeat;
@@ -606,18 +615,50 @@ p { margin: 0; }
   }
   .hero__inner { grid-template-columns: 1fr; gap: 0; text-align: center; }
   .hero__copy { display: contents; }
-  .hero__stage { order: 1; width: min(100%, 360px); margin-top: 20px; padding-bottom: 0; }
-  .hero__frame { width: min(72%, 280px); }
+  .hero__bn { font-size: var(--step-1); }
+  .hero__stage { order: 1; width: min(100%, 360px); margin-top: clamp(10px, 2svh, 20px); padding-bottom: 0; gap: 16px; }
+  /* About a third of the screen tall, so the couple never fills a short or sideways phone */
+  .hero__frame { width: min(60%, 240px, max(150px, 36svh / 1.53)); }
   /* The blessings follow the couple, so the couple shows sooner on a phone. */
   .hero__blessing { order: 2; margin-left: auto; margin-right: auto; }
-  .countdown { order: 2; width: 100%; margin: 36px auto 0; }
+  .countdown { order: 2; width: 100%; margin: clamp(16px, 2.6svh, 28px) auto 0; padding: 12px 16px 14px; }
+  .countdown__grid { margin-top: 10px; }
+  .pad__sheet, .pad__tear { font-size: var(--step-2); }
   .hero__actions { order: 3; justify-content: center; }
+}
+
+/* Short laptop and landscape-tablet screens (768–920px tall): the hero's lower
+   lines tighten, and where the copy column is wide enough the countdown and the
+   two buttons share one row. */
+@media (min-width: 861px) and (max-height: 920px) {
+  .hero__bn { font-size: var(--step-1); }
+  .hero .hero__names { font-size: min(clamp(2.4rem, 1rem + 5.4vw, 5rem), (100vw - 2 * var(--gutter)) / 7.4, 8svh); }
+  .hero__stage { gap: 14px; padding-bottom: 16px; width: min(100%, 420px, max(200px, (100svh - var(--topbar-h) - 170px) / 1.53)); }
+  .countdown { padding: 12px 16px 14px; }
+  .countdown__grid { margin-top: 10px; }
+  .pad__sheet, .pad__tear { font-size: var(--step-2); }
+  .section .section__head h2 { font-size: min(var(--step-3), 7svh); }
+  .rsvp .field textarea { min-height: 60px; }
+}
+/* 360px countdown + 20px + the stacked buttons fit the copy column from about 1260px wide */
+@media (min-width: 1260px) and (max-height: 920px) {
+  .countdown { display: inline-block; vertical-align: bottom; width: 360px; }
+  .hero__actions { display: inline-flex; vertical-align: bottom; flex-direction: column; margin-left: 20px; }
 }
 
 /* ==========================================================================
    Sections
    ========================================================================== */
-.section { position: relative; isolation: isolate; padding: var(--section-y) var(--gutter); }
+/* Every section is at least a screen under the top bar, its content centred in it,
+   so short ones sit like a page and the soft snap lands cleanly. */
+.section {
+  position: relative; isolation: isolate; padding: var(--section-y) var(--gutter);
+  min-height: calc(100svh - var(--topbar-h));
+  display: flex; flex-direction: column; justify-content: center;
+}
+/* Auto side margins would otherwise shrink a flex child to its content */
+.section > * { width: 100%; }
+main > section { scroll-snap-align: start; }
 .section--cream { background: var(--cream); }
 /* Handmade paper fibres (assets/decor/paper.webp), under the living backdrop */
 .section--cream::before {
@@ -636,17 +677,17 @@ p { margin: 0; }
     linear-gradient(180deg, var(--navy), var(--navy-deep));
   color: var(--cream);
 }
-.section__head { max-width: 640px; margin: 0 auto clamp(32px, 5vw, 56px); text-align: center; }
-.section__head h2 { font-size: var(--step-3); font-style: italic; font-weight: 400; }
-.section__head p { margin-top: 12px; color: var(--ink-soft); }
+.section__head { width: 100%; max-width: 900px; margin: 0 auto clamp(20px, 3svh, 40px); text-align: center; }
+.section__head h2 { font-size: var(--step-3); font-style: italic; font-weight: 400; text-wrap: balance; }
+.section__head p { max-width: 640px; margin: clamp(6px, 1.2svh, 12px) auto 0; color: var(--ink-soft); }
 .section--emerald .section__head p, .section--navy .section__head p { color: rgba(253,251,247,.75); }
-.rule { display: block; width: 180px; height: 18px; margin: 0 auto 18px; color: var(--gold); }
+.rule { display: block; width: 180px; height: 18px; margin: 0 auto clamp(8px, 1.6svh, 18px); color: var(--gold); }
 
 /* Hung decorations (assets/decor, made by tools/prepare_decorations.py).
    A marigold toran over the events, a shola chandmala over the RSVP. They
    hang from the section's top edge into its padding, never over text. */
 .section--toran {
-  --toran-w: min(820px, 100vw - 24px);
+  --toran-w: min(640px, 100vw - 24px, 72svh);
   --toran-h: calc(var(--toran-w) * 459 / 1400);
   padding-top: calc(var(--toran-h) * .82 + 12px);
 }
@@ -656,7 +697,7 @@ p { margin: 0; }
   background: url("../assets/decor/marigold-swag.webp") center top / 100% auto no-repeat;
   filter: drop-shadow(0 10px 10px rgba(0,0,0,.3));
 }
-.section--chandmala { --chandmala-h: clamp(84px, 9vw, 124px); padding-top: calc(var(--chandmala-h) + clamp(20px, 4vw, 48px)); }
+.section--chandmala { --chandmala-h: clamp(64px, 7vw, 96px); padding-top: calc(var(--chandmala-h) + clamp(12px, 3svh, 40px)); }
 .section--chandmala::before {
   content: ""; position: absolute; z-index: 2; top: 0; left: 0; right: 0; height: var(--chandmala-h); pointer-events: none;
   background: url("../assets/decor/chandmala.webp") center top / auto 100% repeat-x;
@@ -695,7 +736,9 @@ p { margin: 0; }
 }
 .family { text-align: center; }
 .family__frame {
-  position: relative; width: min(100%, 240px); aspect-ratio: 5 / 7; margin: 0 auto 22px;
+  /* Sized by the height left for the portrait once the heading and names are counted */
+  position: relative; width: min(100%, 240px, max(160px, (100svh - 500px) * 5 / 7)); aspect-ratio: 5 / 7;
+  margin: 0 auto clamp(12px, 2svh, 22px);
   display: grid; place-items: center; overflow: hidden;
   border-radius: var(--arch); border: 1px solid var(--glass-edge);
   background:
@@ -707,40 +750,53 @@ p { margin: 0; }
 .family__seal { margin: 0; }
 .family__role { color: var(--gold-dark); font-size: var(--step--1); letter-spacing: .22em; text-transform: uppercase; }
 .family__name { margin-top: 6px; color: var(--navy); font-size: var(--step-2); font-style: italic; font-weight: 400; line-height: 1.15; }
-.family__parents { max-width: 30ch; margin: 12px auto 0; text-wrap: balance; color: var(--ink); font-family: var(--f-display); font-style: italic; font-size: var(--step-0); line-height: 1.5; }
+.family__parents { max-width: 30ch; margin: clamp(6px, 1.2svh, 12px) auto 0; text-wrap: balance; color: var(--ink); font-family: var(--f-display); font-style: italic; font-size: var(--step-0); line-height: 1.5; }
 .family__place { margin-top: 8px; color: var(--ink-soft); font-size: var(--step--1); letter-spacing: .18em; text-transform: uppercase; }
 .families__amp {
   align-self: center; margin-top: -60px;
   font-family: var(--f-mono); font-style: italic; font-size: var(--step-3); color: var(--gold);
 }
 .families::after {
-  content: ""; grid-column: 1 / -1; justify-self: center; width: min(100%, 720px); aspect-ratio: 900 / 307;
-  margin-top: clamp(4px, 2vw, 16px); pointer-events: none;
+  /* Drawn up under the names, as the knot between the two columns */
+  content: ""; grid-column: 1 / -1; justify-self: center; width: min(100%, 520px, 52svh); aspect-ratio: 900 / 307;
+  margin-top: calc(-1 * clamp(8px, 3svh, 32px)); pointer-events: none;
   background: url("../assets/decor/gathbandhan.webp") center / contain no-repeat;
   filter: drop-shadow(0 8px 10px rgba(15,36,64,.18));
 }
 .js .family { opacity: 0; transform: translateY(18px); }
 .js .family.is-visible { opacity: 1; transform: none; transition: opacity .7s var(--ease-out), transform .8s var(--ease-out); }
 .js .family--groom.is-visible { transition-delay: .12s; }
+/* Phones keep the two families side by side, smaller, rather than stacked */
 @media (max-width: 640px) {
+  .families { gap: 8px; }
+  .families__amp { align-self: start; margin-top: min(82px, 20vw); font-size: var(--step-2); } /* level with the portraits */
+  .family__frame { width: min(100%, 150px); box-shadow: 0 0 0 4px var(--cream), 0 0 0 5px var(--glass-edge), 0 12px 24px rgba(15,36,64,.2); }
+  .family__role { font-size: .68rem; letter-spacing: .14em; }
+  .family__name { font-size: var(--step-1); }
+  .family__parents { font-size: var(--step--1); line-height: 1.45; }
+  .family__place { font-size: .7rem; letter-spacing: .12em; }
+  .families::after { margin-top: 4px; }
+}
+@media (max-width: 339px) {
   .families { grid-template-columns: 1fr; gap: 18px; }
-  .families__amp { margin: 0; text-align: center; font-size: var(--step-2); }
-  .family__frame { width: min(62%, 210px); }
+  .families__amp { align-self: center; margin: 0; text-align: center; }
+  .family__frame { width: min(62%, 180px); }
 }
 
 /* A concise cultural guide: the family can turn its soft pending labels into
    confirmed inclusions in config without changing the layout. */
-.rituals__notice { max-width: 660px; margin: -22px auto 32px; text-align: center; color: var(--ink-soft); font-size: var(--step--1); }
-.rituals { max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(28px, 4vw, 48px) clamp(24px, 4vw, 56px); }
-/* Open entries on the paper rather than boxes: a big gold numeral, a short
-   gold thread under it, then the words. */
-.ritual { position: relative; padding: 0 4px; }
-.ritual__number::after { content: ""; display: block; width: 44px; height: 1px; margin-top: 12px; background: linear-gradient(90deg, var(--gold), transparent); }
-.ritual__number { display: block; font-family: var(--f-display); font-style: italic; font-size: var(--step-3); line-height: 1; color: var(--gold-dark); }
-.ritual__status { display: inline-block; margin: 13px 0 8px; padding: 3px 9px; border: 1px solid rgba(143,109,20,.34); border-radius: 999px; color: var(--gold-dark); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+.rituals__notice { max-width: 660px; margin: calc(-1 * clamp(6px, 1.4svh, 18px)) auto clamp(16px, 3svh, 32px); text-align: center; color: var(--ink-soft); font-size: var(--step--1); }
+.rituals { max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3.4svh, 40px) clamp(24px, 4vw, 56px); }
+/* Open entries on the paper rather than boxes: a gold numeral with a short
+   gold thread under it and the status beside it, then the words. */
+.ritual { position: relative; padding: 0 4px; display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; align-content: start; }
+.ritual > h3, .ritual > p:last-child { grid-column: 1 / -1; }
+.ritual__number::after { content: ""; display: block; width: 44px; height: 1px; margin-top: 8px; background: linear-gradient(90deg, var(--gold), transparent); }
+.ritual__number { display: block; font-family: var(--f-display); font-style: italic; font-size: var(--step-2); line-height: 1; color: var(--gold-dark); }
+.ritual__status { justify-self: start; margin: 0; padding: 3px 9px; border: 1px solid rgba(143,109,20,.34); border-radius: 999px; color: var(--gold-dark); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
 .ritual.is-confirmed .ritual__status { background: var(--emerald); border-color: var(--emerald); color: var(--cream); }
-.ritual h3 { color: var(--navy); font-size: var(--step-1); font-style: italic; }
-.ritual h3 + p { margin-top: 8px; color: var(--ink-soft); font-size: var(--step--1); }
+.ritual h3 { margin-top: 10px; color: var(--navy); font-size: var(--step-1); font-style: italic; }
+.ritual h3 + p { margin-top: 6px; color: var(--ink-soft); font-size: var(--step--1); }
 .js .ritual { opacity: 0; transform: translateY(18px) scale(.985); }
 .js .ritual.is-visible { opacity: 1; transform: none; transition: opacity .65s var(--ease-out), transform .75s var(--ease-out); }
 
@@ -755,7 +811,18 @@ p { margin: 0; }
 .day-mode__contacts { display: grid; gap: 3px; margin-top: 12px; font-size: var(--step--1); }
 .day-mode__contacts a { color: var(--gold-light); }
 @media (max-width: 760px) { .rituals { grid-template-columns: 1fr 1fr; } .day-mode { bottom: max(10px, env(safe-area-inset-bottom)); } }
-@media (max-width: 440px) { .rituals { grid-template-columns: 1fr; } .day-mode { left: 10px; right: 10px; width: auto; } }
+/* Phones: one compact row per ritual, the numeral in a narrow column on the left */
+@media (max-width: 640px) {
+  .rituals { grid-template-columns: 1fr; gap: 16px; }
+  .ritual { grid-template-columns: 2.6rem 1fr; column-gap: 12px; align-items: start; }
+  .ritual__number { grid-row: 1 / span 3; font-size: var(--step-1); padding-top: 4px; }
+  .ritual__number::after { width: 28px; }
+  .ritual > .ritual__status, .ritual > h3, .ritual > p:last-child { grid-column: 2; }
+  .ritual__status { font-size: .66rem; }
+  .ritual h3 { margin-top: 4px; }
+  .ritual h3 + p { margin-top: 2px; }
+}
+@media (max-width: 440px) { .day-mode { left: 10px; right: 10px; width: auto; } }
 
 /* ==========================================================================
    3 · Gallery
@@ -763,9 +830,12 @@ p { margin: 0; }
 .gallery-panel { max-width: 1180px; margin: 0 auto; }
 
 .photos { display: grid; place-items: center; list-style: none; margin: 0; padding: 0; }
-.story-phone { position: relative; width: min(100%, 350px); padding: 12px; border: 4px solid #15243a; border-radius: 42px; background: linear-gradient(145deg, #263951, #090f19 58%, #3b4c62); box-shadow: 0 28px 52px -24px rgba(10,26,46,.65), inset 0 0 0 1px rgba(255,255,255,.24); }
+/* The story's height follows the screen; its width follows the height. */
+.story-phone {
+  --story-h: clamp(360px, 100svh - var(--topbar-h) - 260px, 590px);
+  position: relative; width: min(100%, 350px, var(--story-h) * .56 + 32px); padding: 12px; border: 4px solid #15243a; border-radius: 42px; background: linear-gradient(145deg, #263951, #090f19 58%, #3b4c62); box-shadow: 0 28px 52px -24px rgba(10,26,46,.65), inset 0 0 0 1px rgba(255,255,255,.24); }
 .story-phone__speaker { position: absolute; z-index: 2; top: 20px; left: 50%; width: 92px; height: 22px; border-radius: 0 0 16px 16px; transform: translateX(-50%); background: #101923; }
-.story-phone__screen { position: relative; overflow: hidden; min-height: 590px; border-radius: 28px; background: #111d2d; color: #fff; }
+.story-phone__screen { position: relative; overflow: hidden; min-height: var(--story-h); border-radius: 28px; background: #111d2d; color: #fff; }
 .story-phone__progress { position: absolute; z-index: 2; top: 16px; left: 14px; right: 14px; display: flex; gap: 4px; }
 .story-phone__progress i { position: relative; flex: 1; height: 3px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.42); }
 .story-phone__progress i::after { content: ""; position: absolute; inset: 0; background: #fff; transform: translateX(-101%); }
@@ -773,7 +843,7 @@ p { margin: 0; }
 .story-phone__progress i.is-active::after { animation: story-progress 5.6s linear forwards; }
 @keyframes story-progress { to { transform: none; } }
 .story-phone__topline { position: absolute; z-index: 2; top: 30px; left: 18px; right: 18px; display: flex; justify-content: space-between; font-size: .72rem; font-weight: 600; text-shadow: 0 1px 5px #000; }
-.story-phone__photo { display: block; width: 100%; height: 590px; padding: 0; border: 0; border-radius: 0; background: #172b43; }
+.story-phone__photo { display: block; width: 100%; height: var(--story-h); padding: 0; border: 0; border-radius: 0; background: #172b43; }
 .story-phone__photo img { width: 100%; height: 100%; object-fit: cover; animation: story-photo-in .55s var(--ease-out); }
 @keyframes story-photo-in { from { opacity: .2; transform: scale(1.035); } }
 .story-phone__meta { position: absolute; z-index: 2; right: 0; bottom: 0; left: 0; padding: 46px 18px 18px; background: linear-gradient(transparent, rgba(5,12,22,.94) 48%); text-shadow: 0 1px 4px #000; }
@@ -786,7 +856,18 @@ p { margin: 0; }
 .story-phone__nav { position: absolute; z-index: 3; top: 45%; right: 0; left: 0; display: flex; justify-content: space-between; pointer-events: none; }
 .story-phone__nav button { width: 44px; height: 72px; border: 0; background: rgba(0,0,0,.18); color: #fff; font-size: 2rem; pointer-events: auto; }
 .story-phone__nav button:first-child { border-radius: 0 18px 18px 0; }.story-phone__nav button:last-child { border-radius: 18px 0 0 18px; }
-@media (max-width: 420px) { .story-phone { width: min(100%, 326px); } .story-phone__screen, .story-phone__photo { min-height: 540px; height: 540px; } }
+@media (max-width: 420px) { .story-phone { --story-h: clamp(360px, 100svh - var(--topbar-h) - 230px, 540px); } }
+/* Wide screens: the heading sits beside the story instead of above it */
+@media (min-width: 1024px) {
+  #gallery {
+    display: grid; grid-template-columns: minmax(0, 420px) auto; justify-content: center; align-content: center;
+    column-gap: clamp(48px, 7vw, 120px); align-items: center;
+  }
+  #gallery > .section__head { margin: 0; text-align: left; }
+  #gallery > .section__head .rule { margin-left: 0; }
+  #gallery > .section__head p { margin-left: 0; }
+  #gallery > .gallery-panel { margin: 0; }
+}
 
 .empty { max-width: 420px; margin: 0 auto; text-align: center; padding: 32px 16px; }
 .empty__title { font-family: var(--f-display); font-style: italic; font-size: var(--step-2); margin-bottom: 8px; color: var(--navy); }
@@ -801,8 +882,9 @@ p { margin: 0; }
 }
 .events {
   --thread-w: clamp(26px, 3.4vw, 36px); --thread-pad: clamp(46px, 6vw, 64px);
+  --day: clamp(2.4rem, 5svh, 3.2rem); /* .event__day, which each tie lines up with */
   list-style: none; margin: 0; padding: 0 0 0 var(--thread-pad); position: relative;
-  display: grid; gap: clamp(36px, 5vw, 56px);
+  display: grid; gap: clamp(24px, 3svh, 40px);
 }
 /* A marigold string runs down the list; each event hangs off it. */
 .events::before {
@@ -816,10 +898,10 @@ p { margin: 0; }
 .events--no-stage .events::before, .events--no-stage .event::before { display: none; }
 
 /* The couple, changing into each event's look as its card passes the middle. */
-.events-stage { position: sticky; top: 96px; margin: 0; display: grid; justify-items: center; gap: 14px; }
+.events-stage { position: sticky; top: calc(var(--topbar-h) + 16px); margin: 0; display: grid; justify-items: center; gap: 14px; }
 .events-stage__frame {
   position: relative; overflow: hidden;
-  width: min(100%, 340px, calc((100vh - 220px) * .56));
+  width: min(100%, 340px, calc((100svh - 220px) * .56));
   padding: 30px 24px 0; border-radius: var(--arch);
   border: 1px solid var(--glass-edge);
   background:
@@ -832,7 +914,7 @@ p { margin: 0; }
 .events-stage__outfit { display: block; font-size: var(--step--1); opacity: .8; }
 /* The tie from the string to the event; it thickens while that event is on stage */
 .event::before {
-  content: ""; position: absolute; top: 34px; height: 1px;
+  content: ""; position: absolute; top: calc(8px + var(--day) * .45); height: 1px;
   left: calc(var(--thread-w) - var(--thread-pad) - 2px); width: calc(var(--thread-pad) - var(--thread-w) - 6px);
   background: linear-gradient(90deg, var(--gold), var(--glass-edge));
 }
@@ -848,7 +930,7 @@ p { margin: 0; }
 @media (min-width: 861px) {
   /* The couple stands inside a Bishnupur terracotta arch. Its opening has the
      couple's proportions, so the arch is sized from the couple's width. */
-  .events-stage { --couple-w: min(190px, calc((100vh - 260px) * .36), 16vw); padding-top: calc(var(--couple-w) * .8); }
+  .events-stage { --couple-w: min(190px, calc((100svh - 260px) * .36), 16vw); padding-top: calc(var(--couple-w) * .8); }
   .events-stage__frame {
     width: var(--couple-w); padding: 0; overflow: visible; border: 0; border-radius: 0; background: none;
   }
@@ -875,7 +957,7 @@ p { margin: 0; }
   .events-layout { display: block; }
   /* On phones the stage becomes a strip pinned under the top bar. */
   .events-stage {
-    position: sticky; top: 68px; z-index: 5;
+    position: sticky; top: var(--topbar-h); z-index: 5;
     display: flex; align-items: center; gap: 14px;
     margin: 0 calc(-1 * var(--gutter)) 18px; padding: 8px var(--gutter);
     background: rgba(10,58,62,.78); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
@@ -885,7 +967,9 @@ p { margin: 0; }
   .events-stage__avatar { width: 100%; }
   .events-stage__caption { text-align: left; }
 }
-.event { position: relative; display: flex; flex-direction: column; padding: 8px 0 0; }
+/* Each event is also a resting point for the soft snap, so the last one can sit in
+   the middle of the screen (and the couple change into its look) before the polls. */
+.event { position: relative; display: flex; flex-direction: column; padding: 8px 0 0; scroll-snap-align: center; }
 .event__status {
   position: absolute; top: 8px; right: 0;
   font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
@@ -893,11 +977,11 @@ p { margin: 0; }
 }
 .event__status--today { background: var(--gold); color: var(--navy-ink); border-color: var(--gold); }
 .event__date { display: flex; align-items: baseline; gap: 10px; }
-.event__day { font-family: var(--f-display); font-size: 3.6rem; line-height: .9; color: var(--gold); font-variant-numeric: lining-nums; }
+.event__day { font-family: var(--f-display); font-size: var(--day); line-height: .9; color: var(--gold); font-variant-numeric: lining-nums; }
 .event__month { font-size: var(--step--1); letter-spacing: .18em; text-transform: uppercase; line-height: 1.3; }
-.event__name { margin-top: 18px; font-size: var(--step-2); font-style: italic; font-weight: 400; }
+.event__name { margin-top: 8px; font-size: var(--step-2); font-style: italic; font-weight: 400; }
 .event__gloss { margin-top: 4px; opacity: .8; font-size: var(--step--1); }
-.event__meta { list-style: none; margin: 16px 0 20px; padding: 14px 0 0; border-top: 1px dashed var(--glass-edge); display: grid; gap: 6px; font-size: var(--step--1); }
+.event__meta { list-style: none; margin: 10px 0 14px; padding: 10px 0 0; border-top: 1px dashed var(--glass-edge); display: grid; gap: 6px; font-size: var(--step--1); }
 .event__meta li { display: grid; grid-template-columns: 58px 1fr; gap: 8px; }
 .event__meta b { font-weight: 500; letter-spacing: .12em; text-transform: uppercase; font-size: .68rem; opacity: .65; padding-top: .2em; }
 .event__meta .tba { opacity: .7; font-style: italic; }
@@ -955,13 +1039,19 @@ p { margin: 0; }
    (assets/decor/paper-sheet.webp, stretched by border-image). */
 .rsvp {
   position: relative; z-index: 1; color: var(--ink);
-  padding: clamp(18px, 4vw, 36px) clamp(10px, 3vw, 28px);
+  padding: clamp(10px, 2.6svh, 36px) clamp(10px, 3vw, 28px);
   border: 22px solid transparent;
   border-image: url("../assets/decor/paper-sheet.webp") 40 fill / 22px stretch;
   filter: drop-shadow(0 26px 30px rgba(0,0,0,.45));
 }
 .rsvp :focus-visible { outline-color: var(--navy); }
-.field { margin: 0 0 22px; padding: 0; border: 0; min-width: 0; }
+.field { margin: 0 0 clamp(14px, 2.4svh, 22px); padding: 0; border: 0; min-width: 0; }
+/* Wider screens: name and WhatsApp number share a line */
+@media (min-width: 640px) {
+  #rsvp-form { display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; }
+  #rsvp-form > * { grid-column: 1 / -1; }
+  #rsvp-form > .field:nth-child(-n+2) { grid-column: auto; }
+}
 .field > label, .field > legend { display: block; margin-bottom: 6px; font-size: var(--step--1); letter-spacing: .12em; text-transform: uppercase; color: var(--gold-dark); padding: 0; }
 .optional { text-transform: none; letter-spacing: 0; opacity: .7; font-size: .9em; margin-left: 4px; color: var(--ink-soft); }
 /* Fields are lines to write on, not boxes */
@@ -970,7 +1060,7 @@ p { margin: 0; }
   background: transparent; border: 0; border-bottom: 1.5px solid var(--paper-rule); border-radius: 0;
   color: var(--ink); transition: border-color .2s, background-color .2s;
 }
-.field textarea { resize: vertical; min-height: 96px; background: rgba(29,42,58,.03); border-radius: 6px 6px 0 0; }
+.field textarea { resize: vertical; min-height: clamp(72px, 11svh, 96px); background: rgba(29,42,58,.03); border-radius: 6px 6px 0 0; }
 .field input::placeholder, .field textarea::placeholder { color: rgba(29,42,58,.4); }
 .field input:focus, .field textarea:focus { outline: none; border-bottom-color: var(--gold-dark); background: rgba(212,175,55,.08); }
 .field [aria-invalid="true"] { border-bottom-color: var(--error-ink) !important; }
@@ -1007,7 +1097,7 @@ p { margin: 0; }
 /* ==========================================================================
    Footer, modals, confetti
    ========================================================================== */
-.footer { background: var(--navy-ink); color: rgba(253,251,247,.8); text-align: center; padding: 56px var(--gutter) calc(40px + env(safe-area-inset-bottom)); display: grid; gap: 8px; justify-items: center; }
+.footer { background: var(--navy-ink); color: rgba(253,251,247,.8); text-align: center; padding: 56px var(--gutter) calc(40px + env(safe-area-inset-bottom)); display: grid; gap: 8px; justify-items: center; scroll-snap-align: end; }
 .footer__mono { font-family: var(--f-display); font-size: 2.4rem; color: var(--cream); }
 .footer__small { font-size: var(--step--1); opacity: .7; }
 .footer .linkish { margin-top: 10px; font-size: var(--step--1); color: var(--gold-light); }
@@ -1121,7 +1211,7 @@ html:lang(bn) {
 }
 html:lang(bn) body * { letter-spacing: 0 !important; text-transform: none !important; }
 html:lang(bn) h1, html:lang(bn) h2, html:lang(bn) h3 { line-height: 1.3; }
-html:lang(bn) .hero__names { line-height: 1.2; font-size: clamp(3rem, 1.8rem + 7vw, 7rem); }
+html:lang(bn) .hero__names { line-height: 1.2; font-size: min(clamp(3rem, 1.8rem + 7vw, 7rem), 9svh); }
 html:lang(bn) .countdown__grid small, html:lang(bn) .event__meta b { font-size: .8rem; }
 html:lang(bn) .pad__sheet, html:lang(bn) .pad__tear { font-weight: 400; line-height: 1.1; }
 html:lang(bn) .families__amp { font-family: var(--f-bn); font-style: normal; }
@@ -1267,7 +1357,7 @@ body::after {
    Reduced motion: keep every state change, drop the travel.
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
+  html { scroll-behavior: auto; scroll-snap-type: none; } /* no pull between sections */
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
   .curtain__panel, .curtain__fabric, .curtain__fabric::after, .curtain__valance { transition: none; }
   .curtain.is-opening { opacity: 0; transition: opacity .4s; }
