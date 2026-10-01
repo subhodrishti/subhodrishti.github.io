@@ -367,17 +367,63 @@ p { margin: 0; }
 .section--emerald .section__head p, .section--navy .section__head p { color: rgba(253,251,247,.75); }
 .rule { display: block; width: 180px; height: 18px; margin: 0 auto 18px; color: var(--gold); }
 
+/* A concise cultural guide: the family can turn its soft pending labels into
+   confirmed inclusions in config without changing the layout. */
+.rituals__notice { max-width: 660px; margin: -22px auto 32px; text-align: center; color: var(--ink-soft); font-size: var(--step--1); }
+.rituals { max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.ritual { position: relative; min-height: 190px; padding: 24px; overflow: hidden; }
+.ritual::after { content: ""; position: absolute; inset: auto -30px -55px auto; width: 120px; height: 120px; border: 1px solid rgba(212,175,55,.28); border-radius: 50%; }
+.ritual__number { display: block; font-family: var(--f-display); font-size: var(--step-2); line-height: 1; color: var(--gold-dark); opacity: .7; }
+.ritual__status { display: inline-block; margin: 13px 0 8px; padding: 3px 9px; border: 1px solid rgba(143,109,20,.34); border-radius: 999px; color: var(--gold-dark); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+.ritual.is-confirmed .ritual__status { background: var(--emerald); border-color: var(--emerald); color: var(--cream); }
+.ritual h3 { color: var(--navy); font-size: var(--step-1); font-style: italic; }
+.ritual h3 + p { margin-top: 8px; color: var(--ink-soft); font-size: var(--step--1); }
+.js .ritual { opacity: 0; transform: translateY(18px) scale(.985); }
+.js .ritual.is-visible { opacity: 1; transform: none; transition: opacity .65s var(--ease-out), transform .75s var(--ease-out); }
+
+/* Fixed but deliberately compact: useful on a patchy venue connection and
+   stays clear of content on phones. */
+.day-mode { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 45; width: min(390px, calc(100vw - 32px)); padding: 16px; color: var(--cream); box-shadow: 0 18px 44px -22px rgba(0,0,0,.8); }
+.day-mode__kicker { color: var(--gold-light); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; }
+.day-mode__status { margin-top: 5px; font-family: var(--f-display); font-size: var(--step-1); font-style: italic; line-height: 1.25; }
+.day-mode__date, .day-mode__offline { margin-top: 6px; font-size: var(--step--1); opacity: .78; }
+.day-mode__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.day-mode__actions .btn { min-height: 40px; padding: .5em 1em; font-size: var(--step--1); }
+.day-mode__contacts { display: grid; gap: 3px; margin-top: 12px; font-size: var(--step--1); }
+.day-mode__contacts a { color: var(--gold-light); }
+@media (max-width: 760px) { .rituals { grid-template-columns: 1fr 1fr; } .day-mode { bottom: max(10px, env(safe-area-inset-bottom)); } }
+@media (max-width: 440px) { .rituals { grid-template-columns: 1fr; } .day-mode { left: 10px; right: 10px; width: auto; } }
+
 /* ==========================================================================
    3 · Gallery
    ========================================================================== */
 .gallery-panel { max-width: 1180px; margin: 0 auto; }
 
-.photos { list-style: none; margin: 0; padding: 0; columns: 3 260px; column-gap: 16px; }
-.photos li { break-inside: avoid; margin-bottom: 16px; }
-.photos button { display: block; width: 100%; padding: 0; border: 0; border-radius: var(--radius); overflow: hidden; background: var(--cream-2); box-shadow: 0 16px 30px -24px rgba(27,59,95,.8); }
-.photos img { width: 100%; height: auto; transition: transform .6s var(--ease-out); }
-.photos button:hover img { transform: scale(1.04); }
-.photos figcaption { padding: 8px 4px 0; font-size: var(--step--1); color: var(--ink-soft); }
+.photos { display: grid; place-items: center; list-style: none; margin: 0; padding: 0; }
+.story-phone { position: relative; width: min(100%, 350px); padding: 12px; border: 4px solid #15243a; border-radius: 42px; background: linear-gradient(145deg, #263951, #090f19 58%, #3b4c62); box-shadow: 0 28px 52px -24px rgba(10,26,46,.65), inset 0 0 0 1px rgba(255,255,255,.24); }
+.story-phone__speaker { position: absolute; z-index: 2; top: 20px; left: 50%; width: 92px; height: 22px; border-radius: 0 0 16px 16px; transform: translateX(-50%); background: #101923; }
+.story-phone__screen { position: relative; overflow: hidden; min-height: 590px; border-radius: 28px; background: #111d2d; color: #fff; }
+.story-phone__progress { position: absolute; z-index: 2; top: 16px; left: 14px; right: 14px; display: flex; gap: 4px; }
+.story-phone__progress i { position: relative; flex: 1; height: 3px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.42); }
+.story-phone__progress i::after { content: ""; position: absolute; inset: 0; background: #fff; transform: translateX(-101%); }
+.story-phone__progress i.is-done::after { transform: none; }
+.story-phone__progress i.is-active::after { animation: story-progress 5.6s linear forwards; }
+@keyframes story-progress { to { transform: none; } }
+.story-phone__topline { position: absolute; z-index: 2; top: 30px; left: 18px; right: 18px; display: flex; justify-content: space-between; font-size: .72rem; font-weight: 600; text-shadow: 0 1px 5px #000; }
+.story-phone__photo { display: block; width: 100%; height: 590px; padding: 0; border: 0; border-radius: 0; background: #172b43; }
+.story-phone__photo img { width: 100%; height: 100%; object-fit: cover; animation: story-photo-in .55s var(--ease-out); }
+@keyframes story-photo-in { from { opacity: .2; transform: scale(1.035); } }
+.story-phone__meta { position: absolute; z-index: 2; right: 0; bottom: 0; left: 0; padding: 46px 18px 18px; background: linear-gradient(transparent, rgba(5,12,22,.94) 48%); text-shadow: 0 1px 4px #000; }
+.story-phone__heart { width: 42px; height: 42px; padding: 0; border: 0; border-radius: 50%; background: rgba(255,255,255,.18); color: #fff; font-size: 1.35rem; line-height: 1; }
+.story-phone__heart.is-popping { animation: heart-pop .62s var(--ease-out); }
+.story-phone__heart.is-liked { color: #ff5470; background: #fff; }
+@keyframes heart-pop { 45% { transform: scale(1.45) rotate(-10deg); color: #ff5470; } }
+.story-phone__caption { margin-top: 8px; font-family: var(--f-display); font-size: var(--step-1); font-style: italic; }
+.story-phone__comment { margin-top: 3px; color: rgba(255,255,255,.82); font-size: var(--step--1); }
+.story-phone__nav { position: absolute; z-index: 3; top: 45%; right: 0; left: 0; display: flex; justify-content: space-between; pointer-events: none; }
+.story-phone__nav button { width: 44px; height: 72px; border: 0; background: rgba(0,0,0,.18); color: #fff; font-size: 2rem; pointer-events: auto; }
+.story-phone__nav button:first-child { border-radius: 0 18px 18px 0; }.story-phone__nav button:last-child { border-radius: 18px 0 0 18px; }
+@media (max-width: 420px) { .story-phone { width: min(100%, 326px); } .story-phone__screen, .story-phone__photo { min-height: 540px; height: 540px; } }
 
 .empty { max-width: 420px; margin: 0 auto; text-align: center; padding: 32px 16px; }
 .empty__title { font-family: var(--f-display); font-style: italic; font-size: var(--step-2); margin-bottom: 8px; color: var(--navy); }
@@ -816,4 +862,5 @@ body::after {
   .ambient__lens { display: none; }
   .kantha { clip-path: none; transition: none; }
   .btn--gold.is-magnet, .chip.is-magnet { transform: none; }
+  .js .ritual { opacity: 1; transform: none; }
 }

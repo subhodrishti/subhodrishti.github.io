@@ -165,6 +165,7 @@
     <nav class="topbar__nav" data-i18n-attr="aria-label:nav.sections">
       <a href="#gallery" class="hide-sm" data-i18n="nav.gallery">Gallery</a>
       <a href="#events" class="hide-xs" data-i18n="nav.events">Events</a>
+      <a href="#rituals" class="hide-sm" data-i18n="nav.rituals">Ritual guide</a>
       <a href="#polls" class="hide-sm" data-i18n="nav.polls">Polls</a>
       <button class="music-toggle" id="music-toggle" type="button" aria-pressed="false">
         <svg aria-hidden="true"><use href="#i-sound"/></svg>
@@ -217,6 +218,18 @@
           <div class="chips" id="look-chips" role="group" data-i18n-attr="aria-label:looks.label"></div>
         </figure>
       </div>
+    </section>
+
+    <!-- A short orientation for guests new to a Bengali wedding. The family
+         controls which cards are confirmed in js/config.js. -->
+    <section class="section section--cream" id="rituals" aria-labelledby="rituals-title">
+      <div class="section__head">
+        <svg class="rule" aria-hidden="true"><use href="#alpana-rule"/></svg>
+        <h2 id="rituals-title" data-i18n="rituals.title">What happens at a Bengali wedding?</h2>
+        <p data-i18n="rituals.intro">A little guide for guests joining us for the first time.</p>
+      </div>
+      <p class="rituals__notice" id="rituals-notice" role="status"></p>
+      <div class="rituals" id="ritual-list"></div>
     </section>
 
     <!-- 3 · Gallery -->
@@ -386,6 +399,16 @@
     </div>
   </dialog>
 
+  <!-- Stories opened from the gold topor and paan tucked into the backdrop. -->
+  <dialog class="modal" id="object-story" aria-labelledby="object-story-title">
+    <div class="modal__card">
+      <button class="modal__close" type="button" data-close data-i18n-attr="aria-label:dialog.close">×</button>
+      <p class="modal__eyebrow" id="object-story-kicker"></p>
+      <h3 id="object-story-title"></h3>
+      <p id="object-story-body"></p>
+    </div>
+  </dialog>
+
   <script src="js/config.js" defer></script>
   <script src="js/strings.js" defer></script>
   <script src="js/util.js" defer></script>
@@ -398,6 +421,8 @@
   <script src="js/wardrobe.js" defer></script>
   <script src="js/curtain.js" defer></script>
   <script src="js/countdown.js" defer></script>
+  <script src="js/rituals.js" defer></script>
+  <script src="js/wedding-day.js" defer></script>
   <script src="js/gallery.js" defer></script>
   <script src="js/events.js" defer></script>
   <script src="js/polls.js" defer></script>

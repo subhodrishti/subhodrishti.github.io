@@ -30,13 +30,13 @@
       tone: "night",
       stitch: null,
       desk: [
-        ["shankha", 57, 20, 72, 0.7, "shankh"], ["topor", 94, 17, 60, 0.9], ["shehnai", 6, 15, 66, 0.6],
+        ["shankha", 57, 20, 72, 0.7, "shankh"], ["topor", 94, 17, 60, 0.9, "story:topor"], ["shehnai", 6, 15, 66, 0.6],
         ["kulo", 5, 58, 76, 0.5], ["fish", 57, 72, 66, 0.8], ["pradip", 95, 55, 50, 1.1],
-        ["paan", 94, 86, 50, 1.0], ["bangles", 8, 88, 54, 0.7], ["kouto", 3, 36, 42, 1.2], ["ghot", 97, 36, 50, 0.4],
+        ["paan", 94, 86, 50, 1.0, "story:paan"], ["bangles", 8, 88, 54, 0.7], ["kouto", 3, 36, 42, 1.2], ["ghot", 97, 36, 50, 0.4],
       ],
       phone: [
-        ["shankha", 88, 6, 54, 0.7, "shankh"], ["topor", 9, 9, 44, 0.9], ["fish", 92, 30, 46, 0.8],
-        ["kulo", 7, 42, 50, 0.5], ["pradip", 93, 60, 38, 1.1], ["paan", 6, 72, 38, 1.0], ["bangles", 92, 88, 40, 0.7],
+        ["shankha", 88, 6, 54, 0.7, "shankh"], ["topor", 9, 9, 44, 0.9, "story:topor"], ["fish", 92, 30, 46, 0.8],
+        ["kulo", 7, 42, 50, 0.5], ["pradip", 93, 60, 38, 1.1], ["paan", 6, 72, 38, 1.0, "story:paan"], ["bangles", 92, 88, 40, 0.7],
       ],
     },
     gallery: {
@@ -94,7 +94,7 @@
   function makeMotif(spec, front) {
     const [id, x, y, size, depth, action] = spec;
     const el = action
-      ? h("button", { class: "motif motif--action", type: "button", "aria-label": t("ambient.shankh") })
+      ? h("button", { class: "motif motif--action", type: "button", dataset: { action }, "aria-label": action === "shankh" ? t("ambient.shankh") : t("ambient.openStory") })
       : h("span", { class: "motif" });
     el.style.setProperty("--s", `${size}px`);
     el.style.left = `${x}%`;
@@ -108,6 +108,7 @@
         window.Invite.audio.blow?.();
       });
     }
+    if (action?.startsWith("story:")) el.addEventListener("click", () => window.Invite.rituals?.openStory(action.slice(6)));
     (action ? front : null)?.append(el);
     return { el, x, y, depth, action, phase: rand(0, Math.PI * 2), speed: rand(0.6, 1.1), rot: rand(-14, 14), near: 0 };
   }
@@ -308,7 +309,7 @@
 
   function render() {
     // Only the conch button has words; keep its label in the current language.
-    $$(".motif--action").forEach((b) => b.setAttribute("aria-label", t("ambient.shankh")));
+    $$(".motif--action").forEach((b) => b.setAttribute("aria-label", b.dataset.action === "shankh" ? t("ambient.shankh") : t("ambient.openStory")));
   }
 
   window.Invite.ambient = { init, render, requestTilt };

@@ -123,6 +123,8 @@
     renderLookChips();
     I.curtain.render();
     I.countdown.render();
+    I.rituals.render();
+    I.weddingDay.render();
     I.gallery.render();
     I.events.render();
     I.polls.render();
@@ -133,6 +135,9 @@
   }
 
   function start() {
+    if ("serviceWorker" in navigator && location.protocol !== "file:") {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    }
     applyStatic();
     renderLangSwitches();
     staggerHero();
@@ -142,6 +147,8 @@
     I.audio.init();
     I.audio.render();
     I.countdown.init();
+    I.rituals.init();
+    I.weddingDay.init();
     I.gallery.init();
     I.events.init();
     I.polls.init();

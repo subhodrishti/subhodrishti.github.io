@@ -36,9 +36,9 @@ window.INVITE = {
       name: { en: "Sangeet", bn: "সঙ্গীত" },
       gloss: { en: "An evening of music and dance", bn: "গান আর নাচের সন্ধ্যা" },
       date: "2026-12-10",
-      startTime: null, // "18:30" in IST once confirmed
-      endTime: null,
-      venue: null, // { name: "…", address: "…" }
+      startTime: "18:00", // "18:30" in IST once confirmed
+      endTime: "23:00",
+      venue: { name: "Regenta Orkos", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" }, // { name: "…", address: "…" }
       look: "sangeet",
     },
     {
@@ -46,9 +46,9 @@ window.INVITE = {
       name: { en: "Haldi", bn: "গায়ে হলুদ" },
       gloss: { en: "Gaye holud, the turmeric blessing", bn: "হলুদ ছোঁয়ানোর মঙ্গল অনুষ্ঠান" },
       date: "2026-12-11",
-      startTime: null,
-      endTime: null,
-      venue: null,
+      startTime: "10:00",
+      endTime: "13:00",
+      venue: { name: "Regenta Orkos", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" },
       look: "haldi",
     },
     {
@@ -56,9 +56,9 @@ window.INVITE = {
       name: { en: "Wedding", bn: "বিয়ে" },
       gloss: { en: "The Biye, at the auspicious lagna", bn: "শুভ লগ্নে বিবাহ অনুষ্ঠান" },
       date: "2026-12-11",
-      startTime: null,
-      endTime: null,
-      venue: null,
+      startTime: "18:00",
+      endTime: "22:00",
+      venue: { name: "Regenta Orkos", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" },
       look: "biye",
     },
     {
@@ -66,9 +66,9 @@ window.INVITE = {
       name: { en: "Reception", bn: "প্রীতিভোজ" },
       gloss: { en: "Dinner and celebration with everyone", bn: "সবার সঙ্গে নৈশভোজ ও আনন্দ" },
       date: "2026-12-13",
-      startTime: null,
-      endTime: null,
-      venue: null,
+      startTime: "18:00",
+      endTime: "23:30",
+      venue: { name: "Princeton Club", address: "https://maps.app.goo.gl/V9ARwFyHi6Z4qXLB6" },
       look: "reception",
     },
   ],
@@ -108,9 +108,35 @@ window.INVITE = {
   heroAvatar: "biye",
   heroLooks: ["sangeet", "haldi", "biye", "reception"],
 
+  // The family should set `confirmed: true` only for rituals taking place.
+  // `null` keeps the useful explainer visible while clearly marking it pending.
+  rituals: [
+    { id: "gaye-holud", confirmed: true, name: { en: "Gaye Holud", bn: "গায়ে হলুদ" }, short: { en: "Turmeric blessings shared with the couple.", bn: "হলুদের আশীর্বাদে ভরে ওঠে দুই পক্ষের ঘর।" } },
+    { id: "shubho-drishti", confirmed: true, name: { en: "Shubho Drishti", bn: "শুভদৃষ্টি" }, short: { en: "The couple share their first ceremonial glance.", bn: "আচার মেনে প্রথমবার একে অপরের দিকে তাকান দুজন।" } },
+    { id: "mala-badal", confirmed: true, name: { en: "Mala Badal", bn: "মালাবদল" }, short: { en: "They exchange flower garlands, with plenty of cheering.", bn: "হাসি-উল্লাসের মধ্যে ফুলের মালা বদল হয়।" } },
+    { id: "saat-paak", confirmed: true, name: { en: "Saat Paak", bn: "সাত পাক" }, short: { en: "The bride is carried in seven circles around the groom.", bn: "কনেকে নিয়ে বরকে সাত বার প্রদক্ষিণ করা হয়।" } },
+    { id: "sindoor-daan", confirmed: true, name: { en: "Sindoor Daan", bn: "সিঁদুর দান" }, short: { en: "A vermilion blessing marks a new chapter together.", bn: "সিঁদুরের আশীর্বাদে শুরু হয় নতুন অধ্যায়।" } },
+    { id: "bou-bhaat", confirmed: true, name: { en: "Bou Bhaat", bn: "বউভাত" }, short: { en: "The newlywed bride is welcomed with a celebratory meal.", bn: "নববধূকে স্বাগত জানিয়ে হয় আনন্দের ভোজ।" } },
+  ],
+
+  // This becomes visible automatically in Kolkata from 10–13 December.
+  // Add the family contacts, confirmed lagna time and private livestream URL
+  // before sharing the wedding-day link.
+  weddingDay: {
+    start: "2026-12-10", end: "2026-12-13",
+    contacts: [], // { name: "…", phone: "+91…", role: { en: "Family contact", bn: "পারিবারিক যোগাযোগ" } }
+    livestream: null, // { url: "https://…", label: { en: "Watch the livestream", bn: "লাইভ দেখুন" } }
+    lagnaTime: null,
+  },
+
   // Real photos. Add with /add-gallery-media so GPS data is stripped first.
   // { src: "assets/photos/2024-puja-1.webp", alt: { en: "…", bn: "…" }, caption: { en: "Puja, 2024", bn: "পুজো, ২০২৪" }, w: 1200, h: 1600 }
-  photos: [],
+  photos: [
+    { src: "assets/photos/mysore.jpg", alt: { en: "A photo from Mysore", bn: "মহীশূরের একটি ছবি" }, caption: { en: "Mysore", bn: "মহীশূর" }, comment: { en: "Proof we occasionally leave the group chat.", bn: "প্রমাণ: মাঝে মাঝে আমরা গ্রুপ চ্যাটের বাইরেও বেরোই।" } },
+    { src: "assets/photos/ooty-3.png", alt: { en: "A photo from Ooty", bn: "উটির একটি ছবি" }, caption: { en: "Ooty", bn: "উটি" }, comment: { en: "Holiday mode: fully committed.", bn: "ছুটির মুড: পুরোপুরি চালু।" } },
+    { src: "assets/photos/ooty-4.jpg", alt: { en: "Another photo from Ooty", bn: "উটির আর একটি ছবি" }, caption: { en: "Ooty", bn: "উটি" }, comment: { en: "Same trip, new plot twist.", bn: "একই ভ্রমণ, নতুন প্লট টুইস্ট।" } },
+    { src: "assets/photos/valentine-1.jpg", alt: { en: "A Valentine's Day photo", bn: "ভ্যালেন্টাইনস ডে-র একটি ছবি" }, caption: { en: "Valentine's Day", bn: "ভ্যালেন্টাইনস ডে" }, comment: { en: "Our favourite kind of date.", bn: "আমাদের সবচেয়ে পছন্দের ডেট।" } },
+  ],
 
   polls: {
     // Votes go to polls.endpoint, or rsvp.endpoint when this is empty.

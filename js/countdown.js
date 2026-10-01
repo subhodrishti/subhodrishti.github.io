@@ -7,6 +7,17 @@
   let root, cells, labelEl, timer;
 
   function label(now) {
+    const day = now.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+    const live = get("weddingDay");
+    if (live && day >= live.start && day <= live.end) {
+      const today = get("events").filter((ev) => ev.date === day);
+      if (today.length) {
+        const current = today.find((ev) => now < eventEnd(ev)) || today[today.length - 1];
+        const next = today[today.indexOf(current) + 1];
+        const nextText = next ? t("dayMode.next", { event: L(next.name), time: next.id === "wedding" && !live.lagnaTime ? t("dayMode.lagna") : (live.lagnaTime || next.startTime || t("dayMode.timeSoon")) }) : "";
+        return `${t("dayMode.happening", { event: L(current.name) })}${nextText ? ` · ${nextText}` : ""}`;
+      }
+    }
     const events = get("events");
     const first = events[0];
     if (now >= eventStart(first)) {
