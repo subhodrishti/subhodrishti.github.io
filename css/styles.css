@@ -538,8 +538,18 @@ p { margin: 0; }
      couple's proportions, so the arch is sized from the couple's width. */
   .events-stage { --couple-w: min(190px, calc((100vh - 260px) * .36), 16vw); padding-top: calc(var(--couple-w) * .8); }
   .events-stage__frame {
-    width: var(--couple-w); padding: 0; overflow: visible; border: 0; border-radius: 0;
-    background: radial-gradient(70% 7% at 50% 100%, rgba(212,175,55,.45), transparent 70%);
+    width: var(--couple-w); padding: 0; overflow: visible; border: 0; border-radius: 0; background: none;
+  }
+  /* The floor under their feet: a soft contact shadow in a pool of lamp-light.
+     A pseudo-element, not the frame's background, so it can spread past the
+     couple's width and feather out instead of being clipped to a hard box. */
+  .events-stage__frame::after {
+    content: ""; position: absolute; z-index: 0; left: 50%; bottom: 0; pointer-events: none;
+    width: calc(var(--couple-w) * 1.12); height: calc(var(--couple-w) * .2);
+    transform: translate(-50%, 42%);
+    background:
+      radial-gradient(38% 30% at 50% 50%, rgba(8,24,24,.5), rgba(8,24,24,.18) 60%, transparent),
+      radial-gradient(closest-side, rgba(241,220,148,.26), rgba(212,175,55,.1) 55%, transparent);
   }
   .events-stage__frame::before {
     content: ""; position: absolute; z-index: 0; left: 50%; bottom: -3%; pointer-events: none;
