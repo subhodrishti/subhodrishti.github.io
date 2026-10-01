@@ -16,6 +16,9 @@ The curtain art (tassel, paan leaves) came with a grey-and-white "transparency"
 checkerboard painted into opaque pixels instead; `checker` keys that out, and
 the velvet is cut down to a seamless repeat.
 
+The hero's courtyard (thakur dalan) is a full scene, not a cut-out: only its
+sparkles are painted out.
+
 Usage:  python tools/prepare_decorations.py
 Reads:  references/decorations/*.png
 Writes: assets/decor/*.webp (see the "Decorations" block in css/styles.css)
@@ -249,6 +252,60 @@ def velvet():
     print(f"{dest.relative_to(ROOT)}  {im.size[0]}x{im.size[1]}  {dest.stat().st_size // 1024} KB")
 
 
+def patch(rgb, box, src_x, feather=6):
+    """Paint out a sparkle by blending in pixels from the same rows at `src_x`,
+    with a soft elliptical edge."""
+    x0, y0, x1, y1 = box
+    src = rgb[y0:y1, src_x:src_x + (x1 - x0)].copy()
+    ys, xs = np.mgrid[y0:y1, x0:x1]
+    r = np.hypot((xs - (x0 + x1) / 2) / ((x1 - x0) / 2), (ys - (y0 + y1) / 2) / ((y1 - y0) / 2))
+    k = np.clip((1 - r) * (x1 - x0) / 2 / feather, 0, 1)[..., None]
+    rgb[y0:y1, x0:x1] = rgb[y0:y1, x0:x1] * (1 - k) + src * k
+
+
+def unsparkle(rgb, cx, cy, rx, ry, pad=1.3):
+    """Fill a four-point-star mask row by row, interpolating between the pixels
+    just left and right of it. For a sparkle over horizontal structure (a
+    plinth edge, a floor line, a lamp's light falling off) where no other
+    pixels share the same light to copy from."""
+    y0, y1 = int(cy - ry * pad), int(cy + ry * pad) + 1
+    x0, x1 = int(cx - rx * pad), int(cx + rx * pad) + 1
+    ys, xs = np.mgrid[y0:y1, x0:x1]
+    star = (np.abs(xs - cx) / rx) ** (2 / 3) + (np.abs(ys - cy) / ry) ** (2 / 3)
+    for row, y in enumerate(range(y0, y1)):
+        cols = np.flatnonzero(star[row] <= pad)
+        if not cols.size:
+            continue
+        a, b = x0 + cols[0] - 2, x0 + cols[-1] + 2
+        left, right = rgb[y, a - 2:a + 1].mean(axis=0), rgb[y, b:b + 3].mean(axis=0)
+        t = np.linspace(0, 1, b - a + 1)[:, None]
+        rgb[y, a:b + 1] = left * (1 - t) + right * t
+    # Soften the filled rows into each other.
+    box = rgb[y0:y1, x0:x1]
+    smooth = ndimage.gaussian_filter(box, (1.2, 0.6, 0))
+    k = np.clip((pad + 0.15 - star) / 0.3, 0, 1)[..., None]
+    rgb[y0:y1, x0:x1] = box * (1 - k) + smooth * k
+
+
+def thakur_dalan():
+    """The lamp-lit courtyard behind the hero: a wide one for desktop (the
+    plain-doorway variant, so nothing busy sits behind the couple) and a tall
+    one for phones. Night grading and the scrims behind the text are CSS."""
+    rgb = load("background-optional.png")
+    # Over the right pillar's floor light: no other pixels share that light.
+    unsparkle(rgb, 1157.5, 695.5, 23, 25)
+    im = Image.fromarray(rgb.clip(0, 255).astype(np.uint8))
+    im.save(OUT / "thakur-dalan-wide.webp", "WEBP", quality=76, method=6)
+    rgb = load("background-mobile.png")
+    # On the rug's border: the same stripes run on to the left.
+    patch(rgb, (612, 1222, 684, 1290), 530)
+    im = Image.fromarray(rgb.clip(0, 255).astype(np.uint8))
+    im.save(OUT / "thakur-dalan-tall.webp", "WEBP", quality=76, method=6)
+    for name in ("thakur-dalan-wide.webp", "thakur-dalan-tall.webp"):
+        dest = OUT / name
+        print(f"{dest.relative_to(ROOT)}  {Image.open(dest).size}  {dest.stat().st_size // 1024} KB")
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     chandmala()
@@ -261,6 +318,7 @@ def main():
     tassel()
     paan()
     velvet()
+    thakur_dalan()
 
 
 if __name__ == "__main__":

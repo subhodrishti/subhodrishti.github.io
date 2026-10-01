@@ -27,16 +27,17 @@
    */
   const LAYOUT = {
     hero: {
+      // The painted thakur dalan behind it already has the fish, lamps and
+      // ghot, so those aren't floated here.
       tone: "night",
       stitch: null,
       desk: [
         ["shankha", 57, 20, 72, 0.7, "shankh"], ["topor", 94, 17, 60, 0.9, "story:topor"], ["shehnai", 6, 15, 66, 0.6],
-        ["kulo", 5, 58, 76, 0.5], ["fish", 57, 72, 66, 0.8], ["pradip", 95, 55, 50, 1.1],
-        ["paan", 94, 86, 50, 1.0, "story:paan"], ["bangles", 8, 88, 54, 0.7], ["kouto", 3, 36, 42, 1.2], ["ghot", 97, 36, 50, 0.4],
+        ["kulo", 5, 58, 76, 0.5], ["paan", 94, 86, 50, 1.0, "story:paan"], ["bangles", 8, 88, 54, 0.7], ["kouto", 3, 36, 42, 1.2],
       ],
       phone: [
-        ["shankha", 88, 6, 54, 0.7, "shankh"], ["topor", 9, 9, 44, 0.9, "story:topor"], ["fish", 92, 30, 46, 0.8],
-        ["kulo", 7, 42, 50, 0.5], ["pradip", 93, 60, 38, 1.1], ["paan", 6, 72, 38, 1.0, "story:paan"], ["bangles", 92, 88, 40, 0.7],
+        ["shankha", 88, 6, 54, 0.7, "shankh"], ["topor", 9, 9, 44, 0.9, "story:topor"],
+        ["kulo", 7, 42, 50, 0.5], ["paan", 6, 72, 38, 1.0, "story:paan"], ["bangles", 92, 88, 40, 0.7],
       ],
     },
     gallery: {

@@ -74,6 +74,7 @@ full-colour, and each has one job:
 | `alpana-1…4.webp` | `.alpana-corners` (poll deck, RSVP) | White masks painted with `--corner-ink` (gold on dark, gold-dark on cream), peeking from behind the card |
 | `velvet.webp` | The curtain panels (`.curtain__fabric`) | Navy velvet with zari kalka buti, a seamless 388×692 tile; preloaded in `index.html` |
 | `tassel.webp` | `.curtain__tieback`, one per panel | Drops onto the gathered swag and swings to rest; its knot (29% down) sits on the gather |
+| `thakur-dalan-wide/tall.webp` | Behind the hero (`.hero::before`) | The lamp-lit courtyard the curtain opens onto. Wide on desktop with its doorway behind the couple, fading into navy on the copy side; tall on phones. `.hero::after` tints it to night and keeps text readable. A full scene, not a cut-out: the only one, and only in the hero |
 | `paan-left/right.webp` | `.drishti` in the hero wardrobe | Shubho drishti: held over the bride's face in the **biye** look only, parted after the curtain |
 
 The tassel and paan sources had a checkerboard painted into opaque pixels; `checker()` in the script keys it out.

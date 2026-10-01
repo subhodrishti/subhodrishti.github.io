@@ -365,6 +365,29 @@ p { margin: 0; }
   color: var(--cream);
   padding: clamp(96px, 12vw, 128px) var(--gutter) 0;
 }
+/* The lamp-lit thakur dalan the curtain opens onto (assets/decor/thakur-dalan-*.webp).
+   Desktop: the wide scene with its doorway (55% across) behind the couple,
+   who stand 400px right of centre at every desktop width, fading into the
+   navy on the copy side. Phones: the tall scene behind the whole hero.
+   ::after tints it to night and keeps the text readable. */
+.hero::before, .hero::after { content: ""; position: absolute; z-index: -1; pointer-events: none; }
+.hero::before {
+  left: calc(50% + 400px); bottom: 0;
+  width: clamp(1100px, 100%, 1700px); aspect-ratio: 1276 / 816;
+  transform: translateX(-55%);
+  background: url("../assets/decor/thakur-dalan-wide.webp") center / 100% 100% no-repeat;
+  -webkit-mask: linear-gradient(to right, transparent, #000 34%), linear-gradient(transparent, #000 12%);
+  -webkit-mask-composite: source-in;
+  mask: linear-gradient(to right, transparent, #000 34%), linear-gradient(transparent, #000 12%);
+  mask-composite: intersect;
+}
+.hero::after {
+  inset: 0;
+  background:
+    linear-gradient(to right, rgba(10,26,46,.82) 0%, rgba(10,26,46,.55) 42%, rgba(10,26,46,0) 66%),
+    linear-gradient(rgba(10,26,46,.6), rgba(10,26,46,0) 22%, rgba(10,26,46,0) 80%, rgba(10,26,46,.7)),
+    rgba(15,36,64,.3);
+}
 .hero__inner {
   max-width: 1180px; margin: 0 auto;
   display: grid; grid-template-columns: 1.15fr .85fr; align-items: end; gap: clamp(24px, 4vw, 64px);
@@ -569,6 +592,16 @@ p { margin: 0; }
 @media (max-width: 860px) {
   /* One column; the couple steps in right after the date line. */
   .hero { padding-bottom: 48px; }
+  .hero::before {
+    inset: 0; width: auto; aspect-ratio: auto; transform: none;
+    background: url("../assets/decor/thakur-dalan-tall.webp") 53% 40% / cover no-repeat;
+    -webkit-mask: none; mask: none;
+  }
+  .hero::after {
+    background:
+      linear-gradient(rgba(10,26,46,.86) 0%, rgba(10,26,46,.7) 30%, rgba(10,26,46,.15) 46%, rgba(10,26,46,.15) 70%, rgba(10,26,46,.8) 100%),
+      rgba(15,36,64,.3);
+  }
   .hero__inner { grid-template-columns: 1fr; gap: 0; text-align: center; }
   .hero__copy { display: contents; }
   .hero__stage { order: 1; width: min(100%, 360px); margin-top: 20px; padding-bottom: 0; }
