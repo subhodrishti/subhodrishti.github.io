@@ -38,6 +38,32 @@ window.INVITE = {
       bn: "এই শুভ অনুষ্ঠানে আপনার সপরিবার উপস্থিতি ও নবদম্পতির প্রতি আন্তরিক আশীর্বাদ একান্ত কাম্য। শুভেচ্ছা ও শ্রদ্ধা সহ।",
     },
   },
+  // "Our families", under the hero, from the family's card. Bride's side first,
+  // as on the hero. `portrait` is an illustrated cut-out made by
+  // tools/cutout_portraits.py; set it to null and an S&S seal stands in.
+  // Set `families: null` to hide the section.
+  families: [
+    {
+      side: "bride",
+      name: { en: "Sneha Khasnabis", bn: "স্নেহা খাসনবিশ" },
+      parents: { en: "Daughter of Mr. Sudeep Khasnabis and Mrs. Sumita Khasnabis", bn: "শ্রী সুদীপ খাসনবিশ ও শ্রীমতী সুমিতা খাসনবিশের কন্যা" },
+      place: { en: "Kolkata", bn: "কলকাতা" },
+      portrait: {
+        src: "assets/families/bride.webp", w: 480, h: 672,
+        alt: { en: "Illustration of Sneha as a bride, in a red and gold Banarasi and a white shola crown", bn: "কনের সাজে স্নেহার ছবি, লাল-সোনালি বেনারসি আর সাদা শোলার মুকুটে" },
+      },
+    },
+    {
+      side: "groom",
+      name: { en: "Subhadip Dutta", bn: "শুভদীপ দত্ত" },
+      parents: { en: "Son of Mr. Sadananda Dutta and Mrs. Uma Dutta", bn: "শ্রী সদানন্দ দত্ত ও শ্রীমতী উমা দত্তের পুত্র" },
+      place: { en: "Kolkata", bn: "কলকাতা" },
+      portrait: {
+        src: "assets/families/groom.webp", w: 480, h: 672,
+        alt: { en: "Illustration of Subhadip as a groom, in a white topor, cream panjabi and dhoti, and a red shawl", bn: "বরের সাজে শুভদীপের ছবি, সাদা টোপর, ঘিয়ে পাঞ্জাবি-ধুতি আর লাল উত্তরীয়তে" },
+      },
+    },
+  ],
   city: "Kolkata, West Bengal", // used for map searches, not shown
 
   // Chronological. `id` must stay stable: RSVP rows store it, and

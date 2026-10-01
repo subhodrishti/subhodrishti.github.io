@@ -684,6 +684,50 @@ p { margin: 0; }
   mask-image: url("../assets/decor/alpana-3.webp");
 }
 
+/* Our families: two open columns, bride's side first, each portrait in a navy
+   arch with a gold hairline and floor glow, as the couple stands in the hero.
+   Under them the bride's red cloth is tied to the groom's cream one
+   (assets/decor/gathbandhan.webp), red on the bride's side. */
+.families {
+  max-width: 900px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: start;
+  gap: clamp(20px, 4vw, 48px);
+}
+.family { text-align: center; }
+.family__frame {
+  position: relative; width: min(100%, 240px); aspect-ratio: 5 / 7; margin: 0 auto 22px;
+  display: grid; place-items: center; overflow: hidden;
+  border-radius: var(--arch); border: 1px solid var(--glass-edge);
+  background:
+    radial-gradient(60% 40% at 50% 100%, rgba(212,175,55,.32), transparent 70%),
+    linear-gradient(180deg, var(--navy), var(--navy-deep));
+  box-shadow: 0 0 0 6px var(--cream), 0 0 0 7px var(--glass-edge), 0 18px 34px rgba(15,36,64,.22);
+}
+.family__img { width: 100%; height: 100%; object-fit: cover; }
+.family__seal { margin: 0; }
+.family__role { color: var(--gold-dark); font-size: var(--step--1); letter-spacing: .22em; text-transform: uppercase; }
+.family__name { margin-top: 6px; color: var(--navy); font-size: var(--step-2); font-style: italic; font-weight: 400; line-height: 1.15; }
+.family__parents { max-width: 30ch; margin: 12px auto 0; text-wrap: balance; color: var(--ink); font-family: var(--f-display); font-style: italic; font-size: var(--step-0); line-height: 1.5; }
+.family__place { margin-top: 8px; color: var(--ink-soft); font-size: var(--step--1); letter-spacing: .18em; text-transform: uppercase; }
+.families__amp {
+  align-self: center; margin-top: -60px;
+  font-family: var(--f-mono); font-style: italic; font-size: var(--step-3); color: var(--gold);
+}
+.families::after {
+  content: ""; grid-column: 1 / -1; justify-self: center; width: min(100%, 720px); aspect-ratio: 900 / 307;
+  margin-top: clamp(4px, 2vw, 16px); pointer-events: none;
+  background: url("../assets/decor/gathbandhan.webp") center / contain no-repeat;
+  filter: drop-shadow(0 8px 10px rgba(15,36,64,.18));
+}
+.js .family { opacity: 0; transform: translateY(18px); }
+.js .family.is-visible { opacity: 1; transform: none; transition: opacity .7s var(--ease-out), transform .8s var(--ease-out); }
+.js .family--groom.is-visible { transition-delay: .12s; }
+@media (max-width: 640px) {
+  .families { grid-template-columns: 1fr; gap: 18px; }
+  .families__amp { margin: 0; text-align: center; font-size: var(--step-2); }
+  .family__frame { width: min(62%, 210px); }
+}
+
 /* A concise cultural guide: the family can turn its soft pending labels into
    confirmed inclusions in config without changing the layout. */
 .rituals__notice { max-width: 660px; margin: -22px auto 32px; text-align: center; color: var(--ink-soft); font-size: var(--step--1); }
@@ -1080,6 +1124,7 @@ html:lang(bn) h1, html:lang(bn) h2, html:lang(bn) h3 { line-height: 1.3; }
 html:lang(bn) .hero__names { line-height: 1.2; font-size: clamp(3rem, 1.8rem + 7vw, 7rem); }
 html:lang(bn) .countdown__grid small, html:lang(bn) .event__meta b { font-size: .8rem; }
 html:lang(bn) .pad__sheet, html:lang(bn) .pad__tear { font-weight: 400; line-height: 1.1; }
+html:lang(bn) .families__amp { font-family: var(--f-bn); font-style: normal; }
 .seal__mono, .topbar__mono, .footer__mono { font-family: var(--f-mono); }
 .tag, .poll__opt span { font-family: "Jost", var(--f-body); }
 
@@ -1245,6 +1290,6 @@ body::after {
   .ambient__lens { display: none; }
   .kantha { clip-path: none; transition: none; }
   .btn--gold.is-magnet, .chip.is-magnet { transform: none; }
-  .js .ritual { opacity: 1; transform: none; }
+  .js .ritual, .js .family { opacity: 1; transform: none; }
   .pad__tear, .pad__shade { display: none; } /* countdown sheets swap in place, no tear */
 }

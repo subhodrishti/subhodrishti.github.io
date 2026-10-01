@@ -50,6 +50,12 @@ window.INVITE_STRINGS = {
     "countdown.minutes": "minutes",
     "countdown.seconds": "seconds",
 
+    "families.title": "Our families",
+    "families.intro": "Two families, coming together with joy.",
+    "families.bride": "The bride",
+    "families.groom": "The groom",
+    "families.joiner": "&",
+
     "rituals.title": "What happens at a Bengali wedding?",
     "rituals.intro": "A little guide for guests joining us for the first time.",
     "rituals.pending": "Awaiting confirmation",
@@ -192,6 +198,12 @@ window.INVITE_STRINGS = {
     "countdown.hours": "ঘণ্টা",
     "countdown.minutes": "মিনিট",
     "countdown.seconds": "সেকেন্ড",
+
+    "families.title": "দুই পরিবার",
+    "families.intro": "আনন্দে এক হচ্ছে দুটি পরিবার।",
+    "families.bride": "কনে",
+    "families.groom": "বর",
+    "families.joiner": "ও",
 
     "rituals.title": "বাঙালি বিয়েতে কী কী হয়?",
     "rituals.intro": "প্রথমবার আমাদের সঙ্গে যোগ দেওয়া অতিথিদের জন্য ছোট্ট পরিচয়।",

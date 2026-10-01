@@ -123,6 +123,7 @@
     renderLookChips();
     I.curtain.render();
     I.countdown.render();
+    I.families.render();
     I.rituals.render();
     I.weddingDay.render();
     I.gallery.render();
@@ -147,6 +148,7 @@
     I.audio.init();
     I.audio.render();
     I.countdown.init();
+    I.families.init();
     I.rituals.init();
     I.weddingDay.init();
     I.gallery.init();

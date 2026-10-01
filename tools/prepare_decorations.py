@@ -216,6 +216,25 @@ def temple_arch():
     save(im.crop(im.getbbox()), "temple-arch.webp", width=600)
 
 
+def gathbandhan():
+    """The bride's red cloth tied to the groom's cream one, under "Our families".
+    The source is framed in a gold border on cream paper: keep only the cloth,
+    drop the frame's corner tassels, and fade the top where the cloth runs into
+    the frame's top line."""
+    rgb, alpha = solid(load("gathbandhan.png"), threshold=34, max_hole=3000)
+    labels, n = ndimage.label(alpha > 0.5)
+    sizes = ndimage.sum(alpha > 0.5, labels, range(1, n + 1))
+    alpha = np.where(ndimage.binary_dilation(labels == 1 + int(np.argmax(sizes)), iterations=3), alpha, 0)
+    h, w = alpha.shape
+    clear(alpha, (0, 440, 186, h))
+    clear(alpha, (w - 186, 440, w, h))
+    top, fade = 26, 70
+    alpha[:top] = 0
+    alpha[top:top + fade] *= np.linspace(0, 1, fade)[:, None]
+    im = rgba(rgb, alpha)
+    save(im.crop(im.getbbox()), "gathbandhan.webp", width=900)
+
+
 def tassel():
     """The gold tie-back that catches each curtain panel."""
     rgb, alpha = checker(load("Gold tassel tie-back.png"))
@@ -315,6 +334,7 @@ def main():
     paper_tile()
     paper_sheet()
     temple_arch()
+    gathbandhan()
     tassel()
     paan()
     velvet()
