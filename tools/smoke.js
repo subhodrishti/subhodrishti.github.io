@@ -146,13 +146,13 @@ async function wireBackend(ctx, backend) {
     await page.click(".poll__next");
     await page.waitForTimeout(700);
 
-    // 5 · English only: no language switch, names on one line
+    // 5 · English only: no language switch; bride, "with", groom each on one line
     const en = await page.evaluate(() => {
       const h1 = document.querySelector("#hero-title");
-      return { lang: document.documentElement.lang, switches: document.querySelectorAll(".lang-switch").length, lines: Math.round(h1.getBoundingClientRect().height / parseFloat(getComputedStyle(h1).lineHeight)), label: document.querySelector("#countdown-label").textContent };
+      return { lang: document.documentElement.lang, switches: document.querySelectorAll(".lang-switch").length, lines: Math.max(...[...h1.children].map((s) => Math.round(s.getBoundingClientRect().height / parseFloat(getComputedStyle(s).lineHeight)))), label: document.querySelector("#countdown-label").textContent };
     });
     check(en.lang === "en" && en.switches === 0, `${tag}: page should be English only ${JSON.stringify(en)}`);
-    check(en.lines <= 1, `${tag}: couple names wrap onto ${en.lines} lines`);
+    check(en.lines <= 1, `${tag}: a couple name wraps onto ${en.lines} lines`);
     await scrollTo("#top");
     await page.waitForTimeout(300);
     await shot("07-hero");

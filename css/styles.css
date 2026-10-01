@@ -395,23 +395,26 @@ p { margin: 0; }
 .hero__copy { padding-bottom: clamp(40px, 8vw, 110px); }
 .hero__bn { font-family: var(--f-bn); font-size: var(--step-2); color: var(--gold); line-height: 1.2; }
 .hero__dear { margin-top: 12px; font-family: var(--f-display); font-style: italic; font-size: var(--step-1); color: var(--gold-light); }
-.hero__kicker { margin-top: 18px; font-size: var(--step--1); letter-spacing: .3em; text-transform: uppercase; opacity: .75; }
+.hero__invocation { margin-top: 8px; font-size: var(--step--1); letter-spacing: .12em; color: var(--gold-light); opacity: .85; }
+.hero__kicker { margin-top: 18px; font-family: var(--f-display); font-size: var(--step-1); font-style: italic; opacity: .9; }
+/* The card's three lines: bride, "with", groom. Each name stays on one line. */
 .hero__names {
-  margin: .12em 0 .08em;
+  margin: .14em 0 .1em;
   font-size: var(--step-hero); font-style: italic; font-weight: 400;
-  letter-spacing: -.02em; line-height: .92;
+  letter-spacing: -.02em; line-height: 1;
   font-variation-settings: "opsz" 96;
 }
-/* Both names and the ampersand on one line, at every width. */
-.hero__names { white-space: nowrap; font-size: min(clamp(2.8rem, 1rem + 9vw, 6.5rem), (100vw - 2 * var(--gutter)) / 7.8); }
-.hero__names > span { display: inline-block; }
+.hero__names { font-size: min(clamp(2.4rem, 1rem + 5.4vw, 5rem), (100vw - 2 * var(--gutter)) / 7.4); }
+.hero__names > span { display: block; white-space: nowrap; }
 .hero__names:focus { outline: none; }
 .hero__names .amp {
-  color: var(--gold); font-style: normal; font-weight: 400;
-  font-size: .72em; margin: 0 .04em; transform: translateY(-.08em);
+  color: var(--gold); font-style: italic; font-weight: 400;
+  font-size: .48em; margin: .1em 0; line-height: 1.2;
 }
-.hero__lede { font-family: var(--f-display); font-size: var(--step-1); font-style: italic; opacity: .9; }
-.hero__date { margin-top: 10px; font-size: var(--step-0); letter-spacing: .18em; text-transform: uppercase; color: var(--gold-light); }
+.hero__parents { font-family: var(--f-display); font-size: var(--step-1); font-style: italic; opacity: .9; }
+.hero__date { margin-top: 14px; }
+.hero__date > span { display: block; }
+.hero__date-range { margin-top: 6px; font-size: var(--step--1); letter-spacing: .18em; text-transform: uppercase; color: var(--gold-light); }
 
 .hero__blessing {
   margin-top: clamp(22px, 3.4vw, 30px);
@@ -423,13 +426,12 @@ p { margin: 0; }
   font-family: var(--f-display); font-weight: 600; font-style: italic;
   font-size: var(--step-0); color: var(--gold); line-height: 1.35;
 }
-.hero__blessing-body {
-  margin-top: 8px;
-  font-family: var(--f-body); font-size: var(--step--1);
-  line-height: 1.65; opacity: .78;
+.hero__closing {
+  margin-top: 12px;
+  font-family: var(--f-display); font-style: italic;
+  font-size: var(--step-0); line-height: 1.55; opacity: .88;
 }
 .hero__blessing-title:lang(bn) { font-family: var(--f-bn); font-style: normal; }
-.hero__blessing-body:lang(bn) { font-family: var(--f-bn-body); }
 
 .countdown { margin-top: clamp(24px, 4vw, 40px); padding: 16px 20px 18px; max-width: 480px; }
 .countdown__label { font-size: var(--step--1); letter-spacing: .2em; text-transform: uppercase; opacity: .75; }
@@ -606,6 +608,8 @@ p { margin: 0; }
   .hero__copy { display: contents; }
   .hero__stage { order: 1; width: min(100%, 360px); margin-top: 20px; padding-bottom: 0; }
   .hero__frame { width: min(72%, 280px); }
+  /* The blessings follow the couple, so the couple shows sooner on a phone. */
+  .hero__blessing { order: 2; margin-left: auto; margin-right: auto; }
   .countdown { order: 2; width: 100%; margin: 36px auto 0; }
   .hero__actions { order: 3; justify-content: center; }
 }

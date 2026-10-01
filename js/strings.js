@@ -34,12 +34,8 @@ window.INVITE_STRINGS = {
     "nav.rsvp": "RSVP",
 
     "hero.dear": "Dear {name},",
-    "hero.kicker": "Together with their families",
-    "hero.amp": "&",
-    "hero.lede": "invite you to celebrate their wedding",
     // Kept in Bengali on the English page, at the family's request.
     "hero.blessingTitle": "শুভ পরিণয়: অনুরাগের রঙে আঁকা এক নতুন দিগন্ত",
-    "hero.blessingBody": "মাঙ্গলিক সানাইয়ের সুরে, আমাদের নতুন জীবনের পথচলায় আপনাদের স্নেহে উপস্থিতি কাম্য।",
     "hero.reply": "Reply to the invitation",
     "hero.seeEvents": "See the events",
     "hero.stageLabel": "An illustration of {groom} and {bride}",
@@ -182,11 +178,7 @@ window.INVITE_STRINGS = {
     "nav.rsvp": "উত্তর দিন",
 
     "hero.dear": "প্রিয় {name},",
-    "hero.kicker": "দুই পরিবারের আশীর্বাদ নিয়ে",
-    "hero.amp": "ও",
-    "hero.lede": "শুভ বিবাহে আপনার উপস্থিতি একান্ত কাম্য",
     "hero.blessingTitle": "শুভ পরিণয়: অনুরাগের রঙে আঁকা এক নতুন দিগন্ত",
-    "hero.blessingBody": "মাঙ্গলিক সানাইয়ের সুরে, আমাদের নতুন জীবনের পথচলায় আপনাদের স্নেহে উপস্থিতি কাম্য।",
     "hero.reply": "আমন্ত্রণের উত্তর দিন",
     "hero.seeEvents": "অনুষ্ঠানসূচি দেখুন",
     "hero.stageLabel": "{groom} ও {bride}-এর ছবি",

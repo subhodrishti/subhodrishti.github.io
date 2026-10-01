@@ -23,6 +23,21 @@ window.INVITE = {
     bride: { en: "Sneha", bn: "স্নেহা" },
   },
   dateLine: { en: "10–13 December 2026 · Kolkata", bn: "১০–১৩ ডিসেম্বর ২০২৬ · কলকাতা" },
+
+  // The hero's wording, from the bride's family's printed invitation card, in
+  // their voice (bride first, "our only daughter").
+  invitation: {
+    invocation: { en: ":: With the divine blessings of Shri Shri Jagannath Mahaprabhu ::", bn: "॥ শ্রী শ্রী জগন্নাথ মহাপ্রভুর আশীর্বাদে ॥" },
+    announce: { en: "We are delighted to announce the wedding of our only daughter", bn: "আনন্দের সঙ্গে জানাই, আমাদের একমাত্র কন্যার শুভ বিবাহ" },
+    bride: { en: "Sneha Khasnabis", bn: "স্নেহা খাসনবিশ" },
+    joiner: { en: "with", bn: "ও" },
+    groom: { en: "Subhadip Dutta", bn: "শুভদীপ দত্ত" },
+    groomParents: { en: "the only son of Mr. Sadananda Dutta and Mrs. Uma Dutta", bn: "শ্রী সদানন্দ দত্ত ও শ্রীমতী উমা দত্তের একমাত্র পুত্র" },
+    closing: {
+      en: "On this auspicious occasion, we warmly invite you to grace the celebration with your presence and bless the newlyweds with your love and heartfelt blessings. With warm regards and best wishes.",
+      bn: "এই শুভ অনুষ্ঠানে আপনার সপরিবার উপস্থিতি ও নবদম্পতির প্রতি আন্তরিক আশীর্বাদ একান্ত কাম্য। শুভেচ্ছা ও শ্রদ্ধা সহ।",
+    },
+  },
   city: "Kolkata, West Bengal", // used for map searches, not shown
 
   // Chronological. `id` must stay stable: RSVP rows store it, and

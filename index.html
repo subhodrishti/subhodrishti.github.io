@@ -184,19 +184,23 @@
       <div class="hero__inner">
         <div class="hero__copy">
           <p class="hero__bn" lang="bn">॥ শ্রী শ্রী প্রজাপতয়ে নমঃ ॥</p>
+          <p class="hero__invocation" data-bind="invitation.invocation">:: With the divine blessings of Shri Shri Jagannath Mahaprabhu ::</p>
           <p class="hero__dear" id="hero-dear" hidden></p>
-          <p class="hero__kicker" data-i18n="hero.kicker">Together with their families</p>
+          <!-- The bride's family's printed card, line for line (js/config.js → invitation) -->
+          <p class="hero__kicker" data-bind="invitation.announce">We are delighted to announce the wedding of our only daughter</p>
           <h1 class="hero__names" id="hero-title">
-            <span data-bind="couple.groom">Subhadip</span>
-            <span class="amp" data-i18n="hero.amp">&amp;</span>
-            <span data-bind="couple.bride">Sneha</span>
+            <span data-bind="invitation.bride">Sneha Khasnabis</span>
+            <span class="amp" data-bind="invitation.joiner">with</span>
+            <span data-bind="invitation.groom">Subhadip Dutta</span>
           </h1>
-          <p class="hero__lede" data-i18n="hero.lede">invite you to celebrate their wedding</p>
-          <p class="hero__date" data-bind="dateLine">10–13 December 2026 · Kolkata</p>
+          <p class="hero__parents" data-bind="invitation.groomParents">the only son of Mr. Sadananda Dutta and Mrs. Uma Dutta</p>
+          <p class="hero__date">
+            <span class="hero__date-range" data-bind="dateLine">10–13 December 2026 · Kolkata</span>
+          </p>
 
           <div class="hero__blessing">
             <p class="hero__blessing-title" lang="bn" data-i18n="hero.blessingTitle">শুভ পরিণয়: অনুরাগের রঙে আঁকা এক নতুন দিগন্ত</p>
-            <p class="hero__blessing-body" lang="bn" data-i18n="hero.blessingBody">মাঙ্গলিক সানাইয়ের সুরে, আমাদের নতুন জীবনের পথচলায় আপনাদের স্নেহে উপস্থিতি কাম্য।</p>
+            <p class="hero__closing" data-bind="invitation.closing">On this auspicious occasion, we warmly invite you to grace the celebration with your presence and bless the newlyweds with your love and heartfelt blessings. With warm regards and best wishes.</p>
           </div>
 
           <div class="countdown glass glass--dark" id="countdown">
