@@ -1138,13 +1138,15 @@ main > section { scroll-snap-align: start; }
 }
 .wardrobe__layer.is-active, .wardrobe__layer.is-moving { opacity: 1; }
 /* A look's looping clip (js/alpha-video.js) lies exactly over its still and
-   fades in on its first frame; the still stays underneath as the fallback. */
+   fades in on its first frame; the still then steps out (or it would show
+   through wherever the couple moves) and comes back if the clip stops. */
+.wardrobe__layer.is-active.is-covered { opacity: 0; transition: opacity .2s ease .25s; }
 .wardrobe__motion {
   position: absolute; top: 0; height: 100%; z-index: 1;
   width: calc(100% * var(--frame-w) / var(--core-w));
   left: calc(50% - 50% * var(--frame-w) / var(--core-w));
   max-width: none; opacity: 0; pointer-events: none;
-  transition: opacity .3s ease;
+  transition: opacity .25s ease;
 }
 .wardrobe__motion.is-playing { opacity: 1; }
 .wardrobe__fx { position: absolute; inset: 0; z-index: 3; pointer-events: none; perspective: 1100px; }
@@ -1383,6 +1385,7 @@ body::after {
   .poll { transition: opacity .2s; }
   .poll.is-leaving-left, .poll.is-leaving-right, .poll.is-leaving-down { transform: none; }
   .wardrobe__fx, .wardrobe__motion { display: none; }
+  .wardrobe__layer.is-active.is-covered { opacity: 1; }
   .result__g, .result__b { transition: none; }
   .music-toggle[aria-pressed="true"]::after { display: none; }
   .ambient__aurora span, .motif__art .flame, .skyline__lights circle,

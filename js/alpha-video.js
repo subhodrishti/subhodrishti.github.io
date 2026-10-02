@@ -6,16 +6,18 @@
  * back together on a canvas laid exactly over the look's still. No single
  * transparent video format plays on both iPhones and Android; H.264 does.
  *
- * The still always stays underneath. Anything that goes wrong (no WebGL, a
- * codec the browser lacks, autoplay refused in Low Power Mode, a lost GL
- * context, pixels unreadable on file://) removes the canvas for good and the
- * still simply stays. Reduced motion and Save-Data never load a clip.
+ * The still stays underneath, hidden while the clip shows (onShow / onHide tell
+ * the wardrobe). Anything that goes wrong (no WebGL, a codec the browser lacks,
+ * autoplay refused in Low Power Mode, a lost GL context, pixels unreadable on
+ * file://) removes the canvas for good and the still comes back. Reduced motion
+ * and Save-Data never load a clip.
  *
- * create() returns { canvas, video, start, pause, stop, snap, showing }:
- *   start()  plays; after stop() it begins again on frame 0, the still's pose
- *   pause()  holds the frame on screen (off-screen, hidden tab, a change beginning)
- *   stop()   hides the canvas, showing the still again
- *   snap()   redraws the held frame so the outfit change can sample it
+ * create() returns { canvas, video, prepare, start, pause, stop, snap, showing }:
+ *   prepare() starts the download; resolves true once it can play through, false if it can't
+ *   start()   plays; after stop() it begins again on frame 0, the still's pose
+ *   pause()   holds the frame on screen (off-screen, hidden tab, a change beginning)
+ *   stop()    hides the canvas, showing the still again
+ *   snap()    redraws the held frame so the outfit change can sample it
  */
 (function () {
   const { h, reducedMotion } = window.Invite;
@@ -67,7 +69,7 @@
     return prog;
   }
 
-  function create({ src, width, height }) {
+  function create({ src, width, height, onShow, onHide }) {
     const canvas = h("canvas", { class: "wardrobe__motion", "aria-hidden": "true", width, height });
     // Kept in the document but never rendered; the canvas is what guests see.
     const video = h("video", {
@@ -80,16 +82,43 @@
     let gl = null, uni = null;
     let failed = false, wanted = false, drawn = false;
     let vfc = 0, raf = 0;
+    let ready = null, settleReady = null;
 
     function fail() {
       if (failed) return;
+      const was = drawn;
       failed = true;
       wanted = false;
+      drawn = false;
       cancelLoop();
       canvas.remove();
       video.removeAttribute("src");
       video.load(); // drop the download
       video.remove();
+      settleReady?.(false);
+      if (was) onHide?.();
+    }
+
+    /** Point the video at the clip, once. */
+    function load() {
+      if (video.getAttribute("src")) return;
+      video.preload = "auto";
+      video.addEventListener("error", fail, { once: true });
+      video.src = src;
+      video.load();
+    }
+
+    /** Download ahead of playing; true once the clip can play through. Never rejects. */
+    function prepare() {
+      if (ready) return ready;
+      if (failed || !supported()) return Promise.resolve(false);
+      ready = new Promise((resolve) => {
+        settleReady = (ok) => { settleReady = null; resolve(ok); };
+        if (video.readyState >= 4) { settleReady(true); return; }
+        video.addEventListener("canplaythrough", () => settleReady?.(true), { once: true });
+        load();
+      });
+      return ready;
     }
 
     function setup() {
@@ -137,6 +166,7 @@
       if (!drawn) {
         drawn = true;
         canvas.classList.add("is-playing");
+        onShow?.();
       }
     }
 
@@ -168,10 +198,7 @@
       if (!supported()) return;
       if (!gl && !setup()) { fail(); return; }
       wanted = true;
-      if (!video.getAttribute("src")) {
-        video.addEventListener("error", fail, { once: true });
-        video.src = src;
-      }
+      load();
       if (!drawn && video.currentTime) video.currentTime = 0;
       const p = video.play();
       loop();
@@ -187,8 +214,10 @@
 
     function stop() {
       pause();
+      const was = drawn;
       drawn = false;
       canvas.classList.remove("is-playing");
+      if (was) onHide?.();
     }
 
     /** Redraw the frame on screen, so the canvas can be read in this same task
@@ -198,7 +227,7 @@
     }
 
     return {
-      canvas, video, start, pause, stop, snap,
+      canvas, video, prepare, start, pause, stop, snap,
       get showing() { return drawn && !failed; },
       get failed() { return failed; },
     };

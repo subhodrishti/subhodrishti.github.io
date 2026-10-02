@@ -29,8 +29,8 @@ Guests are family and friends aged 8 to 85, mostly on a phone, opening a link so
 | `css/styles.css` | Tokens at the top, then one block per section in page order, then wardrobe, language and sound, poll results, Bengali overrides, and reduced motion last |
 | `js/util.js` | `h()`, language (`lang`, `setLang`, `L`, `t`, `num`), IST date formatters, `store`, `postJSON`/`getJSON`, `deviceId` |
 | `js/wardrobe.js` | Outfit change in place: stacks the looks, runs the transition in the incoming look's `palette`, settles cleanly when interrupted. Used by the hero and the events stage |
-| `js/transitions.js` | `pixel` (the outfit breaks into pixels that swirl in 3D on a canvas and re-form) and `fade` (reduced motion, or when pixels can't be read on `file://`) |
-| `js/alpha-video.js` | A look's looping clip: one H.264 MP4 with colour and alpha side by side, recombined by a small WebGL shader on a canvas over the still. Any failure (no WebGL or codec, autoplay refused, `file://`) leaves the still |
+| `js/transitions.js` | `pixel` (the outfit breaks into pixels that swirl in 3D on a canvas and re-form; given a `ready` promise it keeps swirling until it settles, up to `maxWait`) and `fade` (reduced motion, or when pixels can't be read on `file://`) |
+| `js/alpha-video.js` | A look's looping clip: one H.264 MP4 with colour and alpha side by side, recombined by a small WebGL shader on a canvas over the still, which is hidden while the clip shows. `prepare()` downloads ahead of play. Any failure (no WebGL or codec, autoplay refused, `file://`) brings the still back |
 | `js/avatar-frame.js` | **Generated** by `tools/cutout_avatars.py`: the frame size and the couple's core width |
 | `js/audio.js` | Shankh → ulu → shehnai, started inside the seal tap; mute button in the top bar; `level()` for the backdrop, `blow()` for the hero conch |
 | `js/ambient.js` | The living backdrop: aurora, pointer-lit alpana lattice, floating Bengal motifs (`#m-*` in `index.html`) reacting to pointer, tilt, scroll and music; kantha stitches; lean-in gold buttons. Layout per section in `LAYOUT` |
@@ -59,8 +59,10 @@ Guests are family and friends aged 8 to 85, mostly on a phone, opening a link so
 - **One transition, coloured per ceremony.** Every look change is the pixel swirl; `avatars[].palette`
   (four hex colours) tints it for that ceremony. The family chose this over several different transitions,
   so don't add more; change colours instead. Reduced motion crossfades.
-- **Looks may loop, the still stays.** A look with `avatars[].video` plays its clip over the still once a change
-  into it settles; the swirl breaks apart the frame on screen. Clips load only when their look is first shown,
+- **Looks may loop, the still stays underneath.** A look with `avatars[].video` plays its clip over the still once a
+  change into it settles, and the still steps out (`is-covered`) so it can't show through; the swirl breaks apart the
+  frame on screen. Every clip is prefetched by `wardrobe.preload()` after the opening, and a change into a look whose
+  clip hasn't arrived keeps swirling for up to 5 s (`CLIP_WAIT`) so the pixels land into the moving couple. Clips
   pause off-screen, in hidden tabs and while the paan leaves cover the bride, and never play under reduced
   motion, Save-Data or `file://`. New clips must stay on plain black the whole time (no scenery, petals or
   outfit change) and start from `python tools/cutout_videos.py --start-frames` so Grok doesn't crop the couple;

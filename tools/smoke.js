@@ -32,7 +32,7 @@ const FAKE_ENDPOINT = "https://script.google.test/macros/s/smoke/exec";
 fs.mkdirSync(OUT, { recursive: true });
 
 const CURTAIN_MS = reduced ? 700 : 2600;
-const WIPE_MS = reduced ? 500 : 1500; // the pixel transition is 1.9s; callers add slack
+const WIPE_MS = reduced ? 500 : 1500; // the pixel transition is 1.9s (longer while it waits for a clip); callers add slack
 
 const sizes = [
   { name: "phone", viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 },
@@ -86,6 +86,17 @@ async function wireBackend(ctx, backend) {
     page.on("request", (r) => { if (/\.mp4(\?|$)/.test(r.url())) clipRequests.push(r.url()); });
     const scrollTo = (sel, block = "start") => page.evaluate(([s, b]) => document.querySelector(s).scrollIntoView({ block: b, behavior: "instant" }), [sel, block]);
     const look = (sel) => page.$eval(sel, (el) => el.dataset.look);
+    // The still under a showing clip steps out, or it shows through wherever the couple moves.
+    const stills = (sel) => page.$$eval(`${sel} .wardrobe__layer`, (els) => ({
+      covered: els.filter((e) => e.classList.contains("is-covered")).length,
+      activeOpacity: getComputedStyle(els.find((e) => e.classList.contains("is-active"))).opacity,
+    }));
+    const checkStills = async (sel, clip, what) => {
+      await page.waitForTimeout(500); // the still's fade-out
+      const st = await stills(sel);
+      if (clip) check(st.covered === 1 && st.activeOpacity === "0", `${tag}: the still shows behind the clip on ${what} (${JSON.stringify(st)})`);
+      else check(st.covered === 0 && st.activeOpacity === "1", `${tag}: the still is hidden with no clip on ${what} (${JSON.stringify(st)})`);
+    };
 
     // 1 · Curtain → sound
     await page.goto(`${BASE}?guest=Test%20Guest`, { waitUntil: "networkidle" });
@@ -107,6 +118,12 @@ async function wireBackend(ctx, backend) {
       await page.waitForTimeout(600);
       const t2 = await clipTime("#hero-wardrobe");
       check(t2.some((t, i) => t > t1[i]), `${tag}: the hero clip is not advancing (${t1} → ${t2})`);
+      await checkStills("#hero-wardrobe", true, "the opening hero look");
+      // Every look's clip is prefetched after the opening, one after another.
+      const videos = await page.evaluate(() => window.INVITE.avatars.filter((a) => a.video).map((a) => a.video));
+      const fetched = () => videos.filter((v) => clipRequests.some((u) => u.endsWith(v)));
+      for (let i = 0; i < 40 && fetched().length < videos.length; i++) await page.waitForTimeout(250);
+      check(fetched().length === videos.length, `${tag}: only ${fetched().length} of ${videos.length} clips were prefetched`);
       await shot("02-hero-clip");
     } else if (!clips) {
       check(!(await page.locator("video").count()), `${tag}: a clip was set up where clips can't play`);
@@ -137,7 +154,8 @@ async function wireBackend(ctx, backend) {
       await page.click(`#look-chips [data-look="${id}"]`);
       await page.waitForTimeout(reduced ? 150 : 850); // mid-swirl, in the new palette
       await page.locator(".hero__stage").screenshot({ path: path.join(OUT, `${tag}-03-hero-${id}.png`) });
-      await page.waitForTimeout(WIPE_MS + 700);
+      await page.waitForFunction(() => !document.querySelector("#hero-wardrobe").dataset.transition, null, { timeout: WIPE_MS + 7000 }).catch(() => {});
+      await page.waitForTimeout(150);
       const ran = await page.$eval("#hero-wardrobe", (el) => el.dataset.lastTransition);
       check((await look("#hero-wardrobe")) === id, `${tag}: hero did not change into the ${id} look`);
       check(ran === want, `${tag}: changing into ${id} ran "${ran}", expected "${want}"`);
@@ -150,6 +168,9 @@ async function wireBackend(ctx, backend) {
         await page.waitForFunction(([w]) => document.querySelectorAll("#hero-wardrobe .wardrobe__motion.is-playing").length === w, [want], { timeout: 4000 }).catch(() => {});
         const shown = await page.$$eval("#hero-wardrobe .wardrobe__motion.is-playing", (els) => els.length);
         check(shown === want, `${tag}: ${shown} clips showing on the ${id} look, expected ${want}`);
+        await checkStills("#hero-wardrobe", hasClip, `the ${id} look`);
+      } else {
+        await checkStills("#hero-wardrobe", false, `the ${id} look`);
       }
     }
     await shot("04-hero-settled");

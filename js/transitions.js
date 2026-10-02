@@ -8,11 +8,20 @@
  * Each takes { container, fx, from, to, palette } — the wardrobe box, an
  * overlay for effects, the outgoing and incoming <img> layers and the colours —
  * and returns { finished, cancel }. Cancelling mid-way leaves clean CSS state.
+ *
+ * `pixel` also takes `ready` (a promise, e.g. the incoming look's clip
+ * downloading) and `maxWait`: if `ready` hasn't settled when the pixels are
+ * fully scattered, the cloud keeps swirling until it does, or for `maxWait` ms,
+ * before settling into the new outfit.
  */
 (function () {
   const { h } = window.Invite;
 
   const DURATION = 1900;
+  const HALF = DURATION / 2; // scatter, then settle
+  const TURN = Math.PI * 2;
+  const HOLD_TURN = 1600;    // ms per turn of the cloud while it waits
+  const HOLD_EASE = 600;     // ms to slow from the scatter's speed to that
   const FALLBACK_PALETTE = ["#f2a531", "#e8892a", "#f7c948", "#d9531e"];
 
   /** Bundle animations into one handle; cancel also removes temporary nodes. */
@@ -100,38 +109,88 @@
         my: cy + rand(-0.42, 0.38) * hgt,
         mz: Math.sin(a) * rr * w * 0.42,
         k: rand(0.8, 1.6), // size factor mid-flight
+        ph: rand(0, TURN), // bob phase while the cloud waits
       };
     }
 
     const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
     const out = (t) => 1 - Math.pow(1 - t, 3);
     const mix = (a, b, t) => a + (b - a) * t;
+    const clamp01 = (t) => Math.max(0, Math.min(1, t));
 
-    let raf = 0, t0 = 0, resolve;
+    // Should the cloud wait at the end of the scatter?
+    let waiting = !!args.ready;
+    args.ready?.then(() => (waiting = false), () => (waiting = false));
+    const maxWait = args.maxWait ?? 0;
+
+    // The cloud's turn is accumulated across three phases. Scatter: 0 → π,
+    // speeding up. Hold: slowing to one turn per HOLD_TURN. Settle: a cubic
+    // from the current angle and speed to rest on a whole turn, so the couple
+    // isn't squashed or mirrored when the pixels land. Without a hold this is
+    // the same in-out curve as one turn over DURATION.
+    const PEAK = (3 * Math.PI) / HALF, CALM = TURN / HOLD_TURN; // rad per ms
+    let phase = "out", t0 = 0, tPhase = 0, last = 0;
+    let th = 0, speed = PEAK, bob = 0;
+    let settle = null; // { th0, m0, th1 } for the settle cubic
+
+    let raf = 0, resolve, reveal = null;
     const finished = new Promise((r) => (resolve = r));
-    const o = { duration: DURATION, fill: "both" };
-    const anims = [
-      from.animate([{ opacity: 1 }, { opacity: 0, offset: 0.16 }, { opacity: 0 }], o),
-      to.animate([{ opacity: 0 }, { opacity: 0, offset: 0.8 }, { opacity: 1 }], o),
-    ];
+    const anims = [from.animate([{ opacity: 1 }, { opacity: 0 }], { duration: DURATION * 0.16, fill: "both" })];
+    to.style.opacity = "0"; // revealed as the pixels land; the wardrobe clears inline style when it settles
+
+    function startSettle(now) {
+      phase = "in";
+      tPhase = now;
+      const m0 = speed * HALF;
+      settle = { th0: th, m0, th1: TURN * Math.ceil((th + m0 / 3) / TURN - 1e-9) };
+      reveal = to.animate([{ opacity: 0 }, { opacity: 1 }], { duration: HALF * 0.4, delay: HALF * 0.6, fill: "both" });
+      anims.push(reveal);
+    }
 
     function frame(now) {
-      if (!t0) t0 = now;
-      const p = Math.min(1, (now - t0) / DURATION);
-      const th = Math.PI * 2 * ease(p); // one full turn of the cloud
+      if (!t0) t0 = tPhase = last = now;
+      const dt = now - last;
+      last = now;
+      if (phase === "out" && now - tPhase >= HALF) {
+        th = Math.PI;
+        tPhase += HALF;
+        if (waiting && maxWait > 0) phase = "hold";
+        else startSettle(tPhase);
+      }
+      if (phase === "hold" && (!waiting || now - tPhase >= maxWait)) startSettle(now);
+
+      // s: progress through the current phase; drawing follows the original
+      // timeline's p = s / 2 (scatter) and p = 0.5 + s / 2 (settle).
+      let s = 0;
+      if (phase === "out") {
+        s = clamp01((now - tPhase) / HALF);
+        th = Math.PI * s * s * s;
+      } else if (phase === "hold") {
+        const k = clamp01((now - tPhase) / HOLD_EASE);
+        speed = mix(PEAK, CALM, k * k * (3 - 2 * k));
+        th += speed * dt;
+        bob = Math.min(1, (now - tPhase) / 300);
+      } else {
+        s = clamp01((now - tPhase) / HALF);
+        const { th0, m0, th1 } = settle, s2 = s * s, s3 = s2 * s;
+        th = (2 * s3 - 3 * s2 + 1) * th0 + (s3 - 2 * s2 + s) * m0 + (3 * s2 - 2 * s3) * th1;
+      }
+      const p = phase === "out" ? s / 2 : phase === "hold" ? 0.5 : 0.5 + s / 2;
+      const wobble = phase === "in" ? bob * (1 - ease(s)) : bob;
       const cos = Math.cos(th), sin = Math.sin(th);
       ctx.clearRect(0, 0, w, hgt);
       ctx.globalAlpha = p < 0.85 ? 1 : 1 - (p - 0.85) / 0.15;
       for (const q of parts) {
         let x, y, z, cr, cg, cb, size;
-        if (p < 0.5) {
-          const e = out(p / 0.5), c = Math.min(1, p / 0.3);
+        if (phase === "out") {
+          const e = out(s), c = Math.min(1, p / 0.3);
           x = mix(q.s.x, q.mx, e); y = mix(q.s.y, q.my, e); z = q.mz * e;
           cr = mix(q.s.r, q.m[0], c); cg = mix(q.s.g, q.m[1], c); cb = mix(q.s.b, q.m[2], c);
           size = step * mix(1, q.k, e);
         } else {
-          const e = ease((p - 0.5) / 0.5), c = Math.max(0, Math.min(1, (p - 0.6) / 0.35));
-          x = mix(q.mx, q.d.x, e); y = mix(q.my, q.d.y, e); z = q.mz * (1 - e);
+          const e = phase === "hold" ? 0 : ease(s), c = clamp01((p - 0.6) / 0.35);
+          const my = q.my + wobble * step * 1.5 * Math.sin(now / 420 + q.ph);
+          x = mix(q.mx, q.d.x, e); y = mix(my, q.d.y, e); z = q.mz * (1 - e);
           cr = mix(q.m[0], q.d.r, c); cg = mix(q.m[1], q.d.g, c); cb = mix(q.m[2], q.d.b, c);
           size = step * mix(q.k, 1, e);
         }
@@ -142,13 +201,23 @@
         ctx.fillStyle = `rgb(${cr | 0},${cg | 0},${cb | 0})`;
         ctx.fillRect(cx + rx * sc - sz / 2, cy + (y - cy) * sc - sz / 2, sz, sz);
       }
-      if (p < 1) raf = requestAnimationFrame(frame);
-      else { canvas.remove(); resolve(); }
+      if (phase !== "in" || s < 1) raf = requestAnimationFrame(frame);
+      else { canvas.remove(); reveal.finished.then(resolve, resolve); }
     }
     raf = requestAnimationFrame(frame);
 
-    const g = group(anims, [canvas], () => { cancelAnimationFrame(raf); resolve(); });
-    return { finished: Promise.all([finished, g.finished]), cancel: g.cancel };
+    let done = false;
+    return {
+      finished: finished.then(() => { done = true; }),
+      cancel() {
+        if (done) return;
+        done = true;
+        cancelAnimationFrame(raf);
+        anims.forEach((a) => a.cancel());
+        canvas.remove();
+        resolve();
+      },
+    };
   }
 
   window.Invite.transitions = { fade, pixel };

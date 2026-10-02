@@ -79,7 +79,7 @@ window.INVITE = {
       date: "2026-12-10",
       startTime: "18:00", // "18:30" in IST once confirmed
       endTime: "23:00",
-      venue: { name: "Regenta Orkos", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" }, // { name: "…", address: "…" }
+      venue: { name: "Regenta Orkos Hotel, 621, Prantik Pally Rd, Ravindra Pally, Kasba, Kolkata, West Bengal - 700107", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" }, // { name: "…", address: "…" }
       look: "sangeet",
     },
     {
@@ -89,7 +89,7 @@ window.INVITE = {
       date: "2026-12-11",
       startTime: "10:00",
       endTime: "13:00",
-      venue: { name: "Regenta Orkos", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" },
+      venue: { name: "Regenta Orkos Hotel, 621, Prantik Pally Rd, Ravindra Pally, Kasba, Kolkata, West Bengal - 700107", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" },
       look: "haldi",
     },
     {
@@ -99,7 +99,7 @@ window.INVITE = {
       date: "2026-12-11",
       startTime: "18:00",
       endTime: "22:00",
-      venue: { name: "Regenta Orkos", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" },
+      venue: { name: "Regenta Orkos Hotel, 621, Prantik Pally Rd, Ravindra Pally, Kasba, Kolkata, West Bengal - 700107", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" },
       look: "biye",
     },
     {
@@ -109,7 +109,7 @@ window.INVITE = {
       date: "2026-12-13",
       startTime: "18:00",
       endTime: "23:30",
-      venue: { name: "Princeton Club", address: "https://maps.app.goo.gl/V9ARwFyHi6Z4qXLB6" },
+      venue: { name: "Princeton Club, 26, Prince Anwar Shah Rd, Badam Talla, Tollygunge, Kolkata, West Bengal - 700033", address: "https://maps.app.goo.gl/V9ARwFyHi6Z4qXLB6" },
       look: "reception",
     },
   ],
