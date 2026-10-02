@@ -106,6 +106,13 @@ margins, never over text, and don't move, so reduced motion needs nothing extra.
   the navy hero and emerald band. Re-run `tools/cutout_avatars.py` for all looks together.
 - The hero has outfit buttons (`.chip`, `aria-pressed`). The events stage follows the card crossing the
   middle 16% of the screen: a sticky arch on desktop, and a strip pinned under the top bar on phones.
+- **Looping looks.** A look with `avatars[].video` comes alive once a change into it settles: its clip
+  (`js/alpha-video.js`) fades in over the still in 0.3s on a `.wardrobe__motion` canvas with the layers'
+  geometry, starting on frame 0, which is the still's pose. The swirl breaks apart the frame on screen.
+  Clips pause off-screen, in hidden tabs and while the hero is held (Biye under the paan leaves, released
+  1.1s after `invite:drishti`), and never play under reduced motion, Save-Data or `file://`. Motion in a
+  clip is gentle and in place: a dance step, a glance, joined hands. No scenery, particles or outfit changes,
+  and it ends where it began (or plays as a ping-pong).
 
 ## The living backdrop (`js/ambient.js`)
 

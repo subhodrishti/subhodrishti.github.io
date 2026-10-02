@@ -93,7 +93,10 @@
           body.classList.remove("is-curtain-opening");
           $("#hero-title")?.focus({ preventScroll: true });
         }, step.open);
-        setTimeout(() => body.classList.add("is-drishti-open"), step.drishti);
+        setTimeout(() => {
+          body.classList.add("is-drishti-open");
+          document.dispatchEvent(new Event("invite:drishti")); // the hero couple may start moving
+        }, step.drishti);
       }, step.press);
     });
   }

@@ -71,6 +71,14 @@
     renderLookChips();
     // Fetch the other outfits after the opening, when the network is quiet.
     document.addEventListener("invite:revealed", () => setTimeout(() => heroWardrobe.preload(), 1200), { once: true });
+    // The couple stays still until the curtain is open and, after a tap on the
+    // seal, until the paan leaves have lowered from the bride's face.
+    heroWardrobe.hold(true);
+    const release = () => heroWardrobe.hold(false);
+    document.addEventListener("invite:drishti", () => setTimeout(release, 1100), { once: true });
+    document.addEventListener("invite:revealed", () => {
+      if (!document.body.classList.contains("is-drishti")) release(); // curtain skipped
+    }, { once: true });
   }
 
   function staggerHero() {

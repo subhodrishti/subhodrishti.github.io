@@ -57,7 +57,8 @@ async function wireBackend(ctx, backend) {
 }
 
 (async () => {
-  const browser = await chromium.launch({ channel: "chrome", args: ["--autoplay-policy=user-gesture-required"] });
+  // Headless Chrome has no GPU: opt in to software WebGL for the couple's clips (js/alpha-video.js).
+  const browser = await chromium.launch({ channel: "chrome", args: ["--autoplay-policy=user-gesture-required", "--enable-unsafe-swiftshader"] });
   const problems = [];
   const check = (ok, msg) => { if (!ok) problems.push(msg); };
 
@@ -76,9 +77,13 @@ async function wireBackend(ctx, backend) {
     page.on("console", (m) => {
       // 404s are reported with their URL by the response listener below.
       if (/Failed to load resource/.test(m.text())) return;
+      // Software WebGL's performance notes about this GPU-less test machine, not the page.
+      if (/GL Driver Message \(OpenGL, Performance/.test(m.text())) return;
       if (m.type() === "error" || m.type() === "warning") problems.push(`${tag} console.${m.type()}: ${m.text()}`);
     });
     page.on("response", (r) => { if (r.status() >= 400) problems.push(`${tag} HTTP ${r.status()}: ${r.url()}`); });
+    const clipRequests = [];
+    page.on("request", (r) => { if (/\.mp4(\?|$)/.test(r.url())) clipRequests.push(r.url()); });
     const scrollTo = (sel, block = "start") => page.evaluate(([s, b]) => document.querySelector(s).scrollIntoView({ block: b, behavior: "instant" }), [sel, block]);
     const look = (sel) => page.$eval(sel, (el) => el.dataset.look);
 
@@ -90,6 +95,21 @@ async function wireBackend(ctx, backend) {
     const audio = await page.evaluate(() => window.Invite.audio.state());
     check(audio.started && audio.context === "running", `${tag}: sound did not start on the seal tap (${JSON.stringify(audio)})`);
     await shot("02-hero");
+
+    // 1a · The hero couple loops as a clip once the paan leaves are lowered; a still where clips can't play
+    const clips = await page.evaluate(() => window.Invite.alphaVideo.supported());
+    const clipTime = (sel) => page.$$eval(`${sel} video`, (vs) => vs.map((v) => v.currentTime));
+    if (clips) {
+      const playing = await page.waitForSelector("#hero-wardrobe .wardrobe__motion.is-playing", { timeout: 8000 }).then(() => true, () => false);
+      check(playing, `${tag}: the hero couple's clip did not start`);
+      const t1 = await clipTime("#hero-wardrobe");
+      await page.waitForTimeout(600);
+      const t2 = await clipTime("#hero-wardrobe");
+      check(t2.some((t, i) => t > t1[i]), `${tag}: the hero clip is not advancing (${t1} → ${t2})`);
+      await shot("02-hero-clip");
+    } else {
+      check(!(await page.locator("video").count()), `${tag}: a clip was set up where clips can't play`);
+    }
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     check(overflow <= 0, `${tag}: page scrolls sideways by ${overflow}px`);
@@ -122,6 +142,14 @@ async function wireBackend(ctx, backend) {
       check(ran === want, `${tag}: changing into ${id} ran "${ran}", expected "${want}"`);
       const leftovers = await page.$$eval("#hero-wardrobe .wardrobe__fx *", (els) => els.length);
       check(leftovers === 0, `${tag}: ${leftovers} effect nodes left behind after ${id}`);
+      if (clips) {
+        // One clip shows on a look that has one, none on a still look.
+        const hasClip = await page.evaluate((x) => !!window.INVITE.avatars.find((a) => a.id === x)?.video, id);
+        const want = hasClip ? 1 : 0;
+        await page.waitForFunction(([w]) => document.querySelectorAll("#hero-wardrobe .wardrobe__motion.is-playing").length === w, [want], { timeout: 4000 }).catch(() => {});
+        const shown = await page.$$eval("#hero-wardrobe .wardrobe__motion.is-playing", (els) => els.length);
+        check(shown === want, `${tag}: ${shown} clips showing on the ${id} look, expected ${want}`);
+      }
     }
     await shot("04-hero-settled");
 
@@ -134,6 +162,18 @@ async function wireBackend(ctx, backend) {
       check(got === want, `${tag}: stage showed "${got}" at the ${id} card, expected "${want}"`);
       if (id === expected[1][0]) await shot("05-events-stage");
     }
+    if (clips) {
+      const heroPaused = await page.$$eval("#hero-wardrobe video", (vs) => vs.every((v) => v.paused));
+      check(heroPaused, `${tag}: the hero clip kept playing off-screen`);
+      const withClip = await page.evaluate(() => window.INVITE.events.find((e) => window.INVITE.avatars.find((a) => a.id === e.look)?.video)?.id);
+      if (withClip) {
+        await scrollTo(`.event[data-id="${withClip}"]`, "center");
+        const ok = await page.waitForSelector("#events-wardrobe .wardrobe__motion.is-playing", { timeout: 6000 }).then(() => true, () => false);
+        check(ok, `${tag}: the events stage clip did not play at the ${withClip} card`);
+        await shot("05-events-clip");
+      }
+    }
+    if (reduced) check(!clipRequests.length, `${tag}: clips downloaded under reduced motion: ${clipRequests.join(", ")}`);
 
     // 4 · Polls with live results
     await scrollTo("#polls");
