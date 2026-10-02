@@ -125,7 +125,14 @@
     }, { rootMargin: "600px 0px" }).observe($("#events"));
   }
 
+  /** "Four days in Kolkata" for the whole wedding; fewer days for an invite to some events. */
+  function title() {
+    const key = `events.titleDays${new Set(get("events").map((e) => e.date)).size}`;
+    return !window.Invite.invite.all && window.INVITE_STRINGS.en[key] ? t(key) : t("events.title");
+  }
+
   function render() {
+    $("#events-title").textContent = title();
     const list = $("#event-list");
     list.replaceChildren();
     observer?.disconnect();

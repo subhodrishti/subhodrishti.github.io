@@ -29,6 +29,11 @@ const urlArg = args.indexOf("--url");
 const BASE = urlArg > -1 ? args[urlArg + 1] : "http://127.0.0.1:5500/";
 const OUT = path.join(__dirname, "..", ".smoke");
 const FAKE_ENDPOINT = "https://script.google.test/macros/s/smoke/exec";
+// Test-only invite codes, added to config in the test browser alongside the real ones.
+const SMOKE_INVITES = {
+  "smoke-all": { events: ["sangeet", "haldi", "wedding", "reception"] },
+  "smoke-one": { events: ["reception"] },
+};
 fs.mkdirSync(OUT, { recursive: true });
 
 const CURTAIN_MS = reduced ? 700 : 2600;
@@ -43,7 +48,8 @@ const sizes = [
 async function wireBackend(ctx, backend) {
   await ctx.route("**/js/config.js", async (route) => {
     const res = await route.fetch();
-    const body = (await res.text()) + `\nwindow.INVITE.rsvp.endpoint = ${JSON.stringify(FAKE_ENDPOINT)};\n`;
+    const body = (await res.text()) + `\nwindow.INVITE.rsvp.endpoint = ${JSON.stringify(FAKE_ENDPOINT)};\n`
+      + `Object.assign(window.INVITE.invites, ${JSON.stringify(SMOKE_INVITES)});\n`;
     await route.fulfill({ response: res, body });
   });
   await ctx.route(`${FAKE_ENDPOINT}**`, async (route) => {
@@ -99,7 +105,7 @@ async function wireBackend(ctx, backend) {
     };
 
     // 1 · Curtain → sound
-    await page.goto(`${BASE}?guest=Test%20Guest`, { waitUntil: "networkidle" });
+    await page.goto(`${BASE}?invite=smoke-all&guest=Test%20Guest`, { waitUntil: "networkidle" });
     await shot("01-curtain");
     await page.click("#open-invite");
     await page.waitForTimeout(CURTAIN_MS);
@@ -273,6 +279,35 @@ async function wireBackend(ctx, backend) {
     check(!muted.on, `${tag}: music toggle did not mute`);
 
     await ctx.close();
+
+    // 7 · Invite codes: a missing or unknown code is "not found"; a code shows only its events.
+    const ctx2 = await browser.newContext({ ...size, reducedMotion: reduced ? "reduce" : "no-preference" });
+    await wireBackend(ctx2, backend);
+    const p2 = await ctx2.newPage();
+    p2.on("pageerror", (e) => problems.push(`${tag} invite pageerror: ${e.message}`));
+    for (const q of ["", "?invite=nope", "?invite=%3Cscript%3E"]) {
+      await p2.goto(`${BASE}${q}`, { waitUntil: "networkidle" });
+      const nf = await p2.evaluate(() => ({
+        shown: !document.querySelector("#not-found").hidden,
+        curtain: getComputedStyle(document.querySelector("#curtain")).display !== "none",
+        main: getComputedStyle(document.querySelector("main")).display,
+        overflow: document.documentElement.scrollWidth - window.innerWidth,
+      }));
+      check(nf.shown && !nf.curtain && nf.main === "none", `${tag}: "${q || "no code"}" did not show only the not-found page (${JSON.stringify(nf)})`);
+      check(nf.overflow <= 0, `${tag}: not-found page scrolls sideways by ${nf.overflow}px`);
+    }
+    await p2.screenshot({ path: path.join(OUT, `${tag}-14-not-found.png`) });
+    await p2.goto(`${BASE}?invite=SMOKE-ONE&open=1`, { waitUntil: "networkidle" });
+    const one = await p2.evaluate(() => ({
+      cards: document.querySelectorAll("#event-list .event").length,
+      boxes: document.querySelectorAll('#f-events input[name="events"]').length,
+      picker: !document.querySelector("#f-events").closest("fieldset").hidden,
+      chips: !document.querySelector("#look-chips").hidden,
+      date: document.querySelector(".hero__date-range").textContent,
+    }));
+    check(one.cards === 1 && one.boxes === 1 && !one.picker && !one.chips && one.date.startsWith("13 December 2026"),
+      `${tag}: the reception-only invite did not narrow the page (${JSON.stringify(one)})`);
+    await ctx2.close();
   }
   await browser.close();
 

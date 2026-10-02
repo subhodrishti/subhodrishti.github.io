@@ -114,6 +114,17 @@ window.INVITE = {
     },
   ],
 
+  // Who is invited to what. Share index.html?invite=<code> (add &guest=Name for a
+  // personal greeting). A link with no code, or a code not listed here, shows the
+  // "invitation not found" page. `events` are ids from `events` above, shown in
+  // that order. Codes are case-insensitive: letters, digits and hyphens.
+  // Optional `dateLine: { en, bn }` replaces the date line worked out from the events.
+  // Anyone can read this file, so a code is a convenience, not a password.
+  invites: {
+    t5fntb22: { events: ["sangeet", "haldi", "wedding", "reception"] }, // all events
+    "246w64vb": { events: ["haldi", "wedding"] }, // Haldi and Wedding
+  },
+
   // The couple's look for each ceremony, cut out of the family's illustrated
   // renders by tools/cutout_avatars.py (same scale and floor line, each centred).
   // Changing looks plays one transition everywhere: the outfit breaks into
@@ -170,7 +181,9 @@ window.INVITE = {
   // choose which buttons that number gets. Visible to anyone the link reaches.
   contacts: [
     { name: "Sudeep Khasnabis", relation: { en: "Family contact", bn: "পারিবারিক যোগাযোগ" },
-      numbers: [{ number: "+919972891336", call: true, whatsapp: true }] },
+      numbers: [{ number: "+919830992469", call: true, whatsapp: true }] },
+    { name: "Sneha Khasnabis", relation: { en: "Bride contact", bn: "কনের যোগাযোগ" },
+      numbers: [{ number: "+919038742552", call: true, whatsapp: true }] },
     // { name: "…", side: "groom", relation: { en: "Groom's uncle", bn: "বরের কাকা" },
     //   numbers: [{ number: "+91 98xxx xxxxx", call: true, whatsapp: true }] },
   ],

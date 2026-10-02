@@ -13,8 +13,11 @@ Guests are family and friends aged 8 to 85, mostly on a phone, opening a link so
   classic `defer` scripts that hang off `window.Invite`, so `index.html` also works opened straight from disk
   (sound is limited there).
 - `npm run serve` (or `python -m http.server 5500`), then open http://127.0.0.1:5500.
-- Test links: `?guest=Rina%20Mashi` (personal greeting, prefilled name), `?lang=bn` (open in Bengali),
-  `?open=1` (skip the curtain). The curtain stays open for the rest of a browser session once opened.
+- Every link needs an invite code: `?invite=t5fntb22` (all events), `?invite=246w64vb` (Haldi and Wedding)
+  (codes in `config.js → invites`). No code, or an unknown one, shows the "invitation not found" page.
+  The smoke test adds its own `smoke-*` codes in the test browser only.
+- Test links: `?invite=t5fntb22&guest=Rina%20Mashi` (personal greeting, prefilled name), `&lang=bn` (open in Bengali),
+  `&open=1` (skip the curtain). The curtain stays open for the rest of a browser session once opened.
 - Tests: `npm test` (the Apps Script backend, in a Node VM with fake Google services) and `npm run smoke`
   / `npm run smoke:reduced` (Playwright + installed Chrome; the backend harness plays the endpoint).
   `npm i -D playwright` once, or set `PLAYWRIGHT_MODULE` to an existing install.
@@ -27,6 +30,7 @@ Guests are family and friends aged 8 to 85, mostly on a phone, opening a link so
 | `js/strings.js` | The page's own interface words in `en` and `bn`, filled by `Invite.t(key, vars)` and `[data-i18n]` |
 | `index.html` | Page skeleton, SVG ornaments (`#alpana-seal`, `#alpana-rule`, `#i-sound`), dialogs |
 | `css/styles.css` | Tokens at the top, then one block per section in page order, then wardrobe, language and sound, poll results, Bengali overrides, and reduced motion last |
+| `js/invites.js` | Reads `?invite=`, narrows `INVITE.events`, hero looks and date line to that invite before anything renders; otherwise shows `#not-found` |
 | `js/util.js` | `h()`, language (`lang`, `setLang`, `L`, `t`, `num`), IST date formatters, `store`, `postJSON`/`getJSON`, `deviceId` |
 | `js/wardrobe.js` | Outfit change in place: stacks the looks, runs the transition in the incoming look's `palette`, settles cleanly when interrupted. Used by the hero and the events stage |
 | `js/transitions.js` | `pixel` (the outfit breaks into pixels that swirl in 3D on a canvas and re-form; given a `ready` promise it keeps swirling until it settles, up to `maxWait`) and `fade` (reduced motion, or when pixels can't be read on `file://`) |
@@ -53,6 +57,9 @@ Guests are family and friends aged 8 to 85, mostly on a phone, opening a link so
 - **Event data comes from `../wedding/inputs/timeline.json`** (the Command Deck's source of truth). Copy it in
   with the `sync-events` skill. Never write to anything under `../wedding/` from this project. In particular
   only `/rsvp-update`, invoked directly by Subhadip, may write `../wedding/inputs/guests.json`.
+- **Invite codes pick the events.** `config.js → invites` maps a code to event ids. Every renderer reads
+  `get("events")`, so narrow there, never per section. The saved reply is kept per code (`invite:rsvp:<code>`).
+  Codes are readable in the page source: a convenience, not access control. The RSVP endpoint still accepts any event.
 - **Event `id`s are a contract.** RSVP rows store them and the Apps Script validates against `EVENT_IDS`.
 - **Event looks are the couple's own outfits**, from the family's themed renders (`sangeet`, `haldi`, `biye`,
   `reception`). The page never tells guests what to wear; setting every `look` to `null` removes the events stage.

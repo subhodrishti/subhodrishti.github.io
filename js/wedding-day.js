@@ -28,7 +28,7 @@
     const cfg = get("weddingDay");
     const { links, list } = window.Invite.contact;
     const contacts = list();
-    const declined = store.get("rsvp")?.attending === "no";
+    const declined = store.get(`rsvp:${window.Invite.invite.code}`)?.attending === "no";
     panel = h("aside", { class: "day-mode glass glass--dark", "aria-label": t("dayMode.label") },
       h("p", { class: "day-mode__kicker" }, t("dayMode.kicker")),
       h("p", { class: "day-mode__status", role: "status" }, currentStatus()),

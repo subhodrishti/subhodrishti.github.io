@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Subh &amp; Sneha — you're invited</title>
-  <meta name="description" content="10–13 December 2026 · Kolkata. Join us for the Sangeet, Haldi, Wedding and Reception.">
+  <meta name="description" content="10–13 December 2026 · Kolkata. You're invited.">
   <meta name="theme-color" content="#1b3b5f">
   <meta name="color-scheme" content="light">
 
   <!-- Link preview (WhatsApp reads these). Use an absolute og:image URL once deployed. -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Subhadip &amp; Sneha — you're invited">
-  <meta property="og:description" content="10–13 December 2026 · Kolkata. Join us for the Sangeet, Haldi, Wedding and Reception.">
+  <meta property="og:description" content="10–13 December 2026 · Kolkata. You're invited.">
   <meta property="og:image" content="assets/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
 
@@ -186,6 +186,20 @@
       <a href="#rsvp" class="topbar__cta" data-i18n="nav.rsvp">RSVP</a>
     </nav>
   </header>
+
+  <!-- A link with no invite code, or one not in config `invites` (js/invites.js) -->
+  <section class="not-found" id="not-found" hidden aria-labelledby="nf-title">
+    <p class="not-found__digits" aria-hidden="true">
+      <span>4</span>
+      <span class="seal__disc not-found__seal"><svg><use href="#alpana-seal"/></svg><span class="seal__mono">S<i>&amp;</i>S</span></span>
+      <span>4</span>
+    </p>
+    <p class="not-found__kicker" data-i18n="notFound.kicker">Invitation not found</p>
+    <h1 class="not-found__title" id="nf-title" data-i18n="notFound.title">This invitation wandered off to another wedding</h1>
+    <p class="not-found__body" data-i18n="notFound.body">We looked under the mandap, behind the shehnai and even in Mashi's handbag, but no invitation matches this link.</p>
+    <p class="not-found__hint" data-i18n="notFound.hint">Please open the link exactly as it was sent to you on WhatsApp, or ask the family for a new one.</p>
+    <p class="not-found__ask" id="nf-ask" hidden></p>
+  </section>
 
   <main id="top">
     <!-- 2 · Hero -->
@@ -466,6 +480,7 @@
   <script src="js/config.js" defer></script>
   <script src="js/strings.js" defer></script>
   <script src="js/util.js" defer></script>
+  <script src="js/invites.js" defer></script>
   <script src="js/petals.js" defer></script>
   <script src="js/confetti.js" defer></script>
   <script src="js/audio.js" defer></script>
