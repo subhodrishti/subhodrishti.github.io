@@ -51,6 +51,9 @@ result, the Bengali hero, events and RSVP, at both sizes.
   Claude's draft (`npm run translations` makes the review sheet).
 - Event `look` pairings: confirm the family has approved them, or flag them.
 - Audio: every file in `audio.tracks` exists, and the footer credit matches `assets/audio/CREDITS.md`.
+- Clips: every `avatars[].video` exists, is ≤ ~2 MB (`ls -l assets/avatars/*.mp4`), and its previews in
+  `tools/.cache/video/preview/` were checked. On a real iPhone and Android phone, opened from a WhatsApp
+  link, the hero couple starts moving after the paan leaves lower; in Low Power Mode the still shows.
 
 ## 6. RSVP endpoint (blocking)
 
@@ -78,8 +81,9 @@ loads only when Directions is opened).
 
 ## Deploying (only when the user asks)
 
-It's a static folder, so GitHub Pages, Netlify or Vercel all work. Publish `index.html`, `css/`, `js/`
-and `assets/` only. Leave `references/`, `tools/`, `backend/`, `.claude/`, `.smoke/`, `package.json` and
+It's a static folder, so GitHub Pages, Netlify or Vercel all work (each serves byte ranges, which Safari
+needs for the clips; `python -m http.server` doesn't, so iPhones show the stills there). Publish
+`index.html`, `sw.js`, `css/`, `js/` and `assets/` only. Leave `references/`, `tools/`, `backend/`, `.claude/`, `.smoke/`, `package.json` and
 `translations-review.csv` out of the published output.
 Deploying makes the page public: confirm with the user before the first deploy and before changing the URL
 guests already have.

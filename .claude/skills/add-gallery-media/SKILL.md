@@ -43,6 +43,22 @@ The avatars appear only in the hero (outfit buttons) and beside the events. Ther
    `look` to show it beside that event.
 5. The script rewrites `js/avatar-frame.js`; commit it with the images.
 
+### A looping clip for a look
+
+1. Make the clip from the look's padded start frame: `python tools/cutout_videos.py --start-frames`
+   writes `tools/.cache/video/start/<look>.png` (the still on black, 9:16, room around the couple). Use the
+   prompt in `tools/avatar-prompts.md` → Looping clips. Reject clips that cut to scenery, add petals or
+   sparkles, or change the outfit or pose: they can't be cut out cleanly.
+2. Save it as `references/motion/<look>.mp4`, add it to `CLIPS` in `tools/cutout_videos.py` (`loop: "native"`
+   if it ends where it began, else `"pingpong"`; `watermark` box around Grok's mark), and run
+   `python tools/cutout_videos.py <look>`. BiRefNet needs ~8 GB of RAM and ~25 s a frame on a CPU, so a
+   6 s clip takes about an hour the first time; masks are cached.
+3. **Check the previews** in `tools/.cache/video/preview/`: the clip on navy and emerald, a contact sheet
+   and the loop seam. Look for shimmer on hair, clipped hands, a jump at the seam, and that frame 0 sits
+   on the still.
+4. Set `video: "assets/avatars/<look>.mp4"` on its `avatars` entry. Keep each clip ≤ ~1.5 MB per 6 s (the
+   script raises CRF until it fits).
+
 ## Don't
 
 - Don't commit originals with metadata into `assets/`. Originals belong outside the repo or in `references/`.

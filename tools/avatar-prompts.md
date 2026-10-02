@@ -161,3 +161,35 @@ Add one of these lines to the end of the prompt and regenerate:
 | Holud | yellow + red, flowers | mustard + white | ✓ | ✓ |
 | Sangeet | rani pink + gold | ivory + antique gold | ✓ | ✓ |
 | Reception | champagne gold + maroon | maroon + ivory | ✓ | ✓ |
+
+## Looping clips (Grok image-to-video)
+
+Each look can loop as an animated cutout (`assets/avatars/<look>.mp4`, cut by `tools/cutout_videos.py`).
+The first Haldi and Reception clips couldn't be used: Haldi cut to a grey room and a petal storm, the couple
+stood up and the churidar became a dhoti; Reception cut to a banquet hall with a crowd right behind them.
+Sangeet worked, but Grok cropped the sides of the still to fit 9:16 and clipped the groom's raised hand.
+Haldi and Reception were re-made with the steps below and came out clean: plain black throughout, nothing
+cropped, and each ends on its first frame, so they loop without a ping-pong.
+
+1. Run `python tools/cutout_videos.py --start-frames` and upload `tools/.cache/video/start/<look>.png` as the
+   image. It is the still on black, padded to 9:16 with room around the couple, so nothing gets cropped.
+   If Grok lets you set an end frame, use the same picture, so the clip loops on its own.
+2. Paste the prompt below, adding the line for the look.
+3. Reject a clip that changes the background, adds particles, sparkles or text, changes the outfit, or lets a
+   hand or hem leave the frame. One clean 6 s clip is worth more than an exciting one.
+
+```
+Animate this illustration as a gentle, seamless loop. Locked-off camera: no zoom, pan or cut. The
+background stays pure black for the entire clip: no room, scenery, floor, light rays, petals, confetti,
+sparkles or particles. The couple keep exactly the same outfits, jewellery, faces and art style throughout,
+stay the same size, and stay fully inside the frame with black space all around them. Motion is small and
+natural, in place: breathing, a soft smile at each other, a slight sway, a small hand gesture. End in exactly
+the same pose as the first frame. 6 seconds, no text, no watermark.
+```
+
+| Look | Add |
+|---|---|
+| Haldi | `They stay seated on the wooden stool the whole time; he turns to smile at her and she laughs, adjusting her flower jewellery.` |
+| Reception | `They stay standing side by side holding hands; they glance at each other and smile, then look back at the viewer.` |
+| Sangeet (optional re-make) | `They dance a few small, graceful steps in place, arms moving softly, and return to the first pose.` |
+| Biye (optional re-make) | `They stand still; he smiles at her, she lowers her eyes shyly and smiles back, the veil moving slightly.` |

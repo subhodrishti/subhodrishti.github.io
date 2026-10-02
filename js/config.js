@@ -79,7 +79,7 @@ window.INVITE = {
       date: "2026-12-10",
       startTime: "18:00", // "18:30" in IST once confirmed
       endTime: "23:00",
-      venue: { name: "Regenta Orkos", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" }, // { name: "…", address: "…" }
+      venue: { name: "Regenta Orkos Hotel, 621, Prantik Pally Rd, Ravindra Pally, Kasba, Kolkata, West Bengal - 700107", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" }, // { name: "…", address: "…" }
       look: "sangeet",
     },
     {
@@ -89,7 +89,7 @@ window.INVITE = {
       date: "2026-12-11",
       startTime: "10:00",
       endTime: "13:00",
-      venue: { name: "Regenta Orkos", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" },
+      venue: { name: "Regenta Orkos Hotel, 621, Prantik Pally Rd, Ravindra Pally, Kasba, Kolkata, West Bengal - 700107", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" },
       look: "haldi",
     },
     {
@@ -99,7 +99,7 @@ window.INVITE = {
       date: "2026-12-11",
       startTime: "18:00",
       endTime: "22:00",
-      venue: { name: "Regenta Orkos", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" },
+      venue: { name: "Regenta Orkos Hotel, 621, Prantik Pally Rd, Ravindra Pally, Kasba, Kolkata, West Bengal - 700107", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" },
       look: "biye",
     },
     {
@@ -109,7 +109,7 @@ window.INVITE = {
       date: "2026-12-13",
       startTime: "18:00",
       endTime: "23:30",
-      venue: { name: "Princeton Club", address: "https://maps.app.goo.gl/V9ARwFyHi6Z4qXLB6" },
+      venue: { name: "Princeton Club, 26, Prince Anwar Shah Rd, Badam Talla, Tollygunge, Kolkata, West Bengal - 700033", address: "https://maps.app.goo.gl/V9ARwFyHi6Z4qXLB6" },
       look: "reception",
     },
   ],
@@ -119,27 +119,29 @@ window.INVITE = {
   // Changing looks plays one transition everywhere: the outfit breaks into
   // pixels that swirl around the couple in 3D and re-form as the next look.
   // `palette` colours those pixels mid-flight, one set per ceremony.
+  // `video` is the look as a looping animated cutout (tools/cutout_videos.py),
+  // played over the still once a change into it settles; null keeps the still.
   avatars: [
     {
-      id: "sangeet", src: "assets/avatars/sangeet.webp", event: "sangeet",
+      id: "sangeet", src: "assets/avatars/sangeet.webp", video: "assets/avatars/sangeet.mp4", event: "sangeet",
       palette: ["#1f7a4a", "#2f5fa8", "#d4af37", "#f3e3b5"], // emerald lehenga, royal-blue kurta, gold
       title: { en: "Sangeet", bn: "সঙ্গীত" },
       outfit: { en: "Blue kurta and an emerald lehenga", bn: "নীল কুর্তা আর পান্না-সবুজ লেহেঙ্গা" },
     },
     {
-      id: "haldi", src: "assets/avatars/haldi.webp", event: "haldi",
+      id: "haldi", src: "assets/avatars/haldi.webp", video: "assets/avatars/haldi.mp4", event: "haldi",
       palette: ["#f2a531", "#e8892a", "#f7c948", "#d9531e"], // marigold and turmeric
       title: { en: "Haldi", bn: "গায়ে হলুদ" },
       outfit: { en: "Yellow panjabi and a saree with flower jewellery", bn: "হলুদ পাঞ্জাবি আর ফুলের গয়নায় হলুদ শাড়ি" },
     },
     {
-      id: "biye", src: "assets/avatars/biye.webp", event: "wedding",
+      id: "biye", src: "assets/avatars/biye.webp", video: "assets/avatars/biye.mp4", event: "wedding",
       palette: ["#b3262e", "#d4382f", "#d4af37", "#faeedc"], // sindoor red, gold, shola white
       title: { en: "Biye", bn: "বিয়ে" },
       outfit: { en: "Topor, dhoti and a red Banarasi", bn: "টোপর, ধুতি আর লাল বেনারসি" },
     },
     {
-      id: "reception", src: "assets/avatars/reception.webp", event: "reception",
+      id: "reception", src: "assets/avatars/reception.webp", video: "assets/avatars/reception.mp4", event: "reception",
       palette: ["#5b1f6e", "#7d3a8f", "#d4af37", "#e8d3a2"], // purple Banarasi, gold zari, champagne
       title: { en: "Reception", bn: "প্রীতিভোজ" },
       outfit: { en: "Navy suit and a purple Banarasi", bn: "নেভি স্যুট আর বেগুনি বেনারসি" },
