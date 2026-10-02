@@ -129,7 +129,7 @@ window.INVITE = {
       outfit: { en: "Blue kurta and an emerald lehenga", bn: "নীল কুর্তা আর পান্না-সবুজ লেহেঙ্গা" },
     },
     {
-      id: "haldi", src: "assets/avatars/haldi.webp", video: null, event: "haldi",
+      id: "haldi", src: "assets/avatars/haldi.webp", video: "assets/avatars/haldi.mp4", event: "haldi",
       palette: ["#f2a531", "#e8892a", "#f7c948", "#d9531e"], // marigold and turmeric
       title: { en: "Haldi", bn: "গায়ে হলুদ" },
       outfit: { en: "Yellow panjabi and a saree with flower jewellery", bn: "হলুদ পাঞ্জাবি আর ফুলের গয়নায় হলুদ শাড়ি" },
@@ -141,7 +141,7 @@ window.INVITE = {
       outfit: { en: "Topor, dhoti and a red Banarasi", bn: "টোপর, ধুতি আর লাল বেনারসি" },
     },
     {
-      id: "reception", src: "assets/avatars/reception.webp", video: null, event: "reception",
+      id: "reception", src: "assets/avatars/reception.webp", video: "assets/avatars/reception.mp4", event: "reception",
       palette: ["#5b1f6e", "#7d3a8f", "#d4af37", "#e8d3a2"], // purple Banarasi, gold zari, champagne
       title: { en: "Reception", bn: "প্রীতিভোজ" },
       outfit: { en: "Navy suit and a purple Banarasi", bn: "নেভি স্যুট আর বেগুনি বেনারসি" },
