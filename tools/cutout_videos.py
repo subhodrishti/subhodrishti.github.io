@@ -49,11 +49,13 @@ PREVIEW = VCACHE / "preview"
 # source px) around Grok's mark, which never belongs to the couple; `sparkle`
 # the centre of Gemini's mark where the source render carried it onto the
 # couple (Biye's veil), un-blended in every frame as for the stills. Haldi and
-# Reception wait for clips re-made on plain black (tools/avatar-prompts.md):
-# the first ones cut to a petal storm and a banquet hall.
+# Reception were re-made from padded start frames (--start-frames) after the
+# first ones cut to a petal storm and a banquet hall.
 CLIPS = {
     "sangeet": {"loop": "native", "watermark": (636, 1232, 720, 1280)},
+    "haldi": {"loop": "native", "watermark": (636, 1232, 720, 1280)},
     "biye": {"loop": "pingpong", "watermark": (700, 1118, 784, 1160), "sparkle": (680, 1056)},
+    "reception": {"loop": "native", "watermark": (636, 1232, 720, 1280)},
 }
 
 FPS = 24

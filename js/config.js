@@ -121,7 +121,6 @@ window.INVITE = {
   // `palette` colours those pixels mid-flight, one set per ceremony.
   // `video` is the look as a looping animated cutout (tools/cutout_videos.py),
   // played over the still once a change into it settles; null keeps the still.
-  // Haldi and Reception wait for clips re-made on plain black.
   avatars: [
     {
       id: "sangeet", src: "assets/avatars/sangeet.webp", video: "assets/avatars/sangeet.mp4", event: "sangeet",

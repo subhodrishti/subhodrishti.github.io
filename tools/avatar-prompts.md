@@ -168,6 +168,8 @@ Each look can loop as an animated cutout (`assets/avatars/<look>.mp4`, cut by `t
 The first Haldi and Reception clips couldn't be used: Haldi cut to a grey room and a petal storm, the couple
 stood up and the churidar became a dhoti; Reception cut to a banquet hall with a crowd right behind them.
 Sangeet worked, but Grok cropped the sides of the still to fit 9:16 and clipped the groom's raised hand.
+Haldi and Reception were re-made with the steps below and came out clean: plain black throughout, nothing
+cropped, and each ends on its first frame, so they loop without a ping-pong.
 
 1. Run `python tools/cutout_videos.py --start-frames` and upload `tools/.cache/video/start/<look>.png` as the
    image. It is the still on black, padded to 9:16 with room around the couple, so nothing gets cropped.
