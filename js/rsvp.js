@@ -5,6 +5,8 @@
   const { $, $$, h, get, L, t, num, lang, store, postJSON, guestName, fmtLong } = window.Invite;
 
   let form, submitBtn, statusEl, sending = false;
+  // Each invite code keeps its own saved reply on this device.
+  const KEY = `rsvp:${window.Invite.invite.code}`;
   const errors = {}; // field → strings.js key, so errors can be re-translated
   // form.name would be the form's own name attribute, so always go through elements.
   const field = (n) => form.elements.namedItem(n);
@@ -87,7 +89,8 @@
     field("name").value = data.name || "";
     field("phone").value = data.phone || "";
     $$('input[name="attending"]', form).forEach((r) => (r.checked = r.value === data.attending));
-    $$('input[name="events"]', form).forEach((c) => (c.checked = (data.events || []).includes(c.value)));
+    const only = get("events").length === 1; // no picker shown: the one event is the reply
+    $$('input[name="events"]', form).forEach((c) => (c.checked = only || (data.events || []).includes(c.value)));
     field("guests").value = data.guests || 1;
     $$('input[name="diet"]', form).forEach((r) => (r.checked = r.value === data.diet));
     field("dietNotes").value = data.dietNotes || "";
@@ -124,7 +127,7 @@
       } else {
         console.warn("[invite] rsvp.endpoint is empty in js/config.js; this reply was kept on this device only.");
       }
-      store.set("rsvp", data);
+      store.set(KEY, data);
       showDone(data, { celebrate: true });
     } catch (err) {
       console.error("[invite] RSVP failed", err);
@@ -140,6 +143,8 @@
   /** Event and diet choices: built once, relabelled on language change. */
   function buildChoices() {
     const evWrap = $("#f-events");
+    // An invite to a single event doesn't ask which events; its one box stays ticked.
+    evWrap.closest("fieldset").hidden = get("events").length === 1;
     for (const ev of get("events")) {
       evWrap.append(h("label", {}, h("input", { type: "checkbox", name: "events", value: ev.id, checked: true }), h("span", { dataset: { event: ev.id } })));
     }
@@ -159,7 +164,7 @@
     for (const [name, key] of Object.entries(errors)) if (key) $(`#e-${name}`).textContent = t(key);
     if (statusEl.classList.contains("is-error")) statusEl.textContent = t("rsvp.errSend");
     setSendLabel();
-    if (!$("#rsvp-done").hidden) fillDone(store.get("rsvp", readForm()));
+    if (!$("#rsvp-done").hidden) fillDone(store.get(KEY, readForm()));
   }
 
   function initStepper() {
@@ -197,11 +202,11 @@
     $("#rsvp-edit").addEventListener("click", () => {
       $("#rsvp-done").hidden = true;
       form.hidden = false;
-      fill(store.get("rsvp", {}));
+      fill(store.get(KEY, {}));
       field("name").focus();
     });
 
-    const saved = store.get("rsvp");
+    const saved = store.get(KEY);
     if (saved) {
       fill(saved);
       showDone(saved, { focus: false });

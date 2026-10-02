@@ -54,7 +54,9 @@
 
   function renderLookChips() {
     const wrap = $("#look-chips");
-    wrap.replaceChildren(...heroLooks().map((look) =>
+    const looks = heroLooks();
+    wrap.hidden = looks.length < 2; // nothing to switch between
+    wrap.replaceChildren(...looks.map((look) =>
       h("button", {
         type: "button", class: "chip", dataset: { look: look.id },
         "aria-pressed": String(heroWardrobe?.current === look.id),
@@ -149,6 +151,12 @@
       navigator.serviceWorker.register("sw.js").catch(() => {});
     }
     applyStatic();
+    // No invite code, or one we don't know: the "not found" page, and nothing else starts.
+    if (!I.invite.ok) {
+      I.invite.init();
+      document.addEventListener("invite:lang", () => { applyStatic(); I.invite.render(); });
+      return;
+    }
     renderLangSwitches();
     staggerHero();
     initHeroWardrobe();
