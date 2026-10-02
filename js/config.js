@@ -136,7 +136,7 @@ window.INVITE = {
       outfit: { en: "Yellow panjabi and a saree with flower jewellery", bn: "হলুদ পাঞ্জাবি আর ফুলের গয়নায় হলুদ শাড়ি" },
     },
     {
-      id: "biye", src: "assets/avatars/biye.webp", video: null, event: "wedding",
+      id: "biye", src: "assets/avatars/biye.webp", video: "assets/avatars/biye.mp4", event: "wedding",
       palette: ["#b3262e", "#d4382f", "#d4af37", "#faeedc"], // sindoor red, gold, shola white
       title: { en: "Biye", bn: "বিয়ে" },
       outfit: { en: "Topor, dhoti and a red Banarasi", bn: "টোপর, ধুতি আর লাল বেনারসি" },

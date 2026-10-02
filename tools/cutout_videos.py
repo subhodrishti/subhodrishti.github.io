@@ -39,19 +39,21 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage
 
-from cutout_avatars import CACHE, EDGE_FADE, MODEL, NAVY, OUT, ROOT, with_glow
+from cutout_avatars import CACHE, EDGE_FADE, MODEL, NAVY, OUT, ROOT, unsparkle, with_glow
 
 SRC = ROOT / "references" / "motion"
 VCACHE = CACHE / "video"
 PREVIEW = VCACHE / "preview"
 
 # One entry per look with a clip. `watermark` is the box (x0, y0, x1, y1, in
-# source px) around Grok's mark, which never belongs to the couple. Haldi and
+# source px) around Grok's mark, which never belongs to the couple; `sparkle`
+# the centre of Gemini's mark where the source render carried it onto the
+# couple (Biye's veil), un-blended in every frame as for the stills. Haldi and
 # Reception wait for clips re-made on plain black (tools/avatar-prompts.md):
 # the first ones cut to a petal storm and a banquet hall.
 CLIPS = {
     "sangeet": {"loop": "native", "watermark": (636, 1232, 720, 1280)},
-    "biye": {"loop": "pingpong", "watermark": (700, 1118, 784, 1160)},
+    "biye": {"loop": "pingpong", "watermark": (700, 1118, 784, 1160), "sparkle": (680, 1056)},
 }
 
 FPS = 24
@@ -341,6 +343,9 @@ def run(look: str, spec: dict, masks_only: bool) -> None:
     s, ox, oy = place(alphas[0], still)
     out = []
     for i, (f, a) in enumerate(zip(frames, alphas)):
+        if "sparkle" in spec:
+            f = f.astype(np.float64)
+            unsparkle(f, *spec["sparkle"])
         out.append(framed(cut(f, a), s, ox, oy, W, H))
         if (i + 1) % 24 == 0:
             print(f"  cut {i + 1}/{len(frames)}", flush=True)
