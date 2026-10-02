@@ -241,6 +241,31 @@ async function wireBackend(ctx, backend) {
     const title = await page.$eval("#rsvp-done-title", (el) => el.textContent);
     check(/Thank you/.test(title), `${tag}: thank-you did not switch back to English: "${title}"`);
 
+    // Contacts: hidden while config has only placeholders; with test contacts, the
+    // top-bar button opens them and each number gets only the buttons it's flagged for.
+    check(!(await page.locator("#contact-toggle").isVisible()), `${tag}: contact button shown with only placeholder numbers`);
+    check(!(await page.locator("#rsvp-contact").isVisible()), `${tag}: RSVP contact card shown with only placeholder numbers`);
+    await page.evaluate(() => {
+      window.INVITE.contacts = [
+        { name: "Test Groom Side", side: "groom", relation: { en: "Uncle", bn: "কাকা" }, numbers: [{ number: "+91 90000 00001", call: true, whatsapp: true }, { number: "9000000002", call: true }, { number: "+91…", call: true }] },
+        { name: "Test Bride Side", side: "bride", numbers: [{ number: "+91 90000 00003", whatsapp: true }] },
+        { name: "Placeholder Only", numbers: [{ number: "+91…", call: true, whatsapp: true }] },
+      ];
+      window.Invite.contact.render();
+    });
+    await page.click("#contact-toggle");
+    await page.waitForTimeout(400);
+    check(await page.locator("#contact-sheet").isVisible(), `${tag}: contact dialog did not open`);
+    const hrefs = await page.$$eval("#contact-sheet .contact__btn", (els) => els.map((a) => a.getAttribute("href")));
+    check(JSON.stringify(hrefs) === JSON.stringify(["tel:+919000000001", "https://wa.me/919000000001", "tel:+919000000002", "https://wa.me/919000000003"]),
+      `${tag}: contact links wrong: ${JSON.stringify(hrefs)}`);
+    check(!(await page.locator("#contact-sheet", { hasText: "Placeholder Only" }).count()), `${tag}: contact with only a placeholder number shown`);
+    await shot("12-contact-sheet");
+    await page.keyboard.press("Escape");
+    check(await page.locator("#rsvp-contact .contact__btn").count() === 4, `${tag}: RSVP contact card not filled`);
+    await page.locator("#rsvp-contact").scrollIntoViewIfNeeded();
+    await shot("13-rsvp-contact");
+
     // Mute
     await page.click("#music-toggle");
     await page.waitForTimeout(700);

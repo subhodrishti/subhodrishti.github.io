@@ -73,6 +73,7 @@ window.INVITE_STRINGS = {
     "dayMode.celebration": "the celebration",
     "dayMode.map": "Open map & schedule",
     "dayMode.contacts": "Family contacts",
+    "dayMode.call": "Call",
     "dayMode.offline": "This page and the essential day details are available offline after your first visit.",
 
     "gallery.title": "The two of us",
@@ -103,6 +104,13 @@ window.INVITE_STRINGS = {
     "events.getDirections": "Get directions",
     "events.mapOf": "Map of {place}",
     "dialog.close": "Close",
+
+    "contact.open": "Contact the family",
+    "contact.title": "Call or WhatsApp us",
+    "contact.groom": "Groom's side",
+    "contact.bride": "Bride's side",
+    "contact.call": "Call {name} on {number}",
+    "contact.whatsapp": "WhatsApp {name} on {number}",
 
     "polls.or": "or",
     "polls.intro": "Pick a side on each one, or skip it.",
@@ -222,6 +230,7 @@ window.INVITE_STRINGS = {
     "dayMode.celebration": "উৎসব",
     "dayMode.map": "মানচিত্র ও সূচি খুলুন",
     "dayMode.contacts": "পারিবারিক যোগাযোগ",
+    "dayMode.call": "ফোন",
     "dayMode.offline": "প্রথমবার দেখার পরে এই পাতা ও দিনের জরুরি তথ্য অফলাইনেও থাকবে।",
 
     "gallery.title": "আমরা দুজন",
@@ -247,6 +256,13 @@ window.INVITE_STRINGS = {
     "events.getDirections": "পথ দেখুন",
     "events.mapOf": "{place}-এর মানচিত্র",
     "dialog.close": "বন্ধ করুন",
+
+    "contact.open": "পরিবারের সঙ্গে যোগাযোগ",
+    "contact.title": "কিছু জানার আছে? ফোন বা হোয়াটসঅ্যাপ করুন",
+    "contact.groom": "বরপক্ষ",
+    "contact.bride": "কনেপক্ষ",
+    "contact.call": "{name}-কে {number} নম্বরে ফোন করুন",
+    "contact.whatsapp": "{name}-কে {number} নম্বরে হোয়াটসঅ্যাপ করুন",
 
     "polls.or": "নাকি",
     "polls.intro": "প্রতিটিতে একটা পক্ষ বেছে নিন, চাইলে বাদও দিতে পারেন।",

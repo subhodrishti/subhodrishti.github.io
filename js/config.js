@@ -100,7 +100,7 @@ window.INVITE = {
       startTime: "18:00",
       endTime: "22:00",
       venue: { name: "Regenta Orkos Hotel, 621, Prantik Pally Rd, Ravindra Pally, Kasba, Kolkata, West Bengal - 700107", address: "https://maps.app.goo.gl/QrPJnzLGziHTmyzNA" },
-      look: "biye",
+      look: "Wedding",
     },
     {
       id: "reception",
@@ -135,9 +135,9 @@ window.INVITE = {
       outfit: { en: "Yellow panjabi and a saree with flower jewellery", bn: "হলুদ পাঞ্জাবি আর ফুলের গয়নায় হলুদ শাড়ি" },
     },
     {
-      id: "biye", src: "assets/avatars/biye.webp", video: "assets/avatars/biye.mp4", event: "wedding",
+      id: "Wedding", src: "assets/avatars/biye.webp", video: "assets/avatars/biye.mp4", event: "wedding",
       palette: ["#b3262e", "#d4382f", "#d4af37", "#faeedc"], // sindoor red, gold, shola white
-      title: { en: "Biye", bn: "বিয়ে" },
+      title: { en: "Wedding", bn: "বিয়ে" },
       outfit: { en: "Topor, dhoti and a red Banarasi", bn: "টোপর, ধুতি আর লাল বেনারসি" },
     },
     {
@@ -148,8 +148,8 @@ window.INVITE = {
     },
   ],
   // The hero opens on the Biye look; its buttons switch between these.
-  heroAvatar: "biye",
-  heroLooks: ["sangeet", "haldi", "biye", "reception"],
+  heroAvatar: "Wedding",
+  heroLooks: ["sangeet", "haldi", "Wedding", "reception"],
 
   // The family should set `confirmed: true` only for rituals taking place.
   // `null` keeps the useful explainer visible while clearly marking it pending.
@@ -162,12 +162,24 @@ window.INVITE = {
     { id: "bou-bhaat", confirmed: true, name: { en: "Bou Bhaat", bn: "বউভাত" }, short: { en: "The newlywed bride is welcomed with a celebratory meal.", bn: "নববধূকে স্বাগত জানিয়ে হয় আনন্দের ভোজ।" } },
   ],
 
+  // Who guests can call or WhatsApp with a question: a phone button in the top bar,
+  // a card under the RSVP form, and the wedding-day panel. A contact shows only once
+  // one of their numbers is real (not "+91…"); with nobody to show, all are hidden.
+  // Numbers need the country code (a bare 10-digit number is taken as +91).
+  // `side` ("groom" | "bride") and `relation` are optional; `call` / `whatsapp`
+  // choose which buttons that number gets. Visible to anyone the link reaches.
+  contacts: [
+    { name: "Sudeep Khasnabis", relation: { en: "Family contact", bn: "পারিবারিক যোগাযোগ" },
+      numbers: [{ number: "+919972891336", call: true, whatsapp: true }] },
+    // { name: "…", side: "groom", relation: { en: "Groom's uncle", bn: "বরের কাকা" },
+    //   numbers: [{ number: "+91 98xxx xxxxx", call: true, whatsapp: true }] },
+  ],
+
   // This becomes visible automatically in Kolkata from 10–13 December.
-  // Add the family contacts, confirmed lagna time and private livestream URL
+  // Add the contacts above, the confirmed lagna time and private livestream URL
   // before sharing the wedding-day link.
   weddingDay: {
     start: "2026-12-10", end: "2026-12-13",
-    contacts: [], // { name: "…", phone: "+91…", role: { en: "Family contact", bn: "পারিবারিক যোগাযোগ" } }
     livestream: null, // { url: "https://…", label: { en: "Watch the livestream", bn: "লাইভ দেখুন" } }
     lagnaTime: null,
   },

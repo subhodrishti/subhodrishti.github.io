@@ -133,6 +133,7 @@
     I.countdown.render();
     I.families.render();
     I.rituals.render();
+    I.contact.render();
     I.weddingDay.render();
     I.gallery.render();
     I.events.render();
@@ -158,6 +159,7 @@
     I.countdown.init();
     I.families.init();
     I.rituals.init();
+    I.contact.init();
     I.weddingDay.init();
     I.gallery.init();
     I.events.init();

@@ -26,7 +26,8 @@
     panel?.remove();
     if (!enabled()) return;
     const cfg = get("weddingDay");
-    const contacts = cfg.contacts || [];
+    const { links, list } = window.Invite.contact;
+    const contacts = list();
     const declined = store.get("rsvp")?.attending === "no";
     panel = h("aside", { class: "day-mode glass glass--dark", "aria-label": t("dayMode.label") },
       h("p", { class: "day-mode__kicker" }, t("dayMode.kicker")),
@@ -36,8 +37,15 @@
         h("a", { class: "btn btn--gold", href: "#events" }, t("dayMode.map")),
         declined && cfg.livestream?.url ? h("a", { class: "btn btn--ghost", href: cfg.livestream.url, target: "_blank", rel: "noopener" }, L(cfg.livestream.label)) : null,
       ),
-      contacts.length ? h("div", { class: "day-mode__contacts" }, h("strong", {}, t("dayMode.contacts")), ...contacts.map((c) =>
-        h("a", { href: `tel:${c.phone.replace(/[^+\d]/g, "")}` }, `${c.name}${c.role ? ` · ${L(c.role)}` : ""}`),
+      contacts.length ? h("div", { class: "day-mode__contacts" }, h("strong", {}, t("dayMode.contacts")), ...contacts.flatMap((c) =>
+        c.numbers.map((n) => {
+          const { call, whatsapp } = links(n);
+          if (!call && !whatsapp) return null;
+          return h("p", {}, `${c.name}${c.relation ? ` · ${L(c.relation)}` : ""} `,
+            call ? h("a", { href: call }, t("dayMode.call")) : null,
+            call && whatsapp ? " · " : null,
+            whatsapp ? h("a", { href: whatsapp, target: "_blank", rel: "noopener" }, "WhatsApp") : null);
+        }).filter(Boolean),
       )) : h("p", { class: "day-mode__offline" }, t("dayMode.offline")),
     );
     document.body.append(panel);
