@@ -124,7 +124,7 @@ window.INVITE = {
   // Haldi and Reception wait for clips re-made on plain black.
   avatars: [
     {
-      id: "sangeet", src: "assets/avatars/sangeet.webp", video: null, event: "sangeet",
+      id: "sangeet", src: "assets/avatars/sangeet.webp", video: "assets/avatars/sangeet.mp4", event: "sangeet",
       palette: ["#1f7a4a", "#2f5fa8", "#d4af37", "#f3e3b5"], // emerald lehenga, royal-blue kurta, gold
       title: { en: "Sangeet", bn: "সঙ্গীত" },
       outfit: { en: "Blue kurta and an emerald lehenga", bn: "নীল কুর্তা আর পান্না-সবুজ লেহেঙ্গা" },

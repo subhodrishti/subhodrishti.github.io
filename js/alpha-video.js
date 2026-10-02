@@ -47,7 +47,7 @@
   function supported() {
     if (reducedMotion.matches || location.protocol === "file:") return false;
     if (navigator.connection?.saveData) return false;
-    if (codec === null) codec = !!document.createElement("video").canPlayType('video/mp4; codecs="avc1.64001F"');
+    if (codec === null) codec = !!document.createElement("video").canPlayType('video/mp4; codecs="avc1.640028"');
     return codec;
   }
 

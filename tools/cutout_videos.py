@@ -264,7 +264,8 @@ def encode(look: str, frames: list, W: int, H: int) -> int:
             ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24",
              "-s", f"{2 * HALF_W}x{H}", "-r", str(FPS), "-i", "-",
              "-vf", "scale=out_color_matrix=bt709:out_range=tv,format=yuv420p",
-             "-c:v", "libx264", "-profile:v", "high", "-preset", "veryslow", "-tune", "animation",
+             # Level 4.0 (x264 caps its reference frames to fit), which every phone decodes in hardware.
+             "-c:v", "libx264", "-profile:v", "high", "-level:v", "4.0", "-preset", "veryslow", "-tune", "animation",
              "-crf", str(crf), "-g", str(2 * FPS),
              "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-color_range", "tv",
              "-movflags", "+faststart", "-an", str(dest)],

@@ -98,8 +98,9 @@ async function wireBackend(ctx, backend) {
 
     // 1a · The hero couple loops as a clip once the paan leaves are lowered; a still where clips can't play
     const clips = await page.evaluate(() => window.Invite.alphaVideo.supported());
+    const heroClip = await page.evaluate(() => !!window.INVITE.avatars.find((a) => a.id === document.querySelector("#hero-wardrobe").dataset.look)?.video);
     const clipTime = (sel) => page.$$eval(`${sel} video`, (vs) => vs.map((v) => v.currentTime));
-    if (clips) {
+    if (clips && heroClip) {
       const playing = await page.waitForSelector("#hero-wardrobe .wardrobe__motion.is-playing", { timeout: 8000 }).then(() => true, () => false);
       check(playing, `${tag}: the hero couple's clip did not start`);
       const t1 = await clipTime("#hero-wardrobe");
@@ -107,7 +108,7 @@ async function wireBackend(ctx, backend) {
       const t2 = await clipTime("#hero-wardrobe");
       check(t2.some((t, i) => t > t1[i]), `${tag}: the hero clip is not advancing (${t1} → ${t2})`);
       await shot("02-hero-clip");
-    } else {
+    } else if (!clips) {
       check(!(await page.locator("video").count()), `${tag}: a clip was set up where clips can't play`);
     }
 
