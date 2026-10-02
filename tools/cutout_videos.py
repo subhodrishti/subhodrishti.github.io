@@ -48,12 +48,15 @@ PREVIEW = VCACHE / "preview"
 # One entry per look with a clip. `watermark` is the box (x0, y0, x1, y1, in
 # source px) around Grok's mark, which never belongs to the couple; `sparkle`
 # the centre of Gemini's mark where the source render carried it onto the
-# couple (Biye's veil), un-blended in every frame as for the stills. Haldi and
-# Reception were re-made from padded start frames (--start-frames) after the
-# first ones cut to a petal storm and a banquet hall.
+# couple (Biye's veil), un-blended in every frame as for the stills. `stool`
+# is a box in the stills' frame around a prop the model leaves out of every
+# frame (Haldi's wooden stool, as with the still): the part of the still that
+# frame 0 lacks there is laid under the clip. Haldi and Reception were re-made
+# from padded start frames (--start-frames) after the first ones cut to a
+# petal storm and a banquet hall.
 CLIPS = {
     "sangeet": {"loop": "native", "watermark": (636, 1232, 720, 1280)},
-    "haldi": {"loop": "native", "watermark": (636, 1232, 720, 1280)},
+    "haldi": {"loop": "native", "watermark": (636, 1232, 720, 1280), "stool": (60, 590, 580, 820)},
     "biye": {"loop": "pingpong", "watermark": (700, 1118, 784, 1160), "sparkle": (680, 1056)},
     "reception": {"loop": "native", "watermark": (636, 1232, 720, 1280)},
 }
@@ -242,11 +245,35 @@ def paste_mask(m: np.ndarray, ox: int, oy: int, W: int, H: int) -> np.ndarray:
     return out
 
 
-def framed(im: Image.Image, s: float, ox: int, oy: int, W: int, H: int) -> Image.Image:
-    """Scale a frame, put it in the stills' frame, and add the rim glow."""
+def underlay(still: np.ndarray, box, alpha0: np.ndarray, s: float, ox: int, oy: int) -> Image.Image:
+    """The part of the still inside `box` that frame 0 lacks (a prop the model
+    drops in every frame), to lay under each frame. Whatever frame 0 covers is
+    left out, so a leg or foot that moves later can't leave a ghost behind."""
+    H, W = still.shape[:2]
+    a = Image.fromarray((alpha0 * 255).astype(np.uint8)).resize(
+        (round(alpha0.shape[1] * s), round(alpha0.shape[0] * s)), Image.LANCZOS)
+    placed = Image.new("L", (W, H))
+    placed.paste(a, (ox, oy))
+    covered = ndimage.binary_dilation(np.asarray(placed) > 127, iterations=3)
+    x0, y0, x1, y1 = box
+    inbox = np.zeros((H, W), bool)
+    inbox[y0:y1, x0:x1] = True
+    body = still[..., 3] > 127
+    core = ndimage.binary_opening(body & ~covered & inbox, iterations=3)  # no slivers along edges
+    # Reach back under the clip's edges so no seam opens, but never past the still's own outline.
+    soft = ndimage.gaussian_filter(ndimage.binary_dilation(core, iterations=4).astype(np.float64), 1)
+    alpha = np.clip(soft * 1.5, 0, 1) * body
+    print(f"  underlay: {int(core.sum())} px of the still laid under the clip")
+    return Image.fromarray(np.dstack([still[..., :3], alpha * 255]).astype(np.uint8), "RGBA")
+
+
+def framed(im: Image.Image, s: float, ox: int, oy: int, W: int, H: int, under=None) -> Image.Image:
+    """Scale a frame, put it in the stills' frame (over `under`, if any), and add the rim glow."""
     im = im.resize((round(im.width * s), round(im.height * s)), Image.LANCZOS)
     canvas = Image.new("RGBA", (W, H))
     canvas.paste(im, (ox, oy))
+    if under is not None:
+        canvas = Image.alpha_composite(under, canvas)
     return with_glow(canvas)
 
 
@@ -341,14 +368,15 @@ def run(look: str, spec: dict, masks_only: bool) -> None:
     alphas = steady(alphas, frames, spec["loop"])
 
     W, H = frame_size()
-    still = np.asarray(Image.open(OUT / f"{look}.webp").convert("RGBA"), dtype=np.float32)[..., 3] / 255
-    s, ox, oy = place(alphas[0], still)
+    still = np.asarray(Image.open(OUT / f"{look}.webp").convert("RGBA"))
+    s, ox, oy = place(alphas[0], still[..., 3].astype(np.float32) / 255)
+    under = underlay(still, spec["stool"], alphas[0], s, ox, oy) if "stool" in spec else None
     out = []
     for i, (f, a) in enumerate(zip(frames, alphas)):
         if "sparkle" in spec:
             f = f.astype(np.float64)
             unsparkle(f, *spec["sparkle"])
-        out.append(framed(cut(f, a), s, ox, oy, W, H))
+        out.append(framed(cut(f, a), s, ox, oy, W, H, under))
         if (i + 1) % 24 == 0:
             print(f"  cut {i + 1}/{len(frames)}", flush=True)
     edge = max(np.count_nonzero(np.asarray(im)[:, [0, -1], 3] > 128) for im in out)
