@@ -49,8 +49,8 @@
 
   /* Space & shape */
   --gutter: clamp(16px, 4vw, 48px);
-  /* Sized by the screen's height as well as its width, so each section reads as about one screen */
-  --section-y: clamp(32px, 3vw + 2svh, 80px);
+  /* Sections are as tall as their content; this keeps room around each one */
+  --section-y: clamp(56px, 4vw + 3svh, 112px);
   --topbar-h: 68px; /* .topbar: 12px + the 44px sound button + 12px */
   --radius: 18px;
   --radius-sm: 10px;
@@ -67,8 +67,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 html {
   scroll-behavior: smooth; -webkit-text-size-adjust: 100%;
-  /* Sections settle into place like pages, without trapping a scroll mid-section */
-  scroll-snap-type: y proximity; scroll-padding-top: var(--topbar-h);
+  /* Free scrolling, no snap; anchor links land under the top bar */
+  scroll-padding-top: var(--topbar-h);
 }
 body {
   margin: 0;
@@ -442,15 +442,37 @@ p { margin: 0; }
 }
 .hero__names { font-size: min(clamp(2.4rem, 1rem + 5.4vw, 5rem), (100vw - 2 * var(--gutter)) / 7.4, 9svh); }
 .hero__names > span { display: block; white-space: nowrap; }
+/* The names in ivory warming to pale gold at their feet, lifted off the scene by a soft shadow */
+.hero__names { filter: drop-shadow(0 4px 18px rgba(10,26,46,.6)); }
+.hero__names > span:not(.amp) {
+  background: linear-gradient(180deg, var(--cream) 35%, var(--gold-light) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  padding-right: .08em; /* room for the italic overhang, which background-clip would cut */
+}
 .hero__names:focus { outline: none; }
 .hero__names .amp {
+  width: fit-content;
   color: var(--gold); font-style: italic; font-weight: 400;
   font-size: .48em; margin: .1em 0; line-height: 1.2;
 }
+/* A gold hairline trails "with" (both sides once the hero is centred) */
+.hero__names .amp::before, .hero__names .amp::after {
+  content: ""; display: inline-block; vertical-align: middle;
+  width: 2.4em; height: 1px; margin-left: .5em;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+.hero__names .amp::before { display: none; margin: 0 .5em 0 0; background: linear-gradient(270deg, var(--gold), transparent); }
 .hero__parents { font-family: var(--f-display); font-size: var(--step-1); font-style: italic; opacity: .9; }
-.hero__date { margin-top: clamp(6px, 1.4svh, 14px); }
+.hero__date { margin-top: clamp(10px, 1.8svh, 18px); }
 .hero__date > span { display: block; }
-.hero__date-range { margin-top: 6px; font-size: var(--step--1); letter-spacing: .18em; text-transform: uppercase; color: var(--gold-light); }
+/* The dates sit between two small gold diamonds */
+.hero__date .hero__date-range {
+  display: inline-flex; align-items: center; gap: .9em;
+  font-size: var(--step--1); font-weight: 500; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-light);
+}
+.hero__date-range::before, .hero__date-range::after {
+  content: ""; flex: none; width: 6px; height: 6px; background: var(--gold); transform: rotate(45deg);
+}
 
 .hero__blessing {
   margin-top: clamp(14px, 2.4svh, 30px);
@@ -645,6 +667,8 @@ p { margin: 0; }
   }
   .hero__inner { grid-template-columns: 1fr; gap: 0; text-align: center; }
   .hero__copy { display: contents; }
+  .hero__names .amp { margin-inline: auto; }
+  .hero__names .amp::before { display: inline-block; }
   .hero__bn { font-size: var(--step-1); }
   .hero__stage { order: 1; width: min(100%, 360px); margin-top: clamp(10px, 2svh, 20px); padding-bottom: 0; gap: 16px; }
   /* About a third of the screen tall, so the couple never fills a short or sideways phone */
@@ -662,8 +686,13 @@ p { margin: 0; }
    two buttons share one row. */
 @media (min-width: 861px) and (max-height: 920px) {
   .hero__bn { font-size: var(--step-1); }
-  .hero .hero__names { font-size: min(clamp(2.4rem, 1rem + 5.4vw, 5rem), (100vw - 2 * var(--gutter)) / 7.4, 8svh); }
+  .hero .hero__names { font-size: min(clamp(2.4rem, 1rem + 5.4vw, 5rem), (100vw - 2 * var(--gutter)) / 7.4, 7.4svh); }
+  .hero__closing { line-height: 1.42; }
+  .hero__blessing { margin-top: clamp(10px, 1.8svh, 22px); padding-top: clamp(10px, 1.6svh, 18px); }
   .hero__stage { gap: 14px; padding-bottom: 16px; width: min(100%, 420px, max(200px, (100svh - var(--topbar-h) - 170px) / 1.53)); }
+  /* The stage is narrower than the four outfit buttons here; they keep one row and spill evenly past it */
+  .hero__stage .chips { flex-wrap: nowrap; width: max-content; }
+  .hero__stage .chip { padding: 0 14px; }
   .countdown { padding: 12px 16px 14px; }
   .countdown__grid { margin-top: 10px; }
   .pad__sheet, .pad__tear { font-size: var(--step-2); }
@@ -679,16 +708,13 @@ p { margin: 0; }
 /* ==========================================================================
    Sections
    ========================================================================== */
-/* Every section is at least a screen under the top bar, its content centred in it,
-   so short ones sit like a page and the soft snap lands cleanly. */
+/* Sections take the height of what's in them and the page scrolls freely. */
 .section {
   position: relative; isolation: isolate; padding: var(--section-y) var(--gutter);
-  min-height: calc(100svh - var(--topbar-h));
   display: flex; flex-direction: column; justify-content: center;
 }
 /* Auto side margins would otherwise shrink a flex child to its content */
 .section > * { width: 100%; }
-main > section { scroll-snap-align: start; }
 .section--cream { background: var(--cream); }
 /* Handmade paper fibres (assets/decor/paper.webp), under the living backdrop */
 .section--cream::before {
@@ -914,7 +940,7 @@ main > section { scroll-snap-align: start; }
   --thread-w: clamp(26px, 3.4vw, 36px); --thread-pad: clamp(46px, 6vw, 64px);
   --day: clamp(2.4rem, 5svh, 3.2rem); /* .event__day, which each tie lines up with */
   list-style: none; margin: 0; padding: 0 0 0 var(--thread-pad); position: relative;
-  display: grid; gap: clamp(24px, 3svh, 40px);
+  display: grid; gap: clamp(20px, 2.4svh, 32px);
 }
 /* A marigold string runs down the list; each event hangs off it. */
 .events::before {
@@ -957,7 +983,8 @@ main > section { scroll-snap-align: start; }
 .event .event__name { transition: color .4s; }
 .event.is-current .event__name { color: var(--gold-light); }
 
-@media (min-width: 861px) {
+/* Tablets get the arch beside the list too; only phones and short sideways screens get the strip */
+@media (min-width: 700px) and (min-height: 560px) {
   /* The couple stands inside a Bishnupur terracotta arch. Its opening has the
      couple's proportions, so the arch is sized from the couple's width. */
   .events-stage { --couple-w: min(190px, calc((100svh - 260px) * .36), 16vw); padding-top: calc(var(--couple-w) * .8); }
@@ -983,7 +1010,7 @@ main > section { scroll-snap-align: start; }
   }
   .events-stage__avatar { position: relative; z-index: 1; width: 100%; }
 }
-@media (max-width: 860px) {
+@media (max-width: 699px), (max-height: 559px) {
   .events-layout { display: block; }
   /* On phones the stage becomes a strip pinned under the top bar. */
   .events-stage {
@@ -997,26 +1024,29 @@ main > section { scroll-snap-align: start; }
   .events-stage__avatar { width: 100%; }
   .events-stage__caption { text-align: left; }
 }
-/* Each event is also a resting point for the soft snap, so the last one can sit in
-   the middle of the screen (and the couple change into its look) before the polls. */
-.event { position: relative; display: flex; flex-direction: column; padding: 8px 0 0; scroll-snap-align: center; }
+/* Each event hangs open on the emerald, a fine gold rule closing it off from the next */
+.event { position: relative; display: flex; flex-direction: column; max-width: 620px; padding: 8px 0 0; }
+.event:not(:last-child) { padding-bottom: clamp(20px, 2.4svh, 32px); border-bottom: 1px solid rgba(212,175,55,.2); }
 .event__status {
   position: absolute; top: 8px; right: 0;
   font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
   padding: 4px 10px; border-radius: 999px; border: 1px solid var(--glass-edge); color: var(--gold-light);
+  background: rgba(10,58,62,.5);
 }
 .event__status--today { background: var(--gold); color: var(--navy-ink); border-color: var(--gold); }
-.event__date { display: flex; align-items: baseline; gap: 10px; }
-.event__day { font-family: var(--f-display); font-size: var(--day); line-height: .9; color: var(--gold); font-variant-numeric: lining-nums; }
-.event__month { font-size: var(--step--1); letter-spacing: .18em; text-transform: uppercase; line-height: 1.3; }
-.event__name { margin-top: 8px; font-size: var(--step-2); font-style: italic; font-weight: 400; }
-.event__gloss { margin-top: 4px; opacity: .8; font-size: var(--step--1); }
-.event__meta { list-style: none; margin: 10px 0 14px; padding: 10px 0 0; border-top: 1px dashed var(--glass-edge); display: grid; gap: 6px; font-size: var(--step--1); }
-.event__meta li { display: grid; grid-template-columns: 58px 1fr; gap: 8px; }
-.event__meta b { font-weight: 500; letter-spacing: .12em; text-transform: uppercase; font-size: .68rem; opacity: .65; padding-top: .2em; }
+.event__date { display: flex; align-items: center; gap: 12px; padding-right: 7.5rem; /* clear of the status pill */ }
+.event__day { font-family: var(--f-display); font-size: var(--day); line-height: .9; color: var(--gold); font-variant-numeric: lining-nums; text-shadow: 0 0 24px rgba(212,175,55,.35); }
+.event__month { padding-left: 12px; border-left: 1px solid var(--glass-edge); font-size: var(--step--1); letter-spacing: .18em; text-transform: uppercase; line-height: 1.35; }
+.event__name { margin-top: 12px; font-size: var(--step-2); font-style: italic; font-weight: 400; line-height: 1.1; }
+.event__gloss { margin-top: 6px; font-family: var(--f-display); font-style: italic; font-size: var(--step-0); color: var(--gold-light); opacity: .9; }
+.event__meta { list-style: none; margin: 14px 0 18px; padding: 12px 0 0; border-top: 1px dashed var(--glass-edge); display: grid; gap: 8px; font-size: var(--step--1); }
+.event__meta li { display: grid; grid-template-columns: 62px 1fr; gap: 10px; }
+.event__meta span { color: rgba(253,251,247,.92); text-wrap: pretty; }
+.event__meta b { font-weight: 500; letter-spacing: .12em; text-transform: uppercase; font-size: .68rem; color: var(--gold-light); opacity: .8; padding-top: .2em; }
 .event__meta .tba { opacity: .7; font-style: italic; }
-.event__actions { margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap; }
-.event__actions .btn { min-height: 44px; padding: .55em 1.1em; font-size: var(--step--1); flex: 1 1 auto; white-space: nowrap; }
+.event__actions { margin-top: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+/* Equal buttons, capped so they don't stretch into long bars on wide screens */
+.event__actions .btn { min-height: 44px; padding: .55em 1.1em; font-size: var(--step--1); flex: 1 1 0; max-width: 240px; white-space: nowrap; }
 
 /* ==========================================================================
    5 · Polls
@@ -1153,7 +1183,7 @@ main > section { scroll-snap-align: start; }
 /* ==========================================================================
    Footer, modals, confetti
    ========================================================================== */
-.footer { background: var(--navy-ink); color: rgba(253,251,247,.8); text-align: center; padding: 56px var(--gutter) calc(40px + env(safe-area-inset-bottom)); display: grid; gap: 8px; justify-items: center; scroll-snap-align: end; }
+.footer { background: var(--navy-ink); color: rgba(253,251,247,.8); text-align: center; padding: 56px var(--gutter) calc(40px + env(safe-area-inset-bottom)); display: grid; gap: 8px; justify-items: center; }
 .footer__mono { font-family: var(--f-display); font-size: 2.4rem; color: var(--cream); }
 .footer__small { font-size: var(--step--1); opacity: .7; }
 .footer .linkish { margin-top: 10px; font-size: var(--step--1); color: var(--gold-light); }
@@ -1425,7 +1455,7 @@ body::after {
    Reduced motion: keep every state change, drop the travel.
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; scroll-snap-type: none; } /* no pull between sections */
+  html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
   .curtain__panel, .curtain__fabric, .curtain__fabric::after, .curtain__valance { transition: none; }
   .curtain.is-opening { opacity: 0; transition: opacity .4s; }
