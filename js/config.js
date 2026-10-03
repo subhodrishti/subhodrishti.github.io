@@ -194,7 +194,7 @@ window.INVITE = {
   weddingDay: {
     start: "2026-12-10", end: "2026-12-13",
     livestream: null, // { url: "https://…", label: { en: "Watch the livestream", bn: "লাইভ দেখুন" } }
-    lagnaTime: null,
+    lagnaTime: "19:00",
   },
 
   // Real photos. Add with /add-gallery-media so GPS data is stripped first.
