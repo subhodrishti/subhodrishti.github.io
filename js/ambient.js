@@ -5,7 +5,7 @@
  * pointer (and wanders on its own when nobody is moving), and gold line-art
  * objects from a Bengali wedding floating at different depths. They shift
  * with the pointer, the phone's tilt and the scroll, glow when the pointer
- * comes near, and breathe with the shehnai while it plays. A kantha running
+ * comes near, and breathe with the music while it plays. A kantha running
  * stitch sews itself along section edges as they scroll into view, and gold
  * buttons lean towards the cursor.
  *

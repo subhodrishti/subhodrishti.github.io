@@ -1,12 +1,15 @@
 # Audio credits
 
-Both recordings are Creative Commons Attribution licensed. The site credits them in the footer
-(`audio.credits` in `js/config.js`). Keep that credit line if you keep the files.
+The CC BY recordings are credited in the footer (`audio.credits` in `js/config.js`). Keep that
+credit line if you keep the files.
 
 | File | Source | Author | Licence | Edits |
 |---|---|---|---|---|
-| `shankh.mp3` | [Conch shell.ogg](https://commons.wikimedia.org/wiki/File:Conch_shell.ogg), Wikimedia Commons | David Bolton | [CC BY 2.5](https://creativecommons.org/licenses/by/2.5/) | Leading silence trimmed, loudness normalised, 0.45 s fade-out, MP3 |
-| `shehnai.mp3` | [Veena And Shenai (Antti Luode).mp3](https://commons.wikimedia.org/wiki/File:Veena_And_Shenai_(Antti_Luode).mp3), Wikimedia Commons | Antti Luode | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | 70–130 s excerpt, loudness normalised, fades, mono 64 kbps MP3 |
+| `background-audio.mp3` | `background-audio.mpeg`, supplied by the family | Not yet recorded | Not yet recorded | Loudness normalised (−16 LUFS), 0.4 s fade-in, 1.5 s fade-out, stereo 112 kbps MP3. Plays from the seal tap, looping |
+| `shankh.mp3` | [Conch shell.ogg](https://commons.wikimedia.org/wiki/File:Conch_shell.ogg), Wikimedia Commons | David Bolton | [CC BY 2.5](https://creativecommons.org/licenses/by/2.5/) | Leading silence trimmed, loudness normalised, 0.45 s fade-out, MP3. Plays only when the hero's conch is tapped |
+| `shehnai.mp3` | [Veena And Shenai (Antti Luode).mp3](https://commons.wikimedia.org/wiki/File:Veena_And_Shenai_(Antti_Luode).mp3), Wikimedia Commons | Antti Luode | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) | No longer played (replaced by `background-audio.mp3`). Credit it again if it comes back |
+
+If the background track needs a credit, add it to `audio.credits` in both languages.
 
 ## Ulu (ululation)
 

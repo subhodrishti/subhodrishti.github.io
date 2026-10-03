@@ -1,7 +1,7 @@
 # Subh & Sneha — wedding invitation
 
 A static, phone-first invitation for 10–13 December 2026, Kolkata, in English and Bengali. Guests
-open a velvet curtain to a shankh and shehnai, watch the couple's 3D avatars change into each ceremony's outfit,
+open a velvet curtain to the family's background music, watch the couple's 3D avatars change into each ceremony's outfit,
 see the Sangeet, Haldi, Wedding and Reception with directions and a live countdown, play #TeamGroom vs
 #TeamBride with live results, and send an RSVP.
 

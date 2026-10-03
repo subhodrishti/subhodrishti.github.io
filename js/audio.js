@@ -1,16 +1,16 @@
-/* Shankh, ulu and shehnai.
+/* The background music, with an optional ulu, and the hero conch's shankh.
  *
  * Browsers only allow sound after the guest does something, so everything
  * starts inside the seal tap (or the floating music button). The short clips
  * are fetched early as bytes, then decoded into Web Audio buffers once the
- * AudioContext exists. The shehnai loop streams through an <audio> element
+ * AudioContext exists. The music loop streams through an <audio> element
  * routed into Web Audio, so its fade works on iPhones too (iOS ignores
  * audio.volume). Missing files are skipped silently.
  */
 (function () {
   const { $, get, store, t } = window.Invite;
 
-  let ctx = null, master = null, shehnaiEl = null, shehnaiGain = null, analyser = null, samples = null;
+  let ctx = null, master = null, musicEl = null, musicGain = null, analyser = null, samples = null;
   let started = false;
   const bytes = {}; // name → Promise<ArrayBuffer|null>
 
@@ -58,36 +58,34 @@
   }
 
   /** Must run synchronously inside a tap so the browser lets it play. */
-  function startShehnai(delay) {
-    const tr = tracks().shehnai;
-    if (!tr?.src || shehnaiEl) return;
-    shehnaiEl = new Audio(tr.src);
-    shehnaiEl.loop = tr.loop !== false;
-    shehnaiEl.preload = "auto";
+  function startMusic(delay) {
+    const tr = tracks().music;
+    if (!tr?.src || musicEl) return;
+    musicEl = new Audio(tr.src);
+    musicEl.loop = tr.loop !== false;
+    musicEl.preload = "auto";
     try {
-      shehnaiGain = ctx.createGain();
-      shehnaiGain.gain.value = 0;
-      ctx.createMediaElementSource(shehnaiEl).connect(shehnaiGain).connect(master);
+      musicGain = ctx.createGain();
+      musicGain.gain.value = 0;
+      ctx.createMediaElementSource(musicEl).connect(musicGain).connect(master);
       const t0 = ctx.currentTime + delay;
-      shehnaiGain.gain.setValueAtTime(0, t0);
-      shehnaiGain.gain.linearRampToValueAtTime(tr.volume ?? 0.3, t0 + 3);
+      musicGain.gain.setValueAtTime(0, t0);
+      musicGain.gain.linearRampToValueAtTime(tr.volume ?? 0.3, t0 + 3);
     } catch {
       // e.g. file:// blocks routing; play unrouted rather than not at all.
-      shehnaiEl.volume = tr.volume ?? 0.3;
+      musicEl.volume = tr.volume ?? 0.3;
     }
-    shehnaiEl.play().catch(() => {});
+    musicEl.play().catch(() => {});
   }
 
-  /** The seal was tapped. Blow the shankh, ulu, then let the shehnai in. */
+  /** The seal was tapped. Fade the music in (and the ulu, once recorded). */
   function begin() {
     if (!hasAny() || !wanted() || started || !ensureContext()) return;
     started = true;
     ctx.resume();
-    const now = ctx.currentTime;
     const tr = tracks();
-    startShehnai(tr.shehnai?.delay ?? 3.5);
-    playClip("shankh", now + 0.05);
-    if (tr.ulu?.src) playClip("ulu", now + (tr.ulu.delay ?? 1.1));
+    startMusic(tr.music?.delay ?? 0.1);
+    if (tr.ulu?.src) playClip("ulu", ctx.currentTime + (tr.ulu.delay ?? 1.1));
     syncButton();
   }
 
@@ -99,10 +97,10 @@
       ctx.resume();
       master.gain.cancelScheduledValues(ctx.currentTime);
       master.gain.setTargetAtTime(1, ctx.currentTime, 0.15);
-      if (!shehnaiEl) { started = true; startShehnai(0.1); } else shehnaiEl.play().catch(() => {});
+      if (!musicEl) { started = true; startMusic(0.1); } else musicEl.play().catch(() => {});
     } else if (ctx) {
       master.gain.setTargetAtTime(0, ctx.currentTime, 0.12);
-      setTimeout(() => { if (!wanted()) { shehnaiEl?.pause(); ctx.suspend(); } }, 500);
+      setTimeout(() => { if (!wanted()) { musicEl?.pause(); ctx.suspend(); } }, 500);
     }
     syncButton();
     syncChip();
@@ -159,8 +157,8 @@
     btn?.addEventListener("click", () => setOn(!(wanted() && started)));
     document.addEventListener("visibilitychange", () => {
       if (!ctx || !started) return;
-      if (document.hidden) { shehnaiEl?.pause(); ctx.suspend(); }
-      else if (wanted()) { ctx.resume(); shehnaiEl?.play().catch(() => {}); }
+      if (document.hidden) { musicEl?.pause(); ctx.suspend(); }
+      else if (wanted()) { ctx.resume(); musicEl?.play().catch(() => {}); }
     });
     syncChip();
     syncButton();

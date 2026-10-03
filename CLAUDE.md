@@ -1,7 +1,7 @@
 # Subh & Sneha — interactive wedding invitation
 
 A single-page, static invitation site for the 10–13 December 2026 Kolkata wedding: a velvet curtain
-that opens to a shankh and shehnai, falling petals, a couple whose 3D avatars change into each
+that opens to the family's background music, falling petals, a couple whose 3D avatars change into each
 ceremony's outfit through a swirl of pixels in that ceremony's colours and then loop as animated cutouts, a gallery of real photos, event cards with a live countdown and directions, #TeamGroom vs
 #TeamBride polls with live results, and an RSVP form that writes to a Google Sheet. English and Bengali.
 
@@ -36,14 +36,14 @@ Guests are family and friends aged 8 to 85, mostly on a phone, opening a link so
 | `js/transitions.js` | `pixel` (the outfit breaks into pixels that swirl in 3D on a canvas and re-form; given a `ready` promise it keeps swirling until it settles, up to `maxWait`) and `fade` (reduced motion, or when pixels can't be read on `file://`) |
 | `js/alpha-video.js` | A look's looping clip: one H.264 MP4 with colour and alpha side by side, recombined by a small WebGL shader on a canvas over the still, which is hidden while the clip shows. `prepare()` downloads ahead of play. Any failure (no WebGL or codec, autoplay refused, `file://`) brings the still back |
 | `js/avatar-frame.js` | **Generated** by `tools/cutout_avatars.py`: the frame size and the couple's core width |
-| `js/audio.js` | Shankh → ulu → shehnai, started inside the seal tap; mute button in the top bar; `level()` for the backdrop, `blow()` for the hero conch |
+| `js/audio.js` | Background music (plus the ulu once recorded), started inside the seal tap; mute button in the top bar; `level()` for the backdrop, `blow()` for the hero conch |
 | `js/ambient.js` | The living backdrop: aurora, pointer-lit alpana lattice, floating Bengal motifs (`#m-*` in `index.html`) reacting to pointer, tilt, scroll and music; kantha stitches; lean-in gold buttons. Layout per section in `LAYOUT` |
 | `js/curtain.js` `petals.js` `countdown.js` `families.js` `gallery.js` `events.js` `polls.js` `rsvp.js` `confetti.js` | One file per feature, each exposing `init()` and `render()` on `window.Invite` |
 | `js/main.js` | Boot order, language switch, hero outfit buttons. On `invite:lang` it calls every `render()` |
 | `backend/google-apps-script.gs` | RSVP rows and poll votes (one per browser per question), tallies via `?type=tallies` |
 | `assets/avatars/*.webp` | The four ceremony looks, cut out by `tools/cutout_avatars.py` (rembg/BiRefNet, dev only) from the illustrated `references/{sangeet,haldi,wedding,Reception}.png`: evened to one scale, same floor line, **each centred on its own couple**, with a soft gold rim glow baked in. (`wedding-couple*.png` and `subh_sneha*.png` are earlier 3D renders, kept as source art, not shown) |
 | `assets/avatars/*.mp4` | The looks as looping animated cutouts (`avatars[].video`), cut by `tools/cutout_videos.py` from the family's Grok clips in `references/motion/`: the same matting, glow and frame as the stills, placed once per clip so frame 0 lands on the still. Colour premultiplied on the left, alpha on the right, ≤ ~1.5 MB per 6 s |
-| `assets/audio/` | `shankh.mp3`, `shehnai.mp3` (CC BY, credited in the footer). `CREDITS.md` has sources and how to add a family-recorded `ulu.mp3` |
+| `assets/audio/` | `background-audio.mp3` (the family's track, made from `background-audio.mpeg`; loops from the seal tap), `shankh.mp3` (CC BY, hero conch tap only, credited in the footer). `shehnai.mp3` is no longer played. `CREDITS.md` has sources and how to add a family-recorded `ulu.mp3` |
 | `assets/families/` | Waist-up bride and groom portraits for "Our families", cut from `references/families/` by `tools/cutout_portraits.py` (same scale, same window, each centred on its own figure) |
 | `assets/photos/` | Real photos, added only through `tools/add_photo.py` (strips GPS and camera metadata) |
 | `assets/decor/` | Painted decorations (marigold toran and thread, shola chandmala, terracotta arch, torn paper, alpana corners), made by `tools/prepare_decorations.py`. Where each goes: `invite-design-system` → Decorations |

@@ -242,14 +242,16 @@ window.INVITE = {
   audio: {
     onByDefault: true,
     tracks: {
+      // Plays only when a guest taps the hero's conch, not at the opening.
       shankh: { src: "assets/audio/shankh.mp3", volume: 0.9 },
       // Record the family's own ulu; see assets/audio/CREDITS.md.
       ulu: { src: null, volume: 0.8, delay: 1.1 },
-      shehnai: { src: "assets/audio/shehnai.mp3", volume: 0.32, delay: 3.5, loop: true },
+      // The family's background track, from the seal tap onwards.
+      music: { src: "assets/audio/background-audio.mp3", volume: 0.4, delay: 0.1, loop: true },
     },
     credits: {
-      en: "Conch recording by David Bolton (CC BY 2.5). “Veena And Shenai” by Antti Luode (CC BY 3.0).",
-      bn: "শাঁখের রেকর্ডিং: ডেভিড বোল্টন (CC BY 2.5)। “Veena And Shenai”: আন্টি লুওডে (CC BY 3.0)।",
+      en: "Conch recording by David Bolton (CC BY 2.5).",
+      bn: "শাঁখের রেকর্ডিং: ডেভিড বোল্টন (CC BY 2.5)।",
     },
   },
 

@@ -122,7 +122,7 @@ margins, never over text, and don't move, so reduced motion needs nothing extra.
 - Hero, gallery, events, polls and RSVP each get layers behind their content: drifting **aurora** colour,
   a faint **alpana lattice** brightened inside a 560px **light** that follows the pointer (and wanders when
   nobody moves), and 4–10 **motifs** at depths 0.3–1.2 that shift with pointer, phone tilt and scroll,
-  glow when the pointer is near, and breathe with the shehnai (`audio.level()`).
+  glow when the pointer is near, and breathe with the music (`audio.level()`).
 - Tones: `night` (navy), `emerald`, `paper` (cream, gold-dark ink at lower opacity).
 - Placement is `LAYOUT` in `ambient.js`, in % of the section, with a sparser `phone` set pushed to the
   edges. Keep motifs in the margins: never behind a paragraph, form field or card.
