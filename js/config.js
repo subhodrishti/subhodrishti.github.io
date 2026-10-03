@@ -182,6 +182,8 @@ window.INVITE = {
   contacts: [
     { name: "Sudeep Khasnabis", relation: { en: "Family contact", bn: "পারিবারিক যোগাযোগ" },
       numbers: [{ number: "+919830992469", call: true, whatsapp: true }] },
+    { name: "Sumita Khasnabis", relation: { en: "Family contact", bn: "পারিবারিক যোগাযোগ" },
+      numbers: [{ number: "+918902176531", call: true, whatsapp: true }] },
     { name: "Sneha Khasnabis", relation: { en: "Bride contact", bn: "কনের যোগাযোগ" },
       numbers: [{ number: "+919038742552", call: true, whatsapp: true }] },
     // { name: "…", side: "groom", relation: { en: "Groom's uncle", bn: "বরের কাকা" },
