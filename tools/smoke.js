@@ -48,12 +48,23 @@ const sizes = [
 async function wireBackend(ctx, backend) {
   await ctx.route("**/js/config.js", async (route) => {
     const res = await route.fetch();
+    // Both endpoints, so a smoke run can never write to the live Sheet.
     const body = (await res.text()) + `\nwindow.INVITE.rsvp.endpoint = ${JSON.stringify(FAKE_ENDPOINT)};\n`
+      + `window.INVITE.polls.endpoint = "";\n`
       + `Object.assign(window.INVITE.invites, ${JSON.stringify(SMOKE_INVITES)});\n`;
     await route.fulfill({ response: res, body });
   });
   await ctx.route(`${FAKE_ENDPOINT}**`, async (route) => {
     const req = route.request();
+    const fail = backend.failNext;
+    backend.failNext = null;
+    // Routed requests skip the browser's offline emulation, so drop them here.
+    if (fail === "offline") return route.abort("internetdisconnected");
+    if (fail === "html") {
+      // What Apps Script sends when the script itself fails: an HTML page with status 200.
+      await route.fulfill({ status: 200, headers: { "access-control-allow-origin": "*", "content-type": "text/html" }, body: "<!doctype html><title>Error</title><p>TypeError: Cannot read properties of null</p>" });
+      return;
+    }
     const cors = { "access-control-allow-origin": "*", "content-type": "application/json" };
     const out = req.method() === "POST"
       ? backend.post(JSON.parse(req.postData() || "{}"))
@@ -80,9 +91,11 @@ async function wireBackend(ctx, backend) {
     const tag = `${size.name}${reduced ? "-reduced" : ""}`;
     const shot = (n, opts = {}) => page.screenshot({ path: path.join(OUT, `${tag}-${n}.png`), ...opts });
     page.on("pageerror", (e) => problems.push(`${tag} pageerror: ${e.message}`));
+    let failingOnPurpose = false; // the RSVP send-error checks below
     page.on("console", (m) => {
       // 404s are reported with their URL by the response listener below.
       if (/Failed to load resource/.test(m.text())) return;
+      if (failingOnPurpose && /\[invite\] RSVP failed/.test(m.text())) return;
       // Software WebGL's performance notes about this GPU-less test machine, not the page.
       if (/GL Driver Message \(OpenGL, Performance/.test(m.text())) return;
       if (m.type() === "error" || m.type() === "warning") problems.push(`${tag} console.${m.type()}: ${m.text()}`);
@@ -236,9 +249,31 @@ async function wireBackend(ctx, backend) {
     await shot("10-rsvp-errors");
     await page.fill("#f-phone", "+91 90000 00000");
     await page.check('input[name="attending"][value="yes"]', { force: true });
+
+    // A failed send never says thank you: a script error page, then no connection
+    const sendFails = async (why, expect) => {
+      failingOnPurpose = true;
+      await page.click("#rsvp-submit");
+      await page.waitForTimeout(700);
+      failingOnPurpose = false;
+      const status = await page.$eval("#rsvp-status", (el) => ({ text: el.textContent, error: el.classList.contains("is-error") }));
+      check(!(await page.locator("#rsvp-done").isVisible()), `${tag}: ${why} still showed the thank-you`);
+      check(status.error && expect.test(status.text), `${tag}: ${why} showed "${status.text}"`);
+      check(await page.inputValue("#f-phone") === "+91 90000 00000", `${tag}: ${why} cleared the form`);
+    };
+    backend.failNext = "html";
+    await sendFails("an Apps Script error page", /wasn't saved/);
+    backend.failNext = "offline";
+    await page.context().setOffline(true);
+    await sendFails("being offline", /offline/);
+    await page.context().setOffline(false);
+    check(!backend.sheets.get("RSVPs"), `${tag}: a failed send still stored a row`);
+    await shot("10b-rsvp-send-error");
+
     await page.click("#rsvp-submit");
     await page.waitForTimeout(700);
     check(await page.locator("#rsvp-done").isVisible(), `${tag}: RSVP did not reach the thank-you state`);
+    check(!(await page.$eval("#rsvp-status", (el) => el.classList.contains("is-error"))), `${tag}: send error left showing after success`);
     const stored = backend.sheets.get("RSVPs")?.rows[1];
     check(stored && stored[9] === "en" && stored[1] === "Test Guest", `${tag}: RSVP row not stored as expected: ${JSON.stringify(stored)}`);
     if (reduced) check(!(await page.locator("canvas.confetti").count()), `${tag}: confetti ran under reduced motion`);

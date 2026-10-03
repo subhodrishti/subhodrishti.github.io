@@ -10,6 +10,15 @@
  *   4. After editing this script, Deploy → Manage deployments → edit →
  *      Version: New version. The URL stays the same.
  *
+ * Email on each RSVP (optional):
+ *   a. Project Settings (gear) → Script Properties → add NOTIFY_EMAILS with
+ *      comma-separated addresses. They stay out of the code and the repo.
+ *   b. In the editor pick testNotification and press Run once. It asks for
+ *      permission to send mail, sends a test email and logs the Sheet's URL.
+ *   c. Deploy a new version (step 4).
+ *   Poll votes are not emailed. Gmail allows about 100 recipients a day on a
+ *   personal account; past that, emails stop for the day but rows still save.
+ *
  * Tabs "RSVPs" and "Polls" are created on first write. Poll votes are keyed
  * by a random per-browser id, so changing a pick updates the row instead of
  * adding one. Guests only ever receive totals, never rows.
@@ -25,7 +34,7 @@ const EVENT_IDS = ["sangeet", "haldi", "wedding", "reception"];
 const LANGS = ["en", "bn"];
 const RSVP_HEADERS = [
   "Received (IST)", "Name", "Phone", "Attending", "Guests", "Events",
-  "Food", "Food notes", "Wishes", "Language", "Invited as", "Submitted (client)",
+  "Food", "Food notes", "Wishes", "Language", "Invited as", "Submitted (client)", "Invite",
 ];
 const POLL_HEADERS = ["Updated (IST)", "Device", "Question", "Pick"];
 const TALLY_CACHE_KEY = "poll-tallies";
@@ -33,17 +42,27 @@ const TALLY_CACHE_SECONDS = 30;
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
+  let out, mail = null;
   try {
     lock.waitLock(10000);
     const data = JSON.parse((e && e.postData && e.postData.contents) || "{}");
-    if (data.type === "rsvp") return json(saveRsvp(data));
-    if (data.type === "poll") return json(savePoll(data));
-    return json({ ok: false, error: "Unknown type" });
+    if (data.type === "rsvp") {
+      out = saveRsvp(data);
+      mail = out.saved || null;
+      delete out.saved;
+    } else if (data.type === "poll") {
+      out = savePoll(data);
+    } else {
+      out = { ok: false, error: "Unknown type" };
+    }
   } catch (err) {
-    return json({ ok: false, error: String((err && err.message) || err) });
+    out = { ok: false, error: String((err && err.message) || err) };
   } finally {
     lock.releaseLock();
   }
+  // Email after the lock is released, so a slow send never holds up other guests.
+  if (mail) notifyRsvp(mail);
+  return json(out);
 }
 
 function doGet(e) {
@@ -64,13 +83,62 @@ function saveRsvp(d) {
   const events = (Array.isArray(d.events) ? d.events : []).filter((id) => EVENT_IDS.indexOf(id) !== -1);
   const guests = attending === "Yes" ? Math.max(1, Math.min(10, Number(d.guests) || 1)) : 0;
   const lang = LANGS.indexOf(d.lang) !== -1 ? d.lang : "en";
+  // Which invite link the reply came from (js/config.js → invites).
+  const invite = /^[a-z0-9-]{1,40}$/.test(String(d.invite || "")) ? d.invite : "";
 
-  sheet("RSVPs", RSVP_HEADERS).appendRow([
-    istNow(), safe(name), safe(phone), attending, guests, events.join(", "),
-    safe(clip(d.diet, MAX.diet)), safe(clip(d.dietNotes, MAX.dietNotes)),
-    safe(clip(d.wishes, MAX.wishes)), lang, safe(clip(d.invitedAs, MAX.invitedAs)), clip(d.submittedAt, 40),
+  const row = [
+    istNow(), name, phone, attending, guests, events.join(", "),
+    clip(d.diet, MAX.diet), clip(d.dietNotes, MAX.dietNotes),
+    clip(d.wishes, MAX.wishes), lang, clip(d.invitedAs, MAX.invitedAs), clip(d.submittedAt, 40),
+    invite,
+  ];
+  sheet("RSVPs", RSVP_HEADERS).appendRow(row.map(safe));
+  return { ok: true, saved: row };
+}
+
+/* ---------- RSVP email ---------- */
+
+function notifyRsvp(row) {
+  try {
+    const to = recipients();
+    if (!to.length) return;
+    if (MailApp.getRemainingDailyQuota() < to.length) {
+      console.warn("Daily email quota used up; RSVP saved without an email.");
+      return;
+    }
+    const f = {};
+    RSVP_HEADERS.forEach((hd, i) => { f[hd] = row[i]; });
+    const who = oneLine(f.Name);
+    const subject = f.Attending === "Yes"
+      ? "RSVP: " + who + " is coming (" + f.Guests + (f.Guests === 1 ? " guest)" : " guests)")
+      : "RSVP: " + who + " can't come";
+    const lines = RSVP_HEADERS
+      .filter((hd) => f[hd] !== "" && f[hd] != null && hd !== "Submitted (client)")
+      .map((hd) => hd + ": " + f[hd]);
+    lines.push("", "All replies: " + SpreadsheetApp.getActiveSpreadsheet().getUrl());
+    MailApp.sendEmail({ to: to.join(","), subject: subject, body: lines.join("\n"), name: "Subh & Sneha invitation" });
+  } catch (err) {
+    // The reply is already saved; a failed email must not turn it into an error.
+    console.error("RSVP email failed: " + ((err && err.message) || err));
+  }
+}
+
+/** NOTIFY_EMAILS from Script Properties, comma or space separated. */
+function recipients() {
+  const raw = PropertiesService.getScriptProperties().getProperty("NOTIFY_EMAILS") || "";
+  return raw.split(/[\s,;]+/).filter((a) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(a));
+}
+
+/** Run once from the editor: grants mail permission, sends a test, logs the Sheet URL. */
+function testNotification() {
+  const to = recipients();
+  console.log("Replies are saved in: " + SpreadsheetApp.getActiveSpreadsheet().getUrl());
+  if (!to.length) throw new Error("Add NOTIFY_EMAILS in Project Settings → Script Properties first.");
+  notifyRsvp([
+    istNow(), "Test guest (ignore)", "9000000000", "Yes", 2, "wedding",
+    "Vegetarian", "", "This is a test email from the invitation backend.", "en", "", "", "",
   ]);
-  return { ok: true };
+  console.log("Test email sent to: " + to.join(", ") + ". Quota left today: " + MailApp.getRemainingDailyQuota());
 }
 
 /* ---------- Polls ---------- */
@@ -147,6 +215,10 @@ function clip(v, n) {
 // Stop a guest's text being read as a spreadsheet formula.
 function safe(v) {
   return /^[=+\-@]/.test(v) ? "'" + v : v;
+}
+
+function oneLine(v) {
+  return String(v).replace(/[\r\n\t]+/g, " ");
 }
 
 function istNow() {

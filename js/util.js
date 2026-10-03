@@ -134,25 +134,40 @@
     return id;
   }
 
-  /** POST JSON to an Apps Script web app without a CORS preflight. */
+  /** An Error whose `kind` says what went wrong: "offline", "timeout" or "server". */
+  function sendError(kind, message) {
+    return Object.assign(new Error(message), { kind });
+  }
+
+  /**
+   * POST JSON to an Apps Script web app without a CORS preflight. Resolves only
+   * when the script answers { ok: true }: Apps Script reports its own crashes,
+   * permission prompts and timeouts as an HTML page with status 200, and those
+   * must never read as a saved reply.
+   */
   async function postJSON(url, payload, { timeout = 10000 } = {}) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeout);
+    let res;
     try {
-      const res = await fetch(url, {
+      res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload),
         redirect: "follow",
         signal: ctrl.signal,
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const body = await res.json().catch(() => ({ ok: true }));
-      if (body && body.ok === false) throw new Error(body.error || "Rejected");
-      return body;
+    } catch (err) {
+      if (err.name === "AbortError") throw sendError("timeout", `No answer in ${timeout} ms`);
+      throw sendError(navigator.onLine === false ? "offline" : "server", err.message);
     } finally {
       clearTimeout(timer);
     }
+    if (!res.ok) throw sendError("server", `HTTP ${res.status}`);
+    const body = await res.json().catch(() => null);
+    if (!body) throw sendError("server", "Answer was not JSON (an Apps Script error page?)");
+    if (body.ok !== true) throw sendError("server", body.error || "Rejected");
+    return body;
   }
 
   async function getJSON(url, params, { timeout = 8000 } = {}) {

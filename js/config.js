@@ -211,7 +211,7 @@ window.INVITE = {
   polls: {
     // Votes go to polls.endpoint, or rsvp.endpoint when this is empty.
     // With no endpoint at all, picks stay on the device and no results show.
-    endpoint: "",
+    endpoint: "https://script.google.com/macros/s/AKfycbxwOR_cyB7r-MYmkHfmI3krEeSiP9EJ37-K400iDDCKzShOcBaL7jajdKOedZCjoPfb/exec",
     // Show live #TeamGroom/#TeamBride percentages after each vote.
     showResults: true,
     // Below this many votes a question shows counts, not percentages.
@@ -256,7 +256,7 @@ window.INVITE = {
   rsvp: {
     // Google Apps Script web-app URL (see backend/google-apps-script.gs).
     // Leave empty only while testing: replies are then kept on this device.
-    endpoint: "",
+    endpoint: "https://script.google.com/macros/s/AKfycbxwOR_cyB7r-MYmkHfmI3krEeSiP9EJ37-K400iDDCKzShOcBaL7jajdKOedZCjoPfb/exec",
     deadline: null, // "2026-11-15"
     maxGuests: 6,
     // `id` is what the sheet stores; labels are what guests see.

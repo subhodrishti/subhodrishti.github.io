@@ -8,6 +8,9 @@
   // Each invite code keeps its own saved reply on this device.
   const KEY = `rsvp:${window.Invite.invite.code}`;
   const errors = {}; // field → strings.js key, so errors can be re-translated
+  // postJSON's error kind → what the guest is told.
+  const SEND_ERRORS = { offline: "rsvp.errOffline", timeout: "rsvp.errSlow", server: "rsvp.errServer" };
+  let sendErrorKey = SEND_ERRORS.server;
   // form.name would be the form's own name attribute, so always go through elements.
   const field = (n) => form.elements.namedItem(n);
 
@@ -39,6 +42,7 @@
       website: String(fd.get("website") || ""),
       lang: lang(),
       invitedAs: guestName() || null,
+      invite: window.Invite.invite.code,
       submittedAt: new Date().toISOString(),
     };
   }
@@ -124,14 +128,19 @@
       delete data.website;
       if (endpoint) {
         await postJSON(endpoint, data);
-      } else {
+      } else if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) || location.protocol === "file:") {
         console.warn("[invite] rsvp.endpoint is empty in js/config.js; this reply was kept on this device only.");
+      } else {
+        // A published page with no endpoint would thank guests for replies that go nowhere.
+        throw Object.assign(new Error("rsvp.endpoint is empty in js/config.js"), { kind: "server" });
       }
       store.set(KEY, data);
       showDone(data, { celebrate: true });
     } catch (err) {
+      // Nothing was saved, so no thank-you: say what happened and keep their answers in the form.
       console.error("[invite] RSVP failed", err);
-      statusEl.textContent = t("rsvp.errSend");
+      sendErrorKey = SEND_ERRORS[err.kind] || SEND_ERRORS.server;
+      statusEl.textContent = t(sendErrorKey);
       statusEl.classList.add("is-error");
     } finally {
       sending = false;
@@ -162,7 +171,7 @@
       ? t("rsvp.deadline", { date: fmtLong(new Date(`${deadline}T12:00:00+05:30`)) })
       : t("rsvp.intro");
     for (const [name, key] of Object.entries(errors)) if (key) $(`#e-${name}`).textContent = t(key);
-    if (statusEl.classList.contains("is-error")) statusEl.textContent = t("rsvp.errSend");
+    if (statusEl.classList.contains("is-error")) statusEl.textContent = t(sendErrorKey);
     setSendLabel();
     if (!$("#rsvp-done").hidden) fillDone(store.get(KEY, readForm()));
   }

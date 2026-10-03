@@ -21,6 +21,16 @@ test("valid RSVP is stored with language and filtered events", () => {
   assert.strictEqual(row[2], "'+91 90000 00000", "phone starting with + is escaped so Sheets keeps it as text");
 });
 
+test("RSVP stores its invite code, and blanks a malformed one", () => {
+  const b = load();
+  b.post({ type: "rsvp", name: "A", phone: "9000000000", attending: "yes", invite: "t5fntb22" });
+  b.post({ type: "rsvp", name: "B", phone: "9000000001", attending: "yes", invite: "=BAD CODE" });
+  const rows = b.sheets.get("RSVPs").rows;
+  assert.strictEqual(rows[0][12], "Invite");
+  assert.strictEqual(rows[1][12], "t5fntb22");
+  assert.strictEqual(rows[2][12], "");
+});
+
 test("RSVP without name or phone is rejected", () => {
   const b = load();
   assert.strictEqual(b.post({ type: "rsvp", name: "", phone: "123" }).ok, false);
@@ -74,6 +84,56 @@ test("empty tallies before any vote", () => {
   const b = load();
   assert.deepStrictEqual(b.get({ type: "tallies" }), { ok: true, tallies: {} });
   assert.deepStrictEqual(b.get({}), { ok: true, service: "invite-rsvp" });
+});
+
+test("submittedAt can't smuggle a formula into the sheet", () => {
+  const b = load();
+  b.post({ type: "rsvp", name: "A", phone: "9000000000", attending: "no", submittedAt: "=IMPORTXML(1)" });
+  assert.strictEqual(b.sheets.get("RSVPs").rows[1][11], "'=IMPORTXML(1)");
+});
+
+test("each RSVP emails NOTIFY_EMAILS in plain text, unescaped, with the sheet link", () => {
+  const b = load();
+  b.props.set("NOTIFY_EMAILS", "a@example.com, b@example.com; not-an-address");
+  const r = b.post({ type: "rsvp", name: "Rina\nMashi", phone: "+91 90000 00000", attending: "yes", guests: 2, events: ["wedding"], invite: "t5fntb22" });
+  assert.deepStrictEqual(r, { ok: true }, "the saved row is not echoed back to the guest");
+  assert.strictEqual(b.mail.length, 1);
+  const m = b.mail[0];
+  assert.strictEqual(m.to, "a@example.com,b@example.com");
+  assert.strictEqual(m.subject, "RSVP: Rina Mashi is coming (2 guests)");
+  assert.ok(m.body.includes("Phone: +91 90000 00000"), "email shows the phone without the sheet's ' escape");
+  assert.ok(m.body.includes("Invite: t5fntb22"));
+  assert.ok(m.body.includes("https://docs.google.com/spreadsheets/d/test"));
+  assert.strictEqual(m.htmlBody, undefined);
+});
+
+test("a decline says so in the subject", () => {
+  const b = load();
+  b.props.set("NOTIFY_EMAILS", "a@example.com");
+  b.post({ type: "rsvp", name: "Dadu", phone: "9000000000", attending: "no" });
+  assert.strictEqual(b.mail[0].subject, "RSVP: Dadu can't come");
+});
+
+test("no email without recipients, for spam, for rejected RSVPs or for poll votes", () => {
+  const b = load();
+  b.post({ type: "rsvp", name: "A", phone: "9000000000", attending: "yes" });
+  b.props.set("NOTIFY_EMAILS", "a@example.com");
+  b.post({ type: "rsvp", name: "Bot", phone: "9000000000", website: "spam" });
+  b.post({ type: "rsvp", name: "", phone: "9000000000" });
+  b.post({ type: "poll", question: "ready", pick: "bride", device: "dev-aaaa-1111" });
+  assert.strictEqual(b.mail.length, 0);
+});
+
+test("an email failure or empty quota never fails the RSVP", () => {
+  const b = load();
+  b.props.set("NOTIFY_EMAILS", "a@example.com,b@example.com");
+  b.quota.fail = true;
+  assert.deepStrictEqual(b.post({ type: "rsvp", name: "A", phone: "9000000000", attending: "yes" }), { ok: true });
+  b.quota.fail = false;
+  b.quota.left = 1;
+  assert.deepStrictEqual(b.post({ type: "rsvp", name: "B", phone: "9000000001", attending: "yes" }), { ok: true });
+  assert.strictEqual(b.mail.length, 0);
+  assert.strictEqual(b.sheets.get("RSVPs").rows.length, 3);
 });
 
 let failed = 0;
