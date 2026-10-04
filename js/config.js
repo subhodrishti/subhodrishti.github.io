@@ -170,7 +170,7 @@ window.INVITE = {
     { id: "mala-badal", confirmed: true, name: { en: "Mala Badal", bn: "মালাবদল" }, short: { en: "They exchange flower garlands, with plenty of cheering.", bn: "হাসি-উল্লাসের মধ্যে ফুলের মালা বদল হয়।" } },
     { id: "saat-paak", confirmed: true, name: { en: "Saat Paak", bn: "সাত পাক" }, short: { en: "The bride is carried in seven circles around the groom.", bn: "কনেকে নিয়ে বরকে সাত বার প্রদক্ষিণ করা হয়।" } },
     { id: "sindoor-daan", confirmed: true, name: { en: "Sindoor Daan", bn: "সিঁদুর দান" }, short: { en: "A vermilion blessing marks a new chapter together.", bn: "সিঁদুরের আশীর্বাদে শুরু হয় নতুন অধ্যায়।" } },
-    { id: "bou-bhaat", confirmed: true, name: { en: "Bou Bhaat", bn: "বউভাত" }, short: { en: "The newlywed bride is welcomed with a celebratory meal.", bn: "নববধূকে স্বাগত জানিয়ে হয় আনন্দের ভোজ।" } },
+    { id: "biyer-bhoj", confirmed: true, name: { en: "Biyer Bhoj", bn: "বিয়ের ভোজ" }, short: { en: "A traditional Bengali wedding feast where family and guests come together to celebrate the marriage over an elaborate, multi-course meal.", bn: "যেখানে বাঙালির বিয়ের আনন্দ, আতিথেয়তা আর স্বাদের মিলন ঘটে একসাথে।" } },
   ],
 
   // Who guests can call or WhatsApp with a question: a phone button in the top bar,
