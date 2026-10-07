@@ -82,7 +82,7 @@ img { max-width: 100%; display: block; }
 button, input, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 a { color: inherit; }
-h1, h2, h3 { font-family: var(--f-display); font-weight: bolder; line-height: 1.05; margin: 0; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 500; line-height: 1.05; margin: 0; }
 p { margin: 0; }
 [hidden] { display: none !important; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
